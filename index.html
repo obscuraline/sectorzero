@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ZERO SECTOR MAP v0.8 — ARCHIVE TERMINAL</title>
+<title>ZERO SECTOR MAP v0.9 — ARCHIVE TERMINAL</title>
 
 <style>
 html, body {
@@ -51,6 +51,7 @@ html, body {
 .zone {
   fill: transparent;
   cursor: crosshair;
+  transition: fill .2s, stroke .2s;
 }
 
 .zone.enabled:hover {
@@ -60,9 +61,14 @@ html, body {
 }
 
 .zone.active {
-  fill: rgba(220,0,0,0.25);
-  stroke: rgba(255,0,0,0.9);
-  stroke-width: 2.6;
+  fill: rgba(220,0,0,0.28);
+  stroke: rgba(255,0,0,0.95);
+  stroke-width: 2.8;
+}
+
+/* Блокировка зон при открытом окне */
+.popup-open .zone {
+  pointer-events: none;
 }
 
 /* ===== POPUP TERMINAL ===== */
@@ -79,12 +85,8 @@ html, body {
   padding: 20px;
   display: none;
   z-index: 200;
-
   opacity: 0;
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease,
-    max-height 0.4s ease;
+  transition: opacity .35s ease, transform .35s ease;
 }
 
 #popup.visible {
@@ -112,24 +114,19 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   color: #800;
 }
 
 .popup-meta {
   flex: 1;
   font-size: 15px;
-  line-height: 1.4;
 }
 
 .popup-meta .title {
   color: #f55;
   font-size: 20px;
   margin-bottom: 6px;
-}
-
-.popup-meta .line {
-  color: #c00;
 }
 
 .popup-description {
@@ -162,7 +159,7 @@ html, body {
 
   <div id="map-wrapper">
     <svg viewBox="0 0 2048 1360" width="100%" height="100%">
-      <image href="assets/maps/open_6_6.png" width="2048" height="1360"></image>
+      <image href="assets/maps/open_1_6.png" width="2048" height="1360"></image>
 
 <!-- Зоны (без изменений координат) -->
       <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
@@ -185,9 +182,9 @@ html, body {
       <div class="popup-image">NO SIGNAL</div>
       <div class="popup-meta">
         <div class="title" id="p-title"></div>
-        <div class="line" id="p-class"></div>
-        <div class="line" id="p-status"></div>
-        <div class="line" id="p-extra"></div>
+        <div id="p-class"></div>
+        <div id="p-status"></div>
+        <div id="p-extra"></div>
       </div>
     </div>
 
@@ -198,6 +195,7 @@ html, body {
 
 <script>
 let currentStage = 6;
+let activeZone = null;
 let typingTimer = null;
 
 const data = {
@@ -250,10 +248,8 @@ function typeText(el, text) {
   el.textContent = "";
   let i = 0;
   clearInterval(typingTimer);
-
   typingTimer = setInterval(() => {
-    el.textContent += text[i];
-    i++;
+    el.textContent += text[i++];
     if (i >= text.length) clearInterval(typingTimer);
   }, 18);
 }
@@ -264,21 +260,24 @@ document.querySelectorAll('.zone').forEach(z => {
   z.addEventListener('click', () => {
     if (!z.classList.contains('enabled')) return;
 
-    const d = data[z.dataset.zone];
-    const popup = document.getElementById('popup');
+    if (activeZone) activeZone.classList.remove('active');
+    activeZone = z;
+    z.classList.add('active');
 
+    const d = data[z.dataset.zone];
     document.getElementById('p-title').textContent = d.title;
     document.getElementById('p-class').textContent = d.class;
     document.getElementById('p-status').textContent = d.status;
     document.getElementById('p-extra').textContent = d.extra;
     document.getElementById('p-desc').textContent = "";
 
+    const popup = document.getElementById('popup');
     popup.style.display = 'block';
+    document.getElementById('app').classList.add('popup-open');
+
     requestAnimationFrame(() => popup.classList.add('visible'));
 
-    setTimeout(() => {
-      typeText(document.getElementById('p-desc'), d.desc);
-    }, 500);
+    setTimeout(() => typeText(document.getElementById('p-desc'), d.desc), 500);
   });
 });
 
@@ -286,7 +285,15 @@ function closePopup() {
   clearInterval(typingTimer);
   const popup = document.getElementById('popup');
   popup.classList.remove('visible');
-  setTimeout(() => popup.style.display = 'none', 300);
+
+  setTimeout(() => {
+    popup.style.display = 'none';
+    document.getElementById('app').classList.remove('popup-open');
+    if (activeZone) {
+      activeZone.classList.remove('active');
+      activeZone = null;
+    }
+  }, 300);
 }
 
 function updateScale() {
