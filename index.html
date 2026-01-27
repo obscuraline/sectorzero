@@ -139,6 +139,16 @@ html, body {
   font-size: 16px;
   white-space: pre-wrap;
 }
+  
+  /* Блокировка всех зон, пока открыто окно */
+.popup-open .zone {
+  pointer-events: none;
+}
+
+/* Активная зона остаётся выделенной, но без hover */
+.popup-open .zone.active {
+  pointer-events: none;
+}
 
 #popup button {
   margin-top: 16px;
@@ -250,10 +260,8 @@ function typeText(el, text) {
   el.textContent = "";
   let i = 0;
   clearInterval(typingTimer);
-
   typingTimer = setInterval(() => {
-    el.textContent += text[i];
-    i++;
+    el.textContent += text[i++];
     if (i >= text.length) clearInterval(typingTimer);
   }, 18);
 }
@@ -264,21 +272,24 @@ document.querySelectorAll('.zone').forEach(z => {
   z.addEventListener('click', () => {
     if (!z.classList.contains('enabled')) return;
 
-    const d = data[z.dataset.zone];
-    const popup = document.getElementById('popup');
+    if (activeZone) activeZone.classList.remove('active');
+    activeZone = z;
+    z.classList.add('active');
 
+    const d = data[z.dataset.zone];
     document.getElementById('p-title').textContent = d.title;
     document.getElementById('p-class').textContent = d.class;
     document.getElementById('p-status').textContent = d.status;
     document.getElementById('p-extra').textContent = d.extra;
     document.getElementById('p-desc').textContent = "";
 
+    const popup = document.getElementById('popup');
     popup.style.display = 'block';
+    document.getElementById('app').classList.add('popup-open');
+
     requestAnimationFrame(() => popup.classList.add('visible'));
 
-    setTimeout(() => {
-      typeText(document.getElementById('p-desc'), d.desc);
-    }, 500);
+    setTimeout(() => typeText(document.getElementById('p-desc'), d.desc), 500);
   });
 });
 
@@ -300,3 +311,4 @@ updateScale();
 </script>
 </body>
 </html>
+
