@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>ZERO SECTOR MAP v0.9 — ARCHIVE TERMINAL</title>
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 html, body {
   margin: 0;
   padding: 0;
@@ -11,8 +14,9 @@ html, body {
   height: 100%;
   background: #000;
   color: #c00;
-  font-family: 'Courier New', monospace;
+  font-family: 'VT323', monospace;
   overflow: hidden;
+  image-rendering: pixelated;
 }
 
 #app {
@@ -20,23 +24,58 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 2.2vh 2.8vw;          /* отступы сверху/снизу и слева/справа */
+  padding: 2.2vh 2.8vw;
   box-sizing: border-box;
+  position: relative;
+  background: radial-gradient(circle at 50% 55%, #0a0002 0%, #000 70%);
+}
+
+/* scanlines */
+#app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    rgba(160,0,0,0.035) 2px,
+    rgba(160,0,0,0.035) 4px
+  );
+  z-index: 5;
+  animation: scan 80s linear infinite;
+}
+
+@keyframes scan {
+  to { background-position: 0 120px; }
+}
+
+/* vignette */
+#app::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 90%);
+  z-index: 4;
 }
 
 #content {
   flex: 1;
   display: flex;
   gap: 2.2vw;
-  min-height: 0;                  /* важно для flex-ребёнка с overflow */
+  min-height: 0;
+  position: relative;
+  z-index: 3;
 }
 
 #map-container {
-  flex: 75;                       /* ≈75% */
+  flex: 75;
   position: relative;
-  background: rgba(8, 0, 0, 0.7);
+  background: rgba(6,0,0,0.78);
   border: 1px solid #400;
   overflow: hidden;
+  box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
 }
 
 #map-wrapper {
@@ -53,101 +92,123 @@ html, body {
   width: auto;
   height: auto;
   object-fit: contain;
+  filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
+}
+
+/* лёгкий красный оверлей на карту (пункт 6) */
+#map-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(180,0,0,0.07) 0%, rgba(100,0,0,0.12) 100%);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  z-index: 2;
 }
 
 #info-panel {
-  flex: 25;                       /* ≈25% */
-  background: rgba(6, 0, 0, 0.92);
-  border: 2px solid #600;
-  box-shadow: 0 0 24px rgba(180,0,0,0.25);
-  padding: 1.8vh 1.6vw;
+  flex: 25;
+  background: rgba(4,0,0,0.94);
+  border: 2px solid #500;
+  box-shadow: 0 0 28px rgba(160,0,0,0.3);
+  padding: 2vh 1.8vw;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.2em;
+  gap: 1.1em;
+  transition: border-color 0.4s, box-shadow 0.6s;
 }
 
-#info-empty {
-  color: #600;
-  font-size: 1.1em;
-  align-self: center;
-  margin-top: 40%;
-  text-align: center;
+#info-panel.has-selection {
+  border-color: #c00;
+  box-shadow: 0 0 32px rgba(220,0,0,0.5), inset 0 0 40px rgba(160,0,0,0.2);
+  animation: panel-pulse 6s ease-in-out infinite alternate;
 }
 
-#info-content {
-  display: none;
-}
-
-#info-content.visible {
-  display: block;
+@keyframes panel-pulse {
+  0%   { box-shadow: 0 0 24px rgba(200,0,0,0.4), inset 0 0 30px rgba(160,0,0,0.15); }
+  100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
 }
 
 .zone {
   fill: transparent;
   cursor: crosshair;
-  transition: fill .2s, stroke .2s;
+  transition: fill .25s, stroke .25s;
 }
 .zone.enabled:hover {
-  fill: rgba(180,0,0,0.16);
-  stroke: rgba(200,0,0,0.75);
-  stroke-width: 2.2;
+  fill: rgba(180,0,0,0.14);
+  stroke: rgba(220,0,0,0.8);
+  stroke-width: 2.4;
 }
 .zone.active {
-  fill: rgba(220,0,0,0.32);
-  stroke: rgba(255,0,0,0.9);
+  fill: rgba(220,0,0,0.35);
+  stroke: rgba(255,60,60,0.95);
   stroke-width: 2.8;
+  filter: drop-shadow(0 0 12px #f40) drop-shadow(0 0 20px #800);
 }
 
-/* при наведении/клике на зону подсвечиваем панель */
-#info-panel.has-selection {
-  border-color: #c00;
-  box-shadow: 0 0 36px rgba(220,0,0,0.4);
-}
-
-/* типографика терминала */
+/* типографика */
 h2 {
-  color: #f44;
-  margin: 0 0 0.4em 0;
-  font-size: 1.55em;
+  color: #ff4444;
+  margin: 0 0 0.35em;
+  font-size: 2em;
+  text-shadow: 0 0 6px #f00, 0 0 12px #800;
+  animation: title-flicker 5s infinite;
 }
+
+@keyframes title-flicker {
+  0%, 92%, 94%, 96%, 100% { opacity: 1; text-shadow: 0 0 6px #f00, 0 0 12px #800; }
+  93%  { opacity: 0.92; text-shadow: 1px 0 #f00, -1px 0 #00f; }
+  95%  { opacity: 0.96; text-shadow: -1px 0 #f00, 1px 0 #0f0; }
+}
+
 .meta-line {
   color: #c60;
-  font-size: 0.96em;
+  font-size: 1.1em;
 }
 .meta-line strong {
   color: #f88;
 }
+
 .description {
-  margin-top: 1.1em;
+  margin-top: 1em;
   padding-top: 1em;
   border-top: 1px solid #500;
   white-space: pre-wrap;
-  line-height: 1.38;
-  font-size: 1.05em;
+  line-height: 1.42;
+  font-size: 1.12em;
+  color: #d33;
+}
+
+#info-empty {
+  color: #600;
+  font-size: 1.3em;
+  text-align: center;
+  margin: auto 0;
+  opacity: 0.75;
 }
 </style>
 </head>
 <body>
+
 <div id="app">
   <div id="content">
     <div id="map-container">
       <div id="map-wrapper">
         <svg viewBox="0 0 2048 1360" preserveAspectRatio="xMidYMid meet">
           <image href="assets/maps/open_6_6.png" width="2048" height="1360"></image>
+            <!-- Зоны (без изменений координат) -->
+            <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
 
-          <!-- Зоны (без изменений) -->
-      <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
+            <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
 
-      <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
+            <polygon class="zone" data-zone="3" points="978.5,456 976.5,397.5 1136,399.5 1137,427 1264,429 1270,388.5 1270,118.5 1242,118.5 1242,114 1220,114 1219,92 1198,63 701.5,64 701.5,74.5 692,74.5 692,122 631,123 631,338 813,340.5 814,386 825.5,386 892.5,457.5 978.5,456"></polygon>
 
-      <polygon class="zone" data-zone="3" points="978.5,456 976.5,397.5 1136,399.5 1137,427 1264,429 1270,388.5 1270,118.5 1242,118.5 1242,114 1220,114 1219,92 1198,63 701.5,64 701.5,74.5 692,74.5 692,122 631,123 631,338 813,340.5 814,386 825.5,386 892.5,457.5 978.5,456"></polygon>
+            <polygon class="zone" data-zone="4" points="1267,116 1269,388 1369,388.5 1368,368.5 1400,367.5 1399,429.5 1552,431 1552,427 1673,427 1673,423 1763,423 1763,408.5 1924,406.5 1924,284 2047,282 2048,102 1849,100 1849,47 1334.5,48.5 1334.5,62 1326,62 1327,113 1267,116"></polygon>
 
-      <polygon class="zone" data-zone="4" points="1267,116 1269,388 1369,388.5 1368,368.5 1400,367.5 1399,429.5 1552,431 1552,427 1673,427 1673,423 1763,423 1763,408.5 1924,406.5 1924,284 2047,282 2048,102 1849,100 1849,47 1334.5,48.5 1334.5,62 1326,62 1327,113 1267,116"></polygon>
+            <polygon class="zone" data-zone="5" points="1352,586 1355,853 1681,853 1682,795 1819,794 1818,724 1861,724 1860,665 1909,664 1906,611 1864,610 1865,579 1951,578 1952,532 2047,533 2047,415 1924,416.5 1923,405 1761,406 1761,422 1671,422 1671,426 1551,425 1551,428 1400,427 1400,365 1367,366 1366,388 1269,386.5 1263,429.5 1281,448.5 1305,552 1352,586"></polygon>
 
-      <polygon class="zone" data-zone="5" points="1352,586 1355,853 1681,853 1682,795 1819,794 1818,724 1861,724 1860,665 1909,664 1906,611 1864,610 1865,579 1951,578 1952,532 2047,533 2047,415 1924,416.5 1923,405 1761,406 1761,422 1671,422 1671,426 1551,425 1551,428 1400,427 1400,365 1367,366 1366,388 1269,386.5 1263,429.5 1281,448.5 1305,552 1352,586"></polygon>
-
-      <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
+            <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
 
         </svg>
       </div>
@@ -169,6 +230,7 @@ h2 {
 <script>
 let currentStage = 6;
 let activeZone = null;
+let typingTimer = null;
 
 const data = {
   1: {
@@ -215,15 +277,31 @@ const data = {
   }
 };
 
+
+function typeText(el, text) {
+  el.textContent = "";
+  let i = 0;
+  clearInterval(typingTimer);
+  typingTimer = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text[i++];
+    } else {
+      clearInterval(typingTimer);
+      typingTimer = null;
+    }
+  }, 38);
+}
+
 function showInfo(zoneId) {
   const d = data[zoneId];
   if (!d) return;
 
-  document.getElementById('i-title').textContent  = d.title;
-  document.getElementById('i-class').textContent  = d.class;
+  document.getElementById('i-title').textContent = d.title;
+  document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-extra').textContent  = d.extra;
-  document.getElementById('i-desc').textContent   = d.desc;
+  document.getElementById('i-extra').textContent = d.extra;
+
+  typeText(document.getElementById('i-desc'), d.desc);
 
   document.getElementById('info-empty').style.display = 'none';
   document.getElementById('info-content').classList.add('visible');
@@ -231,11 +309,16 @@ function showInfo(zoneId) {
 }
 
 function clearInfo() {
+  clearInterval(typingTimer);
+  typingTimer = null;
+
   document.getElementById('info-empty').style.display = 'block';
   document.getElementById('info-content').classList.remove('visible');
   document.getElementById('info-panel').classList.remove('has-selection');
-  activeZone?.classList.remove('active');
-  activeZone = null;
+  if (activeZone) {
+    activeZone.classList.remove('active');
+    activeZone = null;
+  }
 }
 
 document.querySelectorAll('.zone').forEach(z => {
@@ -248,7 +331,6 @@ document.querySelectorAll('.zone').forEach(z => {
     if (!z.classList.contains('enabled')) return;
 
     if (activeZone === z) {
-      // повторный клик → снимаем выделение
       clearInfo();
       return;
     }
@@ -256,17 +338,17 @@ document.querySelectorAll('.zone').forEach(z => {
     activeZone?.classList.remove('active');
     activeZone = z;
     z.classList.add('active');
-
     showInfo(zoneNum);
   });
 });
 
-// опционально: hover-подсветка без клика (можно убрать)
+// hover — preview только если ничего не выбрано
 document.querySelectorAll('.zone.enabled').forEach(z => {
   z.addEventListener('mouseenter', () => {
     if (activeZone) return;
     showInfo(+z.dataset.zone);
   });
+
   z.addEventListener('mouseleave', () => {
     if (activeZone) return;
     clearInfo();
