@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <title>ZERO SECTOR MAP v0.9 — ARCHIVE TERMINAL</title>
 <style>
+/* ============================================= */
+/*          ZERO SECTOR TERMINAL — VISUAL UPGRADE   */
+/* ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 html, body {
   margin: 0;
   padding: 0;
@@ -11,8 +17,9 @@ html, body {
   height: 100%;
   background: #000;
   color: #c00;
-  font-family: 'Courier New', monospace;
+  font-family: 'VT323', monospace;
   overflow: hidden;
+  image-rendering: pixelated;           /* для более "пиксельного" вида карты */
 }
 
 #app {
@@ -20,23 +27,71 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 2.2vh 2.8vw;          /* отступы сверху/снизу и слева/справа */
+  padding: 2.2vh 2.8vw;
   box-sizing: border-box;
+  position: relative;
+  background: radial-gradient(circle at 50% 60%, #0a0002 0%, #000 65%);
 }
 
+/* Vignette (затемнение по краям) */
+#app::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 85%);
+  z-index: 5;
+}
+
+/* Scanlines (горизонтальные линии CRT) */
+#app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(180, 0, 0, 0.04) 2px,
+    rgba(180, 0, 0, 0.04) 4px
+  );
+  z-index: 4;
+  animation: scan-move 60s linear infinite;
+}
+
+@keyframes scan-move {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100px; }   /* медленное движение вниз */
+}
+
+/* Контент */
 #content {
   flex: 1;
   display: flex;
   gap: 2.2vw;
-  min-height: 0;                  /* важно для flex-ребёнка с overflow */
+  min-height: 0;
+  z-index: 2;
 }
 
 #map-container {
-  flex: 75;                       /* ≈75% */
+  flex: 75;
   position: relative;
-  background: rgba(8, 0, 0, 0.7);
+  background: rgba(8, 0, 0, 0.75);
   border: 1px solid #400;
   overflow: hidden;
+  box-shadow: inset 0 0 60px rgba(120,0,0,0.4);
+}
+
+/* Красный оверлей на карту (пункт 6) */
+#map-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(200,0,0,0.06), rgba(120,0,0,0.12));
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: multiply;
 }
 
 #map-wrapper {
@@ -52,79 +107,107 @@ html, body {
   max-height: 100%;
   width: auto;
   height: auto;
-  object-fit: contain;
+  filter: brightness(0.95) contrast(1.08) sepia(0.15) hue-rotate(345deg);
 }
 
-#info-panel {
-  flex: 25;                       /* ≈25% */
-  background: rgba(6, 0, 0, 0.92);
-  border: 2px solid #600;
-  box-shadow: 0 0 24px rgba(180,0,0,0.25);
-  padding: 1.8vh 1.6vw;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2em;
-}
-
-#info-empty {
-  color: #600;
-  font-size: 1.1em;
-  align-self: center;
-  margin-top: 40%;
-  text-align: center;
-}
-
-#info-content {
-  display: none;
-}
-
-#info-content.visible {
-  display: block;
-}
-
+/* Зоны */
 .zone {
   fill: transparent;
   cursor: crosshair;
-  transition: fill .2s, stroke .2s;
+  transition: fill .25s, filter .4s;
 }
 .zone.enabled:hover {
-  fill: rgba(180,0,0,0.16);
-  stroke: rgba(200,0,0,0.75);
-  stroke-width: 2.2;
+  fill: rgba(180,0,0,0.18);
+  filter: drop-shadow(0 0 10px rgba(255,40,40,0.6));
+  animation: pulse-glow 2.5s infinite alternate;
 }
 .zone.active {
-  fill: rgba(220,0,0,0.32);
-  stroke: rgba(255,0,0,0.9);
-  stroke-width: 2.8;
+  fill: rgba(220,0,0,0.38);
+  filter: drop-shadow(0 0 14px #f00) drop-shadow(0 0 24px #800);
 }
 
-/* при наведении/клике на зону подсвечиваем панель */
+@keyframes pulse-glow {
+  0%   { filter: drop-shadow(0 0 8px rgba(255,60,60,0.5)); }
+  100% { filter: drop-shadow(0 0 16px rgba(255,20,20,0.9)); }
+}
+
+/* Информационная панель */
+#info-panel {
+  flex: 25;
+  background: rgba(6,0,0,0.94);
+  border: 2px solid #500;
+  box-shadow: 0 0 24px rgba(180,0,0,0.3);
+  padding: 2vh 1.8vw;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  transition: border-color .4s, box-shadow .6s;
+}
+
 #info-panel.has-selection {
   border-color: #c00;
-  box-shadow: 0 0 36px rgba(220,0,0,0.4);
+  box-shadow: 0 0 32px rgba(220,0,0,0.55), inset 0 0 40px rgba(180,0,0,0.22);
+  animation: pulse-border 5s ease-in-out infinite alternate;
 }
 
-/* типографика терминала */
-h2 {
-  color: #f44;
-  margin: 0 0 0.4em 0;
-  font-size: 1.55em;
+@keyframes pulse-border {
+  0%   { box-shadow: 0 0 24px rgba(220,0,0,0.45), inset 0 0 30px rgba(180,0,0,0.18); }
+  100% { box-shadow: 0 0 48px rgba(255,0,0,0.75), inset 0 0 60px rgba(220,0,0,0.35); }
 }
+
+/* Типографика */
+h2 {
+  color: #ff4444;
+  margin: 0 0 0.3em;
+  font-size: 2.1em;
+  text-shadow: 0 0 8px #f00, 0 0 16px #800;
+  animation: glitch-flicker 4.2s infinite;
+}
+
+@keyframes glitch-flicker {
+  0%, 19%, 21%, 23%, 100% { text-shadow: 0 0 8px #f00, 0 0 16px #800; opacity: 1; }
+  20%  { text-shadow: 2px 0 #f00, -2px 0 #00f; opacity: 0.88; }
+  22%  { text-shadow: -1px 0 #f00, 1px 0 #0f0; opacity: 0.92; }
+}
+
 .meta-line {
   color: #c60;
-  font-size: 0.96em;
+  font-size: 1.15em;
 }
 .meta-line strong {
   color: #f88;
 }
+
 .description {
-  margin-top: 1.1em;
-  padding-top: 1em;
+  margin-top: 0.8em;
+  padding-top: 0.9em;
   border-top: 1px solid #500;
   white-space: pre-wrap;
-  line-height: 1.38;
-  font-size: 1.05em;
+  line-height: 1.4;
+  font-size: 1.18em;
+  color: #d22;
+}
+
+/* Эффект печатающегося текста */
+#type-effect {
+  overflow: hidden;
+  white-space: pre-wrap;
+  animation: typing-cursor 1s steps(40) infinite;
+}
+
+@keyframes typing-cursor {
+  from, to { caret-color: transparent; }
+  50%      { caret-color: #c00; }
+}
+
+/* Пустое состояние */
+#info-empty {
+  color: #600;
+  font-size: 1.3em;
+  text-align: center;
+  margin: auto 0;
+  opacity: 0.7;
 }
 </style>
 </head>
@@ -215,6 +298,20 @@ const data = {
   }
 };
 
+function typeDescription(text) {
+  const el = document.getElementById('i-desc');
+  el.textContent = "";
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text[i];
+      i++;
+    } else {
+      clearInterval(timer);
+    }
+  }, 35);   // скорость печати — подбери под вкус
+}
+
 function showInfo(zoneId) {
   const d = data[zoneId];
   if (!d) return;
@@ -223,7 +320,9 @@ function showInfo(zoneId) {
   document.getElementById('i-class').textContent  = d.class;
   document.getElementById('i-status').textContent = d.status;
   document.getElementById('i-extra').textContent  = d.extra;
-  document.getElementById('i-desc').textContent   = d.desc;
+
+  // печатаем описание
+  typeDescription(d.desc);
 
   document.getElementById('info-empty').style.display = 'none';
   document.getElementById('info-content').classList.add('visible');
@@ -275,3 +374,4 @@ document.querySelectorAll('.zone.enabled').forEach(z => {
 </script>
 </body>
 </html>
+
