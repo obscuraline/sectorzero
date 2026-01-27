@@ -391,24 +391,35 @@ document.querySelectorAll('.zone').forEach(z => {
       showInfo(zoneNum, z, true);   // isClick = true
     });
 
-    // === Hover (только если ничего не выбрано) ===
-    z.addEventListener('mouseenter', () => {
-      if (activeZone) return;           // ← блокировка hover при активном выборе
-      if (!z.classList.contains('enabled')) return;
-      showInfo(zoneNum, z, false);
-    });
+    // === Hover (работает всегда, но только подсвечивает, если ничего не выбрано) ===
+z.addEventListener('mouseenter', () => {
+  if (!z.classList.contains('enabled')) return;
 
-    z.addEventListener('mouseleave', () => {
-      if (activeZone) return;           // не трогаем, если зона выбрана
-      if (!z.classList.contains('enabled')) return;
-      if (currentTypingZone === z) {
-        clearInfo();
-      }
-    });
+  // визуальная подсветка (если нужно дополнительно)
+  // z.classList.add('hover'); // можно добавить класс, если хочешь
+
+  // показываем информацию ТОЛЬКО если ничего не выбрано
+  if (!activeZone) {
+    showInfo(zoneNum, z, false);
+  }
+});
+
+z.addEventListener('mouseleave', () => {
+  if (!z.classList.contains('enabled')) return;
+
+  // убираем визуальную подсветку, если добавляли
+  // z.classList.remove('hover');
+
+  // очищаем информацию ТОЛЬКО если ничего не выбрано
+  if (!activeZone && currentTypingZone === z) {
+    clearInfo();
+  }
+});
   }
 });
 </script>
 </body>
 </html>
+
 
 
