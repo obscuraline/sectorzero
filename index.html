@@ -27,10 +27,10 @@ html, body {
   padding: 2.2vh 2.8vw;
   box-sizing: border-box;
   position: relative;
-  background: radial-gradient(circle at 50% 55%, #0a0002 0%, #000 70%);
+  background: #000;                      /* убрали общий градиент с #app */
 }
 
-/* scanlines */
+/* scanlines оставляем на весь экран (или можно тоже перенести на #map-container) */
 #app::before {
   content: "";
   position: fixed;
@@ -50,16 +50,6 @@ html, body {
   to { background-position: 0 120px; }
 }
 
-/* vignette */
-#app::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 90%);
-  z-index: 4;
-}
-
 #content {
   flex: 1;
   display: flex;
@@ -69,6 +59,7 @@ html, body {
   z-index: 3;
 }
 
+/* vignette ТОЛЬКО на карту */
 #map-container {
   flex: 75;
   position: relative;
@@ -76,6 +67,7 @@ html, body {
   border: 1px solid #400;
   overflow: hidden;
   box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
+  /* добавляем vignette */
 }
 
 #map-wrapper {
@@ -95,6 +87,15 @@ html, body {
   filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
 }
 
+#map-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 88%);
+  z-index: 3;                            /* выше карты, но ниже оверлея если он есть */
+}
+
 /* лёгкий красный оверлей на карту (пункт 6) */
 #map-container::after {
   content: "";
@@ -106,17 +107,30 @@ html, body {
   z-index: 2;
 }
 
+/* Улучшаем поведение пустой панели */
 #info-panel {
   flex: 25;
   background: rgba(4,0,0,0.94);
   border: 2px solid #500;
   box-shadow: 0 0 28px rgba(160,0,0,0.3);
   padding: 2vh 1.8vw;
-  overflow-y: auto;
+  overflow: hidden;                      /* ← важно, чтобы не было прокрутки пустоты */
   display: flex;
   flex-direction: column;
   gap: 1.1em;
   transition: border-color 0.4s, box-shadow 0.6s;
+}
+
+#info-content.visible {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+}
+
+/* когда ничего не выбрано — делаем панель "пустой" визуально */
+#info-panel:not(.has-selection) {
+  border-color: #500;
+  box-shadow: 0 0 16px rgba(80,0,0,0.2);
 }
 
 #info-panel.has-selection {
@@ -128,6 +142,21 @@ html, body {
 @keyframes panel-pulse {
   0%   { box-shadow: 0 0 24px rgba(200,0,0,0.4), inset 0 0 30px rgba(160,0,0,0.15); }
   100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
+}
+
+.info-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #600;
+  font-size: 1.3em;
+  text-align: center;
+  opacity: 0.75;
+}
+
+#info-panel.has-selection #info-placeholder {
+  display: none;
 }
 
 .zone {
@@ -215,13 +244,13 @@ h2 {
     </div>
 
     <div id="info-panel">
-      <div id="info-empty">Выберите сектор на карте</div>
+      <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
       <div id="info-content">
-        <h2 id="i-title"></h2>
-        <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
-        <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
-        <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
-        <div class="description" id="i-desc"></div>
+          <h2 id="i-title"></h2>
+          <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
+          <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
+          <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
+          <div class="description" id="i-desc"></div>
       </div>
     </div>
   </div>
@@ -303,7 +332,7 @@ function showInfo(zoneId) {
 
   typeText(document.getElementById('i-desc'), d.desc);
 
-  document.getElementById('info-empty').style.display = 'none';
+  document.getElementById('info-placeholder').style.display = 'none';
   document.getElementById('info-content').classList.add('visible');
   document.getElementById('info-panel').classList.add('has-selection');
 }
@@ -312,9 +341,10 @@ function clearInfo() {
   clearInterval(typingTimer);
   typingTimer = null;
 
-  document.getElementById('info-empty').style.display = 'block';
+  document.getElementById('info-placeholder').style.display = 'flex';
   document.getElementById('info-content').classList.remove('visible');
   document.getElementById('info-panel').classList.remove('has-selection');
+
   if (activeZone) {
     activeZone.classList.remove('active');
     activeZone = null;
@@ -357,3 +387,4 @@ document.querySelectorAll('.zone.enabled').forEach(z => {
 </script>
 </body>
 </html>
+
