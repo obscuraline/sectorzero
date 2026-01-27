@@ -26,16 +26,34 @@ html, body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 50%, #200000 0%, #000 75%),
+    /* вертикальные сбои */
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,0,0,0.035) 0,
+      rgba(255,0,0,0.035) 1px,
+      rgba(0,0,0,0.9) 3px,
+      rgba(0,0,0,0.9) 6px
+    ),
+
+    /* горизонтальные сканлайны */
     repeating-linear-gradient(
       0deg,
-      rgba(0,0,0,0) 0%,
-      rgba(0,0,0,0.55) 1px,
-      rgba(0,0,0,0.55) 2px,
-      rgba(0,0,0,0) 3px
+      rgba(0,0,0,0) 0,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.45) 3px,
+      rgba(0,0,0,0) 4px
+    ),
+
+    /* общая тьма */
+    radial-gradient(
+      ellipse at center,
+      rgba(40,0,0,0.35) 0%,
+      rgba(0,0,0,0.95) 70%
     );
-  background-size: 100% 100%, 100% 5px;
+
+  background-blend-mode: screen, overlay, normal;
 }
+
 
 #map-wrapper {
   position: absolute;
@@ -307,3 +325,4 @@ updateScale();
 </script>
 </body>
 </html>
+
