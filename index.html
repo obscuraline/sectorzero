@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ZERO SECTOR MAP v0.7 — ARCHIVE TERMINAL</title>
+<title>ZERO SECTOR MAP v0.8 — ARCHIVE TERMINAL</title>
 
 <style>
 html, body {
@@ -46,6 +46,8 @@ html, body {
   transform-origin: center center;
 }
 
+/* ===== ZONES ===== */
+
 .zone {
   fill: transparent;
   cursor: crosshair;
@@ -63,13 +65,13 @@ html, body {
   stroke-width: 2.6;
 }
 
-/* ==== POPUP TERMINAL ==== */
+/* ===== POPUP TERMINAL ===== */
 
 #popup {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -45%) scale(0.96);
   width: 560px;
   background: rgba(6,0,0,0.96);
   border: 2px solid #700;
@@ -77,6 +79,17 @@ html, body {
   padding: 20px;
   display: none;
   z-index: 200;
+
+  opacity: 0;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    max-height 0.4s ease;
+}
+
+#popup.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .popup-header {
@@ -124,7 +137,6 @@ html, body {
   border-top: 1px solid #500;
   padding-top: 12px;
   font-size: 16px;
-  min-height: 120px;
   white-space: pre-wrap;
 }
 
@@ -180,7 +192,6 @@ html, body {
     </div>
 
     <div class="popup-description" id="p-desc"></div>
-
     <button onclick="closePopup()">[ CLOSE TERMINAL ]</button>
   </div>
 </div>
@@ -234,10 +245,12 @@ const data = {
   }
 };
 
+
 function typeText(el, text) {
   el.textContent = "";
   let i = 0;
   clearInterval(typingTimer);
+
   typingTimer = setInterval(() => {
     el.textContent += text[i];
     i++;
@@ -250,21 +263,30 @@ document.querySelectorAll('.zone').forEach(z => {
 
   z.addEventListener('click', () => {
     if (!z.classList.contains('enabled')) return;
+
     const d = data[z.dataset.zone];
+    const popup = document.getElementById('popup');
 
     document.getElementById('p-title').textContent = d.title;
     document.getElementById('p-class').textContent = d.class;
     document.getElementById('p-status').textContent = d.status;
     document.getElementById('p-extra').textContent = d.extra;
+    document.getElementById('p-desc').textContent = "";
 
-    typeText(document.getElementById('p-desc'), d.desc);
-    document.getElementById('popup').style.display = 'block';
+    popup.style.display = 'block';
+    requestAnimationFrame(() => popup.classList.add('visible'));
+
+    setTimeout(() => {
+      typeText(document.getElementById('p-desc'), d.desc);
+    }, 500);
   });
 });
 
 function closePopup() {
   clearInterval(typingTimer);
-  document.getElementById('popup').style.display = 'none';
+  const popup = document.getElementById('popup');
+  popup.classList.remove('visible');
+  setTimeout(() => popup.style.display = 'none', 300);
 }
 
 function updateScale() {
@@ -272,10 +294,9 @@ function updateScale() {
   document.getElementById('map-wrapper').style.transform =
     `translate(-50%, -50%) scale(${s})`;
 }
+
 window.addEventListener('resize', updateScale);
 updateScale();
 </script>
 </body>
 </html>
-
-
