@@ -2,138 +2,157 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ZERO SECTOR MAP v0.6 - ARCHIVE TERMINAL</title>
+<title>ZERO SECTOR MAP v0.7 — ARCHIVE TERMINAL</title>
+
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-    color: #c00;
-    font-family: 'Courier New', Courier, monospace;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  color: #c00;
+  font-family: 'Courier New', monospace;
+}
 
-  #app {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
 
-  #viewport {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    background: 
-      radial-gradient(circle at 50% 50%, #200000 0%, #000 75%),
-      repeating-linear-gradient(
-        0deg,
-        rgba(0,0,0,0) 0%,
-        rgba(0,0,0,0.55) 1px,
-        rgba(0,0,0,0.55) 2px,
-        rgba(0,0,0,0) 3px
-      );
-    background-size: 100% 100%, 100% 5px;
-  }
+#viewport {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, #200000 0%, #000 75%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.55) 1px,
+      rgba(0,0,0,0.55) 2px,
+      rgba(0,0,0,0) 3px
+    );
+  background-size: 100% 100%, 100% 5px;
+}
 
-  #map-wrapper {
-    position: absolute;
-    width: 2048px;
-    height: 1360px;
-    top: 50%;
-    left: 50%;
-    transform-origin: center center;
-  }
+#map-wrapper {
+  position: absolute;
+  width: 2048px;
+  height: 1360px;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+}
 
-  #map-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    image-rendering: crisp-edges;
-  }
+.zone {
+  fill: transparent;
+  cursor: crosshair;
+}
 
-  .zone {
-    fill: transparent;
-    stroke: none;
-    cursor: crosshair;
-    transition: fill 0.22s ease, stroke 0.18s ease;
-  }
+.zone.enabled:hover {
+  fill: rgba(180,0,0,0.15);
+  stroke: rgba(200,0,0,0.8);
+  stroke-width: 2.4;
+}
 
-  .zone.enabled:hover {
-    fill: rgba(180, 0, 0, 0.14);
-    stroke: rgba(200, 0, 0, 0.75);
-    stroke-width: 2.4;
-    animation: glitch 1.8s infinite linear;
-  }
+.zone.active {
+  fill: rgba(220,0,0,0.25);
+  stroke: rgba(255,0,0,0.9);
+  stroke-width: 2.6;
+}
 
-  .zone.active {
-    fill: rgba(200, 0, 0, 0.22) !important;
-    stroke: rgba(220, 0, 0, 0.85) !important;
-    stroke-width: 2.6 !important;
-  }
+/* ==== POPUP TERMINAL ==== */
 
-  @keyframes glitch {
-    0%   { transform: translate(0); }
-    4%   { transform: translate(-1px, 1px); opacity: 0.94; }
-    8%   { transform: translate(1px, -1px); opacity: 1; }
-    12%  { transform: translate(-1.5px, 0.5px); }
-    16%  { transform: translate(0); }
-    100% { transform: translate(0); }
-  }
+#popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  background: rgba(6,0,0,0.96);
+  border: 2px solid #700;
+  box-shadow: 0 0 30px rgba(200,0,0,0.35);
+  padding: 20px;
+  display: none;
+  z-index: 200;
+}
 
-  .popup-open .zone {
-    pointer-events: none;
-  }
+.popup-header {
+  display: flex;
+  gap: 16px;
+}
 
-  #popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 460px;
-    background: rgba(8, 0, 0, 0.94);
-    border: 2px solid #600;
-    box-shadow: 0 0 28px rgba(180,0,0,0.3);
-    color: #c00;
-    padding: 24px 32px;
-    display: none;
-    z-index: 200;
-    font-size: 18px;
-    line-height: 1.45;
-  }
+.popup-image {
+  width: 140px;
+  height: 140px;
+  border: 2px solid #600;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(200,0,0,0.15),
+      rgba(200,0,0,0.15) 6px,
+      rgba(0,0,0,0.2) 6px,
+      rgba(0,0,0,0.2) 12px
+    );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #800;
+}
 
-  #popup strong {
-    color: #f44;
-  }
+.popup-meta {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.4;
+}
 
-  #popup button {
-    margin-top: 20px;
-    padding: 8px 24px;
-    background: transparent;
-    color: #c00;
-    border: 2px solid #800;
-    font-family: inherit;
-    font-size: 18px;
-    cursor: pointer;
-  }
+.popup-meta .title {
+  color: #f55;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
 
-  #popup button:hover {
-    background: rgba(180,0,0,0.15);
-    border-color: #c00;
-  }
+.popup-meta .line {
+  color: #c00;
+}
+
+.popup-description {
+  margin-top: 16px;
+  border-top: 1px solid #500;
+  padding-top: 12px;
+  font-size: 16px;
+  min-height: 120px;
+  white-space: pre-wrap;
+}
+
+#popup button {
+  margin-top: 16px;
+  padding: 6px 18px;
+  background: transparent;
+  color: #c00;
+  border: 2px solid #700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+#popup button:hover {
+  background: rgba(180,0,0,0.15);
+}
 </style>
 </head>
-<body>
 
+<body>
 <div id="app">
   <div id="viewport"></div>
 
   <div id="map-wrapper">
-    <svg id="map-svg" viewBox="0 0 2048 1360">
+    <svg viewBox="0 0 2048 1360" width="100%" height="100%">
       <image href="assets/maps/open_1_6.png" width="2048" height="1360"></image>
 
-      <!-- Зоны (без изменений координат) -->
+<!-- Зоны (без изменений координат) -->
       <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
 
       <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
@@ -145,20 +164,32 @@
       <polygon class="zone" data-zone="5" points="1352,586 1355,853 1681,853 1682,795 1819,794 1818,724 1861,724 1860,665 1909,664 1906,611 1864,610 1865,579 1951,578 1952,532 2047,533 2047,415 1924,416.5 1923,405 1761,406 1761,422 1671,422 1671,426 1551,425 1551,428 1400,427 1400,365 1367,366 1366,388 1269,386.5 1263,429.5 1281,448.5 1305,552 1352,586"></polygon>
 
       <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
+
     </svg>
   </div>
 
   <div id="popup">
-    <div id="popup-content"></div>
-    <button onclick="closePopup()">[ ЗАКРЫТЬ ]</button>
+    <div class="popup-header">
+      <div class="popup-image">NO SIGNAL</div>
+      <div class="popup-meta">
+        <div class="title" id="p-title"></div>
+        <div class="line" id="p-class"></div>
+        <div class="line" id="p-status"></div>
+        <div class="line" id="p-extra"></div>
+      </div>
+    </div>
+
+    <div class="popup-description" id="p-desc"></div>
+
+    <button onclick="closePopup()">[ CLOSE TERMINAL ]</button>
   </div>
 </div>
 
 <script>
-let currentStage = 1;
-let currentlyActiveZone = null;
+let currentStage = 6;
+let typingTimer = null;
 
-const zoneData = {
+const data = {
   1: `
 <strong>TRANSIT STATION</strong><br>
 Auxiliary Transport and Service Area<br>
@@ -205,49 +236,47 @@ Access: Limited / Not Recommended<br><br>
 `
 };
 
-const mapWrapper = document.getElementById('map-wrapper');
-const mapBaseImage = document.querySelector('#map-svg image');
-const zones = document.querySelectorAll('.zone');
-const popup = document.getElementById('popup');
-const popupContent = document.getElementById('popup-content');
-const app = document.getElementById('app');
 
-function updateScale() {
-  const scale = Math.min(window.innerWidth / 2048, window.innerHeight / 1360);
-  mapWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+function typeText(el, text) {
+  el.textContent = "";
+  let i = 0;
+  clearInterval(typingTimer);
+  typingTimer = setInterval(() => {
+    el.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(typingTimer);
+  }, 18);
 }
 
-zones.forEach(zone => {
-  zone.addEventListener('click', () => {
-    if (!zone.classList.contains('enabled')) return;
+document.querySelectorAll('.zone').forEach(z => {
+  if (+z.dataset.zone <= currentStage) z.classList.add('enabled');
 
-    if (currentlyActiveZone) {
-      currentlyActiveZone.classList.remove('active');
-    }
+  z.addEventListener('click', () => {
+    if (!z.classList.contains('enabled')) return;
+    const d = data[z.dataset.zone];
 
-    zone.classList.add('active');
-    currentlyActiveZone = zone;
+    document.getElementById('p-title').textContent = d.title;
+    document.getElementById('p-class').textContent = d.class;
+    document.getElementById('p-status').textContent = d.status;
+    document.getElementById('p-extra').textContent = d.extra;
 
-    popupContent.innerHTML = zoneData[zone.dataset.zone];
-    popup.style.display = 'block';
-    app.classList.add('popup-open');
+    typeText(document.getElementById('p-desc'), d.desc);
+    document.getElementById('popup').style.display = 'block';
   });
 });
 
 function closePopup() {
-  popup.style.display = 'none';
-  if (currentlyActiveZone) {
-    currentlyActiveZone.classList.remove('active');
-    currentlyActiveZone = null;
-  }
-  app.classList.remove('popup-open');
+  clearInterval(typingTimer);
+  document.getElementById('popup').style.display = 'none';
 }
 
+function updateScale() {
+  const s = Math.min(innerWidth / 2048, innerHeight / 1360);
+  document.getElementById('map-wrapper').style.transform =
+    `translate(-50%, -50%) scale(${s})`;
+}
 window.addEventListener('resize', updateScale);
 updateScale();
-zones.forEach(z => z.classList.toggle('enabled', Number(z.dataset.zone) <= currentStage));
 </script>
-
 </body>
 </html>
-
