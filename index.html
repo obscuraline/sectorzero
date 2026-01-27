@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>ZERO SECTOR MAP v0.9 — ARCHIVE TERMINAL</title>
-
 <style>
 html, body {
   margin: 0;
@@ -11,148 +10,133 @@ html, body {
   width: 100%;
   height: 100%;
   background: #000;
-  overflow: hidden;
   color: #c00;
   font-family: 'Courier New', monospace;
+  overflow: hidden;
 }
 
 #app {
   width: 100%;
   height: 100%;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 2.2vh 2.8vw;          /* отступы сверху/снизу и слева/справа */
+  box-sizing: border-box;
 }
 
-#viewport {
-  position: absolute;
-  inset: 0;
+#content {
+  flex: 1;
+  display: flex;
+  gap: 2.2vw;
+  min-height: 0;                  /* важно для flex-ребёнка с overflow */
+}
+
+#map-container {
+  flex: 75;                       /* ≈75% */
+  position: relative;
+  background: rgba(8, 0, 0, 0.7);
+  border: 1px solid #400;
+  overflow: hidden;
 }
 
 #map-wrapper {
   position: absolute;
-  width: 2048px;
-  height: 1360px;
-  top: 50%;
-  left: 50%;
-  transform-origin: center center;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+#map-wrapper svg {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
 
-/* ===== ZONES ===== */
+#info-panel {
+  flex: 25;                       /* ≈25% */
+  background: rgba(6, 0, 0, 0.92);
+  border: 2px solid #600;
+  box-shadow: 0 0 24px rgba(180,0,0,0.25);
+  padding: 1.8vh 1.6vw;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+}
+
+#info-empty {
+  color: #600;
+  font-size: 1.1em;
+  align-self: center;
+  margin-top: 40%;
+  text-align: center;
+}
+
+#info-content {
+  display: none;
+}
+
+#info-content.visible {
+  display: block;
+}
 
 .zone {
   fill: transparent;
   cursor: crosshair;
   transition: fill .2s, stroke .2s;
 }
-
 .zone.enabled:hover {
-  fill: rgba(180,0,0,0.15);
-  stroke: rgba(200,0,0,0.8);
-  stroke-width: 2.4;
+  fill: rgba(180,0,0,0.16);
+  stroke: rgba(200,0,0,0.75);
+  stroke-width: 2.2;
 }
-
 .zone.active {
-  fill: rgba(220,0,0,0.28);
-  stroke: rgba(255,0,0,0.95);
+  fill: rgba(220,0,0,0.32);
+  stroke: rgba(255,0,0,0.9);
   stroke-width: 2.8;
 }
 
-/* Блокировка зон при открытом окне */
-.popup-open .zone {
-  pointer-events: none;
+/* при наведении/клике на зону подсвечиваем панель */
+#info-panel.has-selection {
+  border-color: #c00;
+  box-shadow: 0 0 36px rgba(220,0,0,0.4);
 }
 
-/* ===== POPUP TERMINAL ===== */
-
-#popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -45%) scale(0.96);
-  width: 560px;
-  background: rgba(6,0,0,0.96);
-  border: 2px solid #700;
-  box-shadow: 0 0 30px rgba(200,0,0,0.35);
-  padding: 20px;
-  display: none;
-  z-index: 200;
-  opacity: 0;
-  transition: opacity .35s ease, transform .35s ease;
+/* типографика терминала */
+h2 {
+  color: #f44;
+  margin: 0 0 0.4em 0;
+  font-size: 1.55em;
 }
-
-#popup.visible {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+.meta-line {
+  color: #c60;
+  font-size: 0.96em;
 }
-
-.popup-header {
-  display: flex;
-  gap: 16px;
+.meta-line strong {
+  color: #f88;
 }
-
-.popup-image {
-  width: 140px;
-  height: 140px;
-  border: 2px solid #600;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(200,0,0,0.15),
-      rgba(200,0,0,0.15) 6px,
-      rgba(0,0,0,0.2) 6px,
-      rgba(0,0,0,0.2) 12px
-    );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: #800;
-}
-
-.popup-meta {
-  flex: 1;
-  font-size: 15px;
-}
-
-.popup-meta .title {
-  color: #f55;
-  font-size: 20px;
-  margin-bottom: 6px;
-}
-
-.popup-description {
-  margin-top: 16px;
+.description {
+  margin-top: 1.1em;
+  padding-top: 1em;
   border-top: 1px solid #500;
-  padding-top: 12px;
-  font-size: 16px;
   white-space: pre-wrap;
-}
-
-#popup button {
-  margin-top: 16px;
-  padding: 6px 18px;
-  background: transparent;
-  color: #c00;
-  border: 2px solid #700;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-#popup button:hover {
-  background: rgba(180,0,0,0.15);
+  line-height: 1.38;
+  font-size: 1.05em;
 }
 </style>
 </head>
-
 <body>
 <div id="app">
-  <div id="viewport"></div>
+  <div id="content">
+    <div id="map-container">
+      <div id="map-wrapper">
+        <svg viewBox="0 0 2048 1360" preserveAspectRatio="xMidYMid meet">
+          <image href="assets/maps/open_6_6.png" width="2048" height="1360"></image>
 
-  <div id="map-wrapper">
-    <svg viewBox="0 0 2048 1360" width="100%" height="100%">
-      <image href="assets/maps/open_6_6.png" width="2048" height="1360"></image>
-
-<!-- Зоны (без изменений координат) -->
+          <!-- Зоны (без изменений) -->
       <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
 
       <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
@@ -165,29 +149,26 @@ html, body {
 
       <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
 
-    </svg>
-  </div>
-
-  <div id="popup">
-    <div class="popup-header">
-      <div class="popup-image">NO SIGNAL</div>
-      <div class="popup-meta">
-        <div class="title" id="p-title"></div>
-        <div id="p-class"></div>
-        <div id="p-status"></div>
-        <div id="p-extra"></div>
+        </svg>
       </div>
     </div>
 
-    <div class="popup-description" id="p-desc"></div>
-    <button onclick="closePopup()">[ CLOSE TERMINAL ]</button>
+    <div id="info-panel">
+      <div id="info-empty">Выберите сектор на карте</div>
+      <div id="info-content">
+        <h2 id="i-title"></h2>
+        <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
+        <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
+        <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
+        <div class="description" id="i-desc"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 let currentStage = 6;
 let activeZone = null;
-let typingTimer = null;
 
 const data = {
   1: {
@@ -234,67 +215,63 @@ const data = {
   }
 };
 
+function showInfo(zoneId) {
+  const d = data[zoneId];
+  if (!d) return;
 
-function typeText(el, text) {
-  el.textContent = "";
-  let i = 0;
-  clearInterval(typingTimer);
-  typingTimer = setInterval(() => {
-    el.textContent += text[i++];
-    if (i >= text.length) clearInterval(typingTimer);
-  }, 18);
+  document.getElementById('i-title').textContent  = d.title;
+  document.getElementById('i-class').textContent  = d.class;
+  document.getElementById('i-status').textContent = d.status;
+  document.getElementById('i-extra').textContent  = d.extra;
+  document.getElementById('i-desc').textContent   = d.desc;
+
+  document.getElementById('info-empty').style.display = 'none';
+  document.getElementById('info-content').classList.add('visible');
+  document.getElementById('info-panel').classList.add('has-selection');
+}
+
+function clearInfo() {
+  document.getElementById('info-empty').style.display = 'block';
+  document.getElementById('info-content').classList.remove('visible');
+  document.getElementById('info-panel').classList.remove('has-selection');
+  activeZone?.classList.remove('active');
+  activeZone = null;
 }
 
 document.querySelectorAll('.zone').forEach(z => {
-  if (+z.dataset.zone <= currentStage) z.classList.add('enabled');
+  const zoneNum = +z.dataset.zone;
+  if (zoneNum <= currentStage) {
+    z.classList.add('enabled');
+  }
 
   z.addEventListener('click', () => {
     if (!z.classList.contains('enabled')) return;
 
-    if (activeZone) activeZone.classList.remove('active');
+    if (activeZone === z) {
+      // повторный клик → снимаем выделение
+      clearInfo();
+      return;
+    }
+
+    activeZone?.classList.remove('active');
     activeZone = z;
     z.classList.add('active');
 
-    const d = data[z.dataset.zone];
-    document.getElementById('p-title').textContent = d.title;
-    document.getElementById('p-class').textContent = d.class;
-    document.getElementById('p-status').textContent = d.status;
-    document.getElementById('p-extra').textContent = d.extra;
-    document.getElementById('p-desc').textContent = "";
-
-    const popup = document.getElementById('popup');
-    popup.style.display = 'block';
-    document.getElementById('app').classList.add('popup-open');
-
-    requestAnimationFrame(() => popup.classList.add('visible'));
-
-    setTimeout(() => typeText(document.getElementById('p-desc'), d.desc), 500);
+    showInfo(zoneNum);
   });
 });
 
-function closePopup() {
-  clearInterval(typingTimer);
-  const popup = document.getElementById('popup');
-  popup.classList.remove('visible');
-
-  setTimeout(() => {
-    popup.style.display = 'none';
-    document.getElementById('app').classList.remove('popup-open');
-    if (activeZone) {
-      activeZone.classList.remove('active');
-      activeZone = null;
-    }
-  }, 300);
-}
-
-function updateScale() {
-  const s = Math.min(innerWidth / 2048, innerHeight / 1360);
-  document.getElementById('map-wrapper').style.transform =
-    `translate(-50%, -50%) scale(${s})`;
-}
-
-window.addEventListener('resize', updateScale);
-updateScale();
+// опционально: hover-подсветка без клика (можно убрать)
+document.querySelectorAll('.zone.enabled').forEach(z => {
+  z.addEventListener('mouseenter', () => {
+    if (activeZone) return;
+    showInfo(+z.dataset.zone);
+  });
+  z.addEventListener('mouseleave', () => {
+    if (activeZone) return;
+    clearInfo();
+  });
+});
 </script>
 </body>
 </html>
