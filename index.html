@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cousine&display=swap');
 
 html, body, #info-panel, h2, .description, .meta-line {
-  font-family: Cousine, monospace;
+  font-family: Consolas, 'Courier New', monospace;
 }
 
 html, body {
@@ -122,6 +122,7 @@ html, body {
   flex-direction: column;
   gap: 1.1em;
   transition: border-color 0.4s, box-shadow 0.6s;
+  color: #c33;
 }
 
 #info-content {
@@ -195,35 +196,31 @@ html, body {
 
 /* типографика */
 h2 {
-  color: #ff4444;
-  margin: 0 0 0.35em;
-  font-size: 2em;
-  text-shadow: 0 0 6px #f00, 0 0 12px #800;
-  animation: title-flicker 5s infinite;
+  color: #e00;                      /* чуть более тёмный красный */
+  text-shadow: none;                /* убрать glow полностью */
+  font-weight: 500;                 /* не жирный */
+  letter-spacing: 0.5px;            /* лёгкий разряд */
 }
-
 @keyframes title-flicker {
   0%, 92%, 94%, 96%, 100% { opacity: 1; text-shadow: 0 0 6px #f00, 0 0 12px #800; }
   93%  { opacity: 0.92; text-shadow: 1px 0 #f00, -1px 0 #00f; }
   95%  { opacity: 0.96; text-shadow: -1px 0 #f00, 1px 0 #0f0; }
 }
 
+.meta-line strong,
 .meta-line {
-  color: #c60;
-  font-size: 1.1em;
+  color: #c40;                      /* приглушённый оранжево-красный */
+  text-shadow: none;
 }
-.meta-line strong {
-  color: #f88;
-}
-
+  
 .description {
   margin-top: 1em;
   padding-top: 1em;
   border-top: 1px solid #500;
   white-space: pre-wrap;
-  line-height: 1.42;
   font-size: 1.12em;
-  color: #d33;
+  color: #b22;                      /* чуть темнее */
+  line-height: 1.45;
 }
 
 #info-empty {
@@ -423,6 +420,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
