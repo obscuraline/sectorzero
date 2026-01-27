@@ -121,10 +121,22 @@ html, body {
   transition: border-color 0.4s, box-shadow 0.6s;
 }
 
-#info-content.visible {
+#info-content {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s; /* visibility после opacity */
   display: flex;
   flex-direction: column;
+  gap: 0.8em;
+}
+
+#info-content.visible {
+  visibility: visible;
+  height: auto;
   opacity: 1;
+  transition: opacity 0.25s ease, visibility 0s linear 0s; /* сразу visible */
 }
 
 /* когда ничего не выбрано — делаем панель "пустой" визуально */
@@ -144,7 +156,8 @@ html, body {
   100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
 }
 
-.info-placeholder {
+/* placeholder всегда виден, когда контент скрыт */
+#info-placeholder {
   flex: 1;
   display: flex;
   align-items: center;
@@ -155,7 +168,8 @@ html, body {
   opacity: 0.75;
 }
 
-#info-panel.has-selection #info-placeholder {
+#info-panel.has-selection #info-placeholder,
+#info-panel.preview-active #info-placeholder {  /* если хочешь отдельный класс для hover */
   display: none;
 }
 
@@ -321,32 +335,50 @@ function typeText(el, text) {
   }, 38);
 }
 
-function showInfo(zoneId) {
+function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
 
+  // всегда очищаем перед заполнением (важно!)
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-extra').textContent = d.extra;
+  document.getElementById('i-extra').textContent = d.extra || ''; // на всякий случай
+  document.getElementById('i-desc').textContent = ''; // мгновенная очистка
 
+  // запускаем печать
   typeText(document.getElementById('i-desc'), d.desc);
 
   document.getElementById('info-placeholder').style.display = 'none';
   document.getElementById('info-content').classList.add('visible');
-  document.getElementById('info-panel').classList.add('has-selection');
+
+  // если это hover — можно добавить класс для отличия стиля (опционально)
+  if (isHover) {
+    document.getElementById('info-panel').classList.add('preview-active');
+  } else {
+    document.getElementById('info-panel').classList.add('has-selection');
+  }
 }
 
-function clearInfo() {
+function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
 
+  // принудительная очистка ВСЕХ полей
+  document.getElementById('i-title').textContent = '';
+  document.getElementById('i-class').textContent = '';
+  document.getElementById('i-status').textContent = '';
+  document.getElementById('i-extra').textContent = '';
+  document.getElementById('i-desc').textContent = '';
+
   document.getElementById('info-placeholder').style.display = 'flex';
   document.getElementById('info-content').classList.remove('visible');
-  document.getElementById('info-panel').classList.remove('has-selection');
 
-  if (activeZone) {
-    activeZone.classList.remove('active');
+  if (isHover) {
+    document.getElementById('info-panel').classList.remove('preview-active');
+  } else {
+    document.getElementById('info-panel').classList.remove('has-selection');
+    activeZone?.classList.remove('active');
     activeZone = null;
   }
 }
@@ -357,36 +389,38 @@ document.querySelectorAll('.zone').forEach(z => {
     z.classList.add('enabled');
   }
 
+  // click остаётся почти без изменений, но используем showInfo без isHover
   z.addEventListener('click', () => {
     if (!z.classList.contains('enabled')) return;
 
     if (activeZone === z) {
-      clearInfo();
+      clearInfo(false);
       return;
     }
 
     activeZone?.classList.remove('active');
     activeZone = z;
     z.classList.add('active');
-    showInfo(zoneNum);
+    showInfo(+z.dataset.zone, false);   // ← isHover = false
   });
 });
 
-// hover — preview только если ничего не выбрано
-document.querySelectorAll('.zone.enabled').forEach(z => {
-  z.addEventListener('mouseenter', () => {
-    if (activeZone) return;
-    showInfo(+z.dataset.zone);
-  });
+// hover
+z.addEventListener('mouseenter', () => {
+  if (activeZone) return;
+  if (!z.classList.contains('enabled')) return;
+  showInfo(+z.dataset.zone, true);   // ← isHover = true
+});
 
-  z.addEventListener('mouseleave', () => {
-    if (activeZone) return;
-    clearInfo();
-  });
+z.addEventListener('mouseleave', () => {
+  if (activeZone) return;
+  if (!z.classList.contains('enabled')) return;
+  clearInfo(true);                   // ← isHover = true
 });
 </script>
 </body>
 </html>
+
 
 
 
