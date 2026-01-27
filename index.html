@@ -325,17 +325,15 @@ function showInfo(zoneId) {
   const d = data[zoneId];
   if (!d) return;
 
-  // Заполняем поля
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-extra').textContent = d.extra || '';  // на случай пустой строки
+  document.getElementById('i-extra').textContent = d.extra;
 
   typeText(document.getElementById('i-desc'), d.desc);
 
-  // Показываем контент, скрываем placeholder
   document.getElementById('info-placeholder').style.display = 'none';
-  document.getElementById('info-content').style.display = 'flex';
+  document.getElementById('info-content').classList.add('visible');
   document.getElementById('info-panel').classList.add('has-selection');
 }
 
@@ -343,16 +341,8 @@ function clearInfo() {
   clearInterval(typingTimer);
   typingTimer = null;
 
-  // Полностью очищаем текстовые поля (важно!)
-  document.getElementById('i-title').textContent = '';
-  document.getElementById('i-class').textContent = '';
-  document.getElementById('i-status').textContent = '';
-  document.getElementById('i-extra').textContent = '';
-  document.getElementById('i-desc').textContent = '';
-
-  // Возвращаем placeholder и скрываем контент
   document.getElementById('info-placeholder').style.display = 'flex';
-  document.getElementById('info-content').style.display = 'none';
+  document.getElementById('info-content').classList.remove('visible');
   document.getElementById('info-panel').classList.remove('has-selection');
 
   if (activeZone) {
@@ -397,5 +387,6 @@ document.querySelectorAll('.zone.enabled').forEach(z => {
 </script>
 </body>
 </html>
+
 
 
