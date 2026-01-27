@@ -23,25 +23,19 @@ html, body {
 }
 
 #viewport {
+  position: absolute;
+  inset: 0;
   background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,0,0,0.03) 0,
-      rgba(255,0,0,0.03) 2px,
-      rgba(0,0,0,0.95) 4px
-    ),
+    radial-gradient(circle at 50% 50%, #200000 0%, #000 75%),
     repeating-linear-gradient(
       0deg,
-      rgba(0,0,0,0.85) 0,
-      rgba(0,0,0,0.85) 3px,
-      rgba(50,0,0,0.4) 6px
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.55) 1px,
+      rgba(0,0,0,0.55) 2px,
+      rgba(0,0,0,0) 3px
     );
+  background-size: 100% 100%, 100% 5px;
 }
-
-#viewport {
-  animation: flicker 3s infinite;
-}
-
 
 #map-wrapper {
   position: absolute;
@@ -313,6 +307,3 @@ updateScale();
 </script>
 </body>
 </html>
-
-
-
