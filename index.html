@@ -45,6 +45,8 @@ html, body {
 #map-wrapper {
   width: 100%;
   height: 100%;
+  pointer-events: auto;
+  z-index: 2;
 }
 
 svg {
@@ -60,12 +62,7 @@ svg {
   transition: fill .2s, stroke .2s;
 }
 
-.zone.enabled:hover {
-  fill: rgba(180,0,0,0.15);
-  stroke: rgba(200,0,0,0.8);
-  stroke-width: 2.4;
-}
-
+.zone.enabled:hover,
 .zone.active {
   fill: rgba(220,0,0,0.28);
   stroke: rgba(255,0,0,0.95);
@@ -81,6 +78,8 @@ svg {
   display: flex;
   flex-direction: column;
   box-shadow: inset 0 0 30px rgba(200,0,0,0.25);
+  pointer-events: auto;
+  z-index: 3;
 }
 
 .info-header {
@@ -234,3 +233,4 @@ function updateInfo(zone, lock=false) {
 </script>
 </body>
 </html>
+
