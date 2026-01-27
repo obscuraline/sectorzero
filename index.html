@@ -50,16 +50,6 @@ html, body {
   to { background-position: 0 120px; }
 }
 
-/* vignette */
-#app::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 90%);
-  z-index: 4;
-}
-
 #content {
   flex: 1;
   display: flex;
@@ -93,6 +83,17 @@ html, body {
   height: auto;
   object-fit: contain;
   filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
+}
+
+/* Добавляем vignette ТОЛЬКО на область карты */
+#map-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 90%);
+  z-index: 3;                    /* выше карты, но ниже интерактивных элементов */
+  mix-blend-mode: multiply;      /* опционально, делает затемнение естественнее */
 }
 
 /* лёгкий красный оверлей на карту (пункт 6) */
@@ -187,6 +188,16 @@ h2 {
   margin: auto 0;
   opacity: 0.75;
 }
+
+#info-content {
+  display: none;
+}
+
+#info-content.visible {
+  display: flex;          /* или display: block; */
+  flex-direction: column;
+}
+  
 </style>
 </head>
 <body>
@@ -314,33 +325,21 @@ function clearInfo() {
 
   document.getElementById('info-empty').style.display = 'block';
   document.getElementById('info-content').classList.remove('visible');
+  
+  // принудительно очищаем текст (на случай глюков)
+  document.getElementById('i-desc').textContent = '';
+  document.getElementById('i-title').textContent = '';
+  document.getElementById('i-class').textContent = '';
+  document.getElementById('i-status').textContent = '';
+  document.getElementById('i-extra').textContent = '';
+
   document.getElementById('info-panel').classList.remove('has-selection');
+  
   if (activeZone) {
     activeZone.classList.remove('active');
     activeZone = null;
   }
 }
-
-document.querySelectorAll('.zone').forEach(z => {
-  const zoneNum = +z.dataset.zone;
-  if (zoneNum <= currentStage) {
-    z.classList.add('enabled');
-  }
-
-  z.addEventListener('click', () => {
-    if (!z.classList.contains('enabled')) return;
-
-    if (activeZone === z) {
-      clearInfo();
-      return;
-    }
-
-    activeZone?.classList.remove('active');
-    activeZone = z;
-    z.classList.add('active');
-    showInfo(zoneNum);
-  });
-});
 
 // hover — preview только если ничего не выбрано
 document.querySelectorAll('.zone.enabled').forEach(z => {
@@ -357,3 +356,4 @@ document.querySelectorAll('.zone.enabled').forEach(z => {
 </script>
 </body>
 </html>
+
