@@ -54,6 +54,22 @@ html, body {
   background-blend-mode: screen, overlay, normal;
 }
 
+#viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,0,0,0.03),
+      rgba(255,0,0,0.03) 1px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0) 4px
+    );
+  opacity: 0.4;
+}
+
 
 #map-wrapper {
   position: absolute;
@@ -325,4 +341,5 @@ updateScale();
 </script>
 </body>
 </html>
+
 
