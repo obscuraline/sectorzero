@@ -298,31 +298,57 @@ const data = {
   }
 };
 
-function typeDescription(text) {
+let activeZone = null;
+let typingTimer = null;
+let currentTypingZone = null;   // ← ключевой флаг: какая зона сейчас печатается
+
+function stopTyping() {
+  if (typingTimer) {
+    clearInterval(typingTimer);
+    typingTimer = null;
+  }
+}
+
+function typeDescription(text, zoneElement) {
+  stopTyping();
+
   const el = document.getElementById('i-desc');
   el.textContent = "";
   let i = 0;
-  const timer = setInterval(() => {
+
+  currentTypingZone = zoneElement;   // запоминаем, от какой зоны идёт печать
+
+  typingTimer = setInterval(() => {
+    if (currentTypingZone !== zoneElement) {
+      // если зона сменилась — прерываем
+      stopTyping();
+      return;
+    }
+
     if (i < text.length) {
       el.textContent += text[i];
       i++;
     } else {
-      clearInterval(timer);
+      stopTyping();
     }
-  }, 35);   // скорость печати — подбери под вкус
+  }, 35);
 }
 
-function showInfo(zoneId) {
+function showInfo(zoneId, zoneElement, isClick = false) {
+  // Если зона уже активна и это не клик — ничего не делаем
+  if (activeZone === zoneElement && !isClick) return;
+
   const d = data[zoneId];
   if (!d) return;
 
+  // Заполняем статические поля сразу
   document.getElementById('i-title').textContent  = d.title;
   document.getElementById('i-class').textContent  = d.class;
   document.getElementById('i-status').textContent = d.status;
   document.getElementById('i-extra').textContent  = d.extra;
 
-  // печатаем описание
-  typeDescription(d.desc);
+  // Запускаем печать описания
+  typeDescription(d.desc, zoneElement);
 
   document.getElementById('info-empty').style.display = 'none';
   document.getElementById('info-content').classList.add('visible');
@@ -330,48 +356,59 @@ function showInfo(zoneId) {
 }
 
 function clearInfo() {
+  stopTyping();
+  currentTypingZone = null;
+
   document.getElementById('info-empty').style.display = 'block';
   document.getElementById('info-content').classList.remove('visible');
   document.getElementById('info-panel').classList.remove('has-selection');
-  activeZone?.classList.remove('active');
-  activeZone = null;
+
+  if (activeZone) {
+    activeZone.classList.remove('active');
+    activeZone = null;
+  }
 }
 
 document.querySelectorAll('.zone').forEach(z => {
   const zoneNum = +z.dataset.zone;
   if (zoneNum <= currentStage) {
     z.classList.add('enabled');
+
+    // === Клик / выбор ===
+    z.addEventListener('click', () => {
+      if (!z.classList.contains('enabled')) return;
+
+      if (activeZone === z) {
+        // повторный клик → очистка
+        clearInfo();
+        return;
+      }
+
+      activeZone?.classList.remove('active');
+      activeZone = z;
+      z.classList.add('active');
+
+      showInfo(zoneNum, z, true);   // isClick = true
+    });
+
+    // === Hover (только если ничего не выбрано) ===
+    z.addEventListener('mouseenter', () => {
+      if (activeZone) return;           // ← блокировка hover при активном выборе
+      if (!z.classList.contains('enabled')) return;
+      showInfo(zoneNum, z, false);
+    });
+
+    z.addEventListener('mouseleave', () => {
+      if (activeZone) return;           // не трогаем, если зона выбрана
+      if (!z.classList.contains('enabled')) return;
+      if (currentTypingZone === z) {
+        clearInfo();
+      }
+    });
   }
-
-  z.addEventListener('click', () => {
-    if (!z.classList.contains('enabled')) return;
-
-    if (activeZone === z) {
-      // повторный клик → снимаем выделение
-      clearInfo();
-      return;
-    }
-
-    activeZone?.classList.remove('active');
-    activeZone = z;
-    z.classList.add('active');
-
-    showInfo(zoneNum);
-  });
-});
-
-// опционально: hover-подсветка без клика (можно убрать)
-document.querySelectorAll('.zone.enabled').forEach(z => {
-  z.addEventListener('mouseenter', () => {
-    if (activeZone) return;
-    showInfo(+z.dataset.zone);
-  });
-  z.addEventListener('mouseleave', () => {
-    if (activeZone) return;
-    clearInfo();
-  });
 });
 </script>
 </body>
 </html>
+
 
