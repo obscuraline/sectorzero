@@ -24,20 +24,18 @@ html, body {
 
 #viewport {
   background:
-    radial-gradient(circle at center, #1a0000 0%, #000 70%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,0,0,0.03) 0,
+      rgba(255,0,0,0.03) 2px,
+      rgba(0,0,0,0.95) 4px
+    ),
     repeating-linear-gradient(
       0deg,
-      rgba(255,0,0,0.05),
-      rgba(255,0,0,0.05) 1px,
-      rgba(0,0,0,0.2) 2px,
-      rgba(0,0,0,0) 4px
+      rgba(0,0,0,0.85) 0,
+      rgba(0,0,0,0.85) 3px,
+      rgba(50,0,0,0.4) 6px
     );
-}
-
-@keyframes flicker {
-  0% { opacity: .96 }
-  50% { opacity: 1 }
-  100% { opacity: .97 }
 }
 
 #viewport {
@@ -315,5 +313,6 @@ updateScale();
 </script>
 </body>
 </html>
+
 
 
