@@ -29,8 +29,8 @@ html, body {
   flex-direction: column;
   padding: 2.2vh 2.8vw;
   box-sizing: border-box;
-  background: #000;
-  overflow: hidden;               /* ← важно, чтобы не было скролла */
+  position: relative;
+  background: #000;                      /* убрали общий градиент с #app */
 }
 
 /* scanlines оставляем на весь экран (или можно тоже перенести на #map-container) */
@@ -58,35 +58,35 @@ html, body {
   display: flex;
   gap: 2.2vw;
   min-height: 0;
-  align-items: flex-start;        /* ← ключевой фикс: не растягиваем по высоте */
-  overflow: hidden;               /* на всякий случай */
+  position: relative;
+  z-index: 3;
 }
 
 /* vignette ТОЛЬКО на карту */
 #map-container {
-  flex: 75 1 auto;                /* flex-grow: 75, flex-shrink: 1, flex-basis: auto */
+  flex: 75;
   position: relative;
   background: rgba(6,0,0,0.78);
   border: 1px solid #400;
   overflow: hidden;
   box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
-  height: fit-content;            /* ← позволяет высоте быть равной содержимому */
-  max-height: 100%;               /* но не больше доступной высоты экрана */
+  /* добавляем vignette */
 }
-  
+
 #map-wrapper {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  /* height не задаём — пусть определяется SVG */
 }
 
 #map-wrapper svg {
-  width: 100%;                    /* занимает всю ширину контейнера */
-  height: auto;                   /* высота подстраивается под ширину + aspect ratio */
-  display: block;                 /* убирает возможный inline-gap */
-  object-fit: contain;            /* на всякий случай, хотя для SVG не всегда нужно */
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
 }
 
@@ -96,7 +96,7 @@ html, body {
   inset: 0;
   pointer-events: none;
   background: radial-gradient(circle at 50% 50%, transparent 45%, #000 88%);
-  z-index: 3;                           /* выше карты, но ниже оверлея если он есть */
+  z-index: 3;                            /* выше карты, но ниже оверлея если он есть */
 }
 
 /* лёгкий красный оверлей на карту (пункт 6) */
@@ -420,12 +420,3 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
