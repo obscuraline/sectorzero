@@ -112,15 +112,15 @@ html, body {
 
 /* Улучшаем поведение пустой панели */
 #info-panel {
-  flex: 25;
+  flex: 0 1 25%;
   background: rgba(4,0,0,0.94);
   border: 2px solid #500;
   box-shadow: 0 0 28px rgba(160,0,0,0.3);
-  padding: 2vh 1.8vw;
-  overflow: hidden;                      /* ← важно, чтобы не было прокрутки пустоты */
+  padding: 1.5vh 1.4vw;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1.1em;
+  gap: 0;
   transition: border-color 0.4s, box-shadow 0.6s;
   color: #c33;
 }
@@ -130,9 +130,10 @@ html, body {
   height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.25s ease, visibility 0s linear 0.25s; /* visibility после opacity */
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
   display: flex;
   flex-direction: column;
+  height: 100%;               /* важно для правильного распределения */
   gap: 0.8em;
 }
 
@@ -140,9 +141,59 @@ html, body {
   visibility: visible;
   height: auto;
   opacity: 1;
-  transition: opacity 0.25s ease, visibility 0s linear 0s; /* сразу visible */
+  transition: opacity 0.25s ease, visibility 0s linear 0s;
 }
 
+/* Контейнер изображения — 1/3 высоты */
+.info-image-container {
+  flex: 0 0 33.333%;          /* ≈1/3 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8vh 0;
+  border-bottom: 1px solid #500;
+  background: rgba(10,0,0,0.6);
+}
+
+.info-image {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(200,0,0,0.08),
+      rgba(200,0,0,0.08) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+  border: 2px solid #600;
+  color: #800;
+  font-size: 1.1em;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.info-image small {
+  font-size: 0.75em;
+  color: #700;
+  margin-top: 0.4em;
+}
+
+/* Текстовая часть — 2/3 высоты */
+.info-text {
+  flex: 1;                    /* забирает всё оставшееся пространство */
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  overflow-y: auto;
+  padding-top: 1em;
+}
+  
 /* когда ничего не выбрано — делаем панель "пустой" визуально */
 #info-panel:not(.has-selection) {
   border-color: #500;
@@ -160,16 +211,16 @@ html, body {
   100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
 }
 
-/* placeholder всегда виден, когда контент скрыт */
-#info-placeholder {
+/* placeholder остаётся по центру всей панели, когда ничего не выбрано */
+.info-placeholder {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #600;
-  font-size: 1.3em;
+  font-size: 1.25em;
   text-align: center;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 #info-panel.has-selection #info-placeholder,
@@ -214,8 +265,10 @@ h2 {
 }
   
 .description {
-  margin-top: 1em;
-  padding-top: 1em;
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 0;
+  padding-top: 0.8em;
   border-top: 1px solid #500;
   white-space: pre-wrap;
   font-size: 1.12em;
@@ -259,12 +312,24 @@ h2 {
 
     <div id="info-panel">
       <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
+
       <div id="info-content">
+        <!-- Верхняя часть — изображение (1/3 высоты) -->
+        <div class="info-image-container">
+          <div class="info-image">
+            NO SIGNAL<br>
+            <small>Изображение сектора<br>будет здесь</small>
+          </div>
+        </div>
+
+        <!-- Нижняя часть — текст (2/3 высоты) -->
+        <div class="info-text">
           <h2 id="i-title"></h2>
           <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
           <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
           <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
           <div class="description" id="i-desc"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -420,3 +485,4 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
