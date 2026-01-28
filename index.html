@@ -300,24 +300,28 @@ h2 {
 
   /* Контейнер карты — больше не режем */
   #map-container {
-    flex: none !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: unset !important;
-    max-height: unset !important;
-    overflow: visible !important;
+    height: 100vw !important; /* ключевой момент */
     position: relative !important;
-    border: none !important;
-    margin-top: -6vh !important; /* поднимаем карту */
+    overflow: visible !important;
+    margin-top: -4vh !important;
+    margin-bottom: 4vh !important; /* чтобы не перекрывать инфо */
   }
-
   /* Поворот карты */
   #map-wrapper {
-    position: relative !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+
     width: 100vh !important;
     height: 100vw !important;
-    transform: rotate(90deg) translateY(-100%) !important;
-    transform-origin: top left !important;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(90deg) !important;
+
+    transform-origin: center center !important;
+
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -325,23 +329,22 @@ h2 {
 
   #map-wrapper svg {
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     object-fit: contain !important;
   }
 
   /* Инфо-панель — без локального скролла и уже */
   #info-panel {
-    flex: none !important;
+    position: relative !important;
+    z-index: 2 !important;
+
     width: 92% !important;
     max-width: 420px !important;
-    height: auto !important;
-    max-height: unset !important;
-    min-height: unset !important;
+
+    margin: 0 auto 4vh auto !important;
+    padding-top: 2vh !important;
+
     overflow: visible !important;
-    padding: 2vh 0 !important;
-    margin: 0 auto 3vh auto !important;
-    border-top: 2px solid #500 !important;
-    box-sizing: border-box !important;
   }
 
   .info-image-fixed {
@@ -626,6 +629,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
