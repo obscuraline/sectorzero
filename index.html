@@ -278,6 +278,108 @@ h2 {
   margin: auto 0;
   opacity: 0.75;
 }
+
+/* Базовые улучшения для мобильных */
+@media (max-width: 900px) {
+  #app {
+    padding: 1.5vh 2vw;           /* меньше отступов по бокам */
+  }
+
+  #content {
+    flex-direction: column;       /* карта сверху, панель снизу */
+    gap: 1.8vh;
+  }
+
+  #map-container {
+    flex: none;                   /* перестаём использовать flex-basis */
+    width: 100%;
+    height: 55vh;                 /* фиксированная высота для карты (можно 50–60vh) */
+    aspect-ratio: 2048 / 1360;    /* сохраняем пропорции карты */
+  }
+
+  #map-wrapper svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #info-panel {
+    flex: none;
+    width: 100%;
+    height: auto;                 /* высота подстраивается под контент */
+    max-height: 45vh;             /* чтобы не занимала слишком много места */
+    overflow-y: auto;
+    border-top: 1px solid #500;   /* визуальный разделитель */
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 1.5vh 3vw;           /* больше воздуха по бокам для пальцев */
+  }
+
+  .info-image-fixed {
+    flex: 0 0 180px;              /* фиксированная высота изображения на мобильных */
+    min-height: 180px;
+  }
+
+  .info-text-fixed {
+    padding: 1vh 0;
+  }
+
+  h2 {
+    font-size: 1.6em;
+  }
+
+  .meta-line {
+    font-size: 0.95em;
+  }
+
+  .description {
+    font-size: 1em;
+    line-height: 1.5;
+  }
+
+  /* Увеличиваем зону касания для зон карты */
+  .zone {
+    stroke-width: 3.5;            /* толще обводка для удобства тапа */
+  }
+}
+
+/* Очень маленькие экраны (узкие телефоны) */
+@media (max-width: 500px) {
+  #app {
+    padding: 1vh 2.5vw;
+  }
+
+  #map-container {
+    height: 50vh;
+  }
+
+  #info-panel {
+    padding: 1.2vh 4vw;
+    max-height: 50vh;
+  }
+
+  .no-signal {
+    font-size: 1.1em;
+  }
+
+  h2 {
+    font-size: 1.4em;
+  }
+
+  .description {
+    font-size: 0.95em;
+  }
+}
+
+/* Отключаем hover на мобильных (опционально, но полезно) */
+@media (hover: none) {
+  .zone.enabled:hover {
+    fill: transparent;
+    stroke: transparent;
+  }
+}
 </style>
 </head>
 <body>
@@ -481,6 +583,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
