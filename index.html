@@ -280,147 +280,146 @@ h2 {
   opacity: 0.75;
 }
 
-/* Базовые стили остаются, но добавляем попап и мобильные правила */
+/* Мобильная версия — портрет */
+@media screen and (max-width: 1024px) and (orientation: portrait) {
 
-#popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.92);
-  display: none;
-  z-index: 1000;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* плавный скролл на iOS */
-}
-
-#popup.visible {
-  display: flex;
-  flex-direction: column;
-}
-
-.popup-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 2vh 4vw;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-/* Телефон — фото сверху, текст снизу */
-@media (max-width: 768px) {
-  #map-container {
-    flex: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    position: fixed !important;
-    inset: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-  }
-
-  #map-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  #map-wrapper svg {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important; /* или contain, если не хочешь обрезку краёв */
-  }
-
-  #content > #info-panel {
-    display: none !important; /* скрываем постоянную панель на телефоне */
-  }
-
-  /* Попап на телефоне */
-  .popup-content {
-    flex-direction: column !important;
-  }
-
-  .popup-header {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-  }
-
-  .popup-image {
-    width: 90% !important;
-    max-width: 320px !important;
+  html, body {
     height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    margin-bottom: 2vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
 
-  .popup-meta {
-    width: 100% !important;
+  #app {
+    padding: 0.5vh 3vw !important;
   }
 
-  .popup-description {
-    margin-top: 2vh !important;
+  #content {
+    flex-direction: column !important;
+    gap: 1vh !important;
   }
-}
 
-/* Планшет — фото слева, текст справа */
-@media (min-width: 769px) and (max-width: 1024px) {
+  /* Контейнер карты — больше не режем */
   #map-container {
     flex: none !important;
     width: 100% !important;
-    height: 100% !important;
-    position: fixed !important;
-    inset: 0 !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    overflow: visible !important;
+    position: relative !important;
+    border: none !important;
+    margin-top: -6vh !important; /* поднимаем карту */
+  }
+
+  /* Поворот карты */
+  #map-wrapper {
+    position: relative !important;
+    width: 100vh !important;
+    height: 100vw !important;
+    transform: rotate(90deg) translateY(-100%) !important;
+    transform-origin: top left !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   #map-wrapper svg {
     width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  /* Инфо-панель — без локального скролла и уже */
+  #info-panel {
+    flex: none !important;
+    width: 92% !important;
+    max-width: 420px !important;
+    height: auto !important;
+    max-height: unset !important;
+    min-height: unset !important;
+    overflow: visible !important;
+    padding: 2vh 0 !important;
+    margin: 0 auto 3vh auto !important;
+    border-top: 2px solid #500 !important;
+    box-sizing: border-box !important;
+  }
+
+  .info-image-fixed {
+    flex: 0 0 120px !important;
+    height: 120px !important;
+    width: 100% !important;
+  }
+
+  .info-text-fixed {
+    padding: 1vh 0 !important;
+  }
+
+  h2 {
+    font-size: 1.35em !important;
+  }
+
+  .meta-line {
+    font-size: 0.95em !important;
+  }
+
+  .description {
+    font-size: 1em !important;
+    line-height: 1.55 !important;
+  }
+
+  /* Отключаем тяжёлые эффекты */
+  #app::before,
+  #map-container::before,
+  #map-container::after {
+    display: none !important;
+  }
+
+  #info-panel.has-selection {
+    animation: none !important;
+  }
+}
+
+/* Альбомная ориентация — без локальных скроллов */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  #content {
+    flex-direction: row !important;
+    gap: 4vw !important;
+  }
+
+  #map-container {
+    flex: 65 !important;
+    width: 65% !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   #info-panel {
-    display: none !important; /* скрываем боковую панель */
-  }
-
-  /* Попап на планшете */
-  .popup-content {
-    flex-direction: row !important;
-    max-width: 900px !important;
-    margin: auto !important;
-    padding: 4vh 6vw !important;
-  }
-
-  .popup-header {
-    flex: 0 0 40% !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-
-  .popup-image {
-    width: 100% !important;
-    max-width: 320px !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-  }
-
-  .popup-meta {
-    width: 100% !important;
-    text-align: center !important;
-  }
-
-  .popup-description {
-    flex: 1 !important;
-    padding-left: 4vw !important;
-    margin-top: 0 !important;
+    flex: 35 !important;
+    width: 35% !important;
+    overflow: visible !important;
+    max-width: 420px !important;
   }
 }
 
-/* Отключаем hover на мобильных */
-@media (hover: none) {
-  .zone.enabled:hover {
-    fill: transparent !important;
-    stroke: transparent !important;
+/* Узкие экраны */
+@media screen and (max-width: 480px) {
+
+  #map-container {
+    margin-top: -8vh !important;
+  }
+
+  #info-panel {
+    width: 94% !important;
+  }
+
+  .info-image-fixed {
+    height: 100px !important;
   }
 }
 
@@ -556,10 +555,6 @@ function showInfo(zoneId, isHover = false) {
   document.getElementById('info-image-fixed').style.display = 'flex';
   document.getElementById('info-text-fixed').style.display = 'flex';
 
-  const popup = document.getElementById('popup');
-  popup.style.display = 'flex';
-  setTimeout(() => popup.classList.add('visible'), 10);
-
   if (isHover) {
     document.getElementById('info-panel').classList.add('preview-active');
   } else {
@@ -628,40 +623,6 @@ z.addEventListener('mouseleave', () => {
   if (!z.classList.contains('enabled')) return;
   clearInfo(true);                   // ← isHover = true
 });
-
-function closePopup() {
-  const popup = document.getElementById('popup');
-  popup.classList.remove('visible');
-  setTimeout(() => {
-    popup.style.display = 'none';
-    // очистка полей, если нужно
-  }, 300);
-}
 </script>
-
-<div id="popup">
-  <div class="popup-header">
-    <div class="popup-image">NO SIGNAL</div>
-    <div class="popup-meta">
-      <div class="title" id="p-title"></div>
-      <div id="p-class"></div>
-      <div id="p-status"></div>
-      <div id="p-extra"></div>
-    </div>
-  </div>
-  <div class="popup-description" id="p-desc"></div>
-  <button onclick="closePopup()">[ ЗАКРЫТЬ ]</button>
-</div>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
