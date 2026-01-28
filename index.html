@@ -467,37 +467,43 @@ const data = {
     title: "TRANSIT STATION",
     class: "Auxiliary Transport and Service Area",
     status: "Status: Partially Activated / Unstable",
-    desc: "Когда-то это был чётко регламентированный коридор между слоями мегаструктуры. Теперь вертикальные шахты доступа, лифтовые стволы, аварийные лестницы и бесконечные сервисные ленты образуют здесь плотный, перекрученный узел. \nБольшая часть механизмов работает по инерции."
+    desc: "Когда-то это был чётко регламентированный коридор между слоями мегаструктуры. Теперь вертикальные шахты доступа, лифтовые стволы, аварийные лестницы и бесконечные сервисные ленты образуют здесь плотный, перекрученный узел. \nБольшая часть механизмов работает по инерции.",
+    image: "assets/info/image_1.png"
   },
   2: {
     title: "INFRASTRUCTURE CORE",
     class: "Critical Infrastructure Node",
     status: "Status: Fully Functional",
-    desc: "Здесь сходятся энергоканалы, распределение давления, термальные контуры, первичные вычислительные узлы. \nЭто одно из немногих мест, где чувствуется присутствие исходной логики мегаструктуры до начала эксперимента."
+    desc: "Здесь сходятся энергоканалы, распределение давления, термальные контуры, первичные вычислительные узлы. \nЭто одно из немногих мест, где чувствуется присутствие исходной логики мегаструктуры до начала эксперимента.",
+    image: "assets/info/image_2.png"
   },
   3: {
     title: "HABITATION CLUSTERS",
     class: "Obsolete Residential Areas",
     status: "Status: Fragmented",
-    desc: "Модульные жилые блоки, пристроенные друг к другу без единого плана, соединённые переходами, которые давно не числятся в схемах."
+    desc: "Модульные жилые блоки, пристроенные друг к другу без единого плана, соединённые переходами, которые давно не числятся в схемах.",
+    image: "assets/info/image_3.png"
   },
   4: {
     title: "CENTRAL RESEARCH LAB",
     class: "Research Complex (Closed)",
     status: "Status: Partially Accessible",
-    desc: "Лаборатория не числится ни в одном актуальном реестре, но продолжает физически присутствовать в структуре. Здесь использовались старые протоколы, экспериментальные среды, которые позже были запрещены или «утеряны». Большая часть данных либо уничтожена, либо намеренно повреждена. \nИменно здесь впервые зафиксированы несанкционированные изменения среды, которые позже были списаны на «ошибки сборки мегаструктуры»."
+    desc: "Лаборатория не числится ни в одном актуальном реестре, но продолжает физически присутствовать в структуре. Здесь использовались старые протоколы, экспериментальные среды, которые позже были запрещены или «утеряны». Большая часть данных либо уничтожена, либо намеренно повреждена. \nИменно здесь впервые зафиксированы несанкционированные изменения среды, которые позже были списаны на «ошибки сборки мегаструктуры».",
+    image: "assets/info/image_4.png"
   },
   5: {
     title: "BIOMECHANICAL INTEGRATION SUITE",
     class: "Anomalous Zone",
     status: "Status: Active",
-    desc: "Именно здесь начался эксперимент по созданию полностью автоматизированного сектора. Учёными было создано биомеханическое ядро способное самостоятельно расширяться. Рост биомеханической массы оказался непланомерным, несмотря на созданные условия. Биомеханику не удалось сдержать под контролем из-за чего эксперимент был остановлен. \nСектор был закрыт, данные о нём засекречены."
+    desc: "Именно здесь начался эксперимент по созданию полностью автоматизированного сектора. Учёными было создано биомеханическое ядро способное самостоятельно расширяться. Рост биомеханической массы оказался непланомерным, несмотря на созданные условия. Биомеханику не удалось сдержать под контролем из-за чего эксперимент был остановлен. \nСектор был закрыт, данные о нём засекречены.",
+    image: "assets/info/image_5.png"
   },
   6: {
     title: "LOWER VOID",
     class: "Limit Zone",
     status: "Status: Unstable",
-    desc: "Здесь мегаструктура теряет плотность. \nПространство кажется глубже, чем должно быть. \nГравитационные показатели нестабильны. \nБиомеханика стремится к поглощению этой зоны."
+    desc: "Здесь мегаструктура теряет плотность. \nПространство кажется глубже, чем должно быть. \nГравитационные показатели нестабильны. \nБиомеханика стремится к поглощению этой зоны.",
+    image: "assets/info/image_6.png"
   }
 };
 
@@ -520,16 +526,29 @@ function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
 
-  // Очистка перед заполнением
+  // Заполняем текстовые поля
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
   document.getElementById('i-desc').textContent = '';
 
-  // Запуск печати описания
+  // Запускаем печать описания
   typeText(document.getElementById('i-desc'), d.desc);
 
-  // Показываем оба блока
+  // Показываем изображение вместо заглушки
+  const imageBlock = document.getElementById('info-image-fixed');
+  imageBlock.innerHTML = ''; // очищаем старое содержимое
+
+  const img = document.createElement('img');
+  img.src = d.image || 'assets/info/placeholder.png'; // fallback, если изображения нет
+  img.alt = d.title;
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'cover'; // или 'contain', если хочешь без обрезки
+  img.style.border = '2px solid #600';
+  imageBlock.appendChild(img);
+
+  // Показываем блоки
   document.getElementById('info-placeholder').style.display = 'none';
   document.getElementById('info-image-fixed').style.display = 'flex';
   document.getElementById('info-text-fixed').style.display = 'flex';
@@ -551,7 +570,16 @@ function clearInfo(isHover = false) {
   document.getElementById('i-status').textContent = '';
   document.getElementById('i-desc').textContent = '';
 
-  // Скрываем блоки с изображением и текстом
+  // Возвращаем заглушку вместо изображения
+  const imageBlock = document.getElementById('info-image-fixed');
+  imageBlock.innerHTML = `
+    <div class="no-signal">
+      NO SIGNAL
+      <small>Изображение сектора<br>будет здесь</small>
+    </div>
+  `;
+
+  // Скрываем блоки
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
 
@@ -604,5 +632,6 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
