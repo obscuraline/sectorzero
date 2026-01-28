@@ -112,17 +112,15 @@ html, body {
 
 /* Улучшаем поведение пустой панели */
 #info-panel {
-  flex: 25;
+  flex: 0 1 25%;
   background: rgba(4,0,0,0.94);
   border: 2px solid #500;
   box-shadow: 0 0 28px rgba(160,0,0,0.3);
-  padding: 2vh 1.8vw;
-  overflow: hidden;                      /* ← важно, чтобы не было прокрутки пустоты */
+  padding: 1.8vh 1.6vw;
+  overflow: hidden;                    /* чтобы не было лишней прокрутки */
   display: flex;
   flex-direction: column;
-  gap: 1.1em;
-  transition: border-color 0.4s, box-shadow 0.6s;
-  color: #c33;
+  gap: 1.2em;
 }
 
 #info-content {
@@ -130,18 +128,96 @@ html, body {
   height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.25s ease, visibility 0s linear 0.25s; /* visibility после opacity */
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
   display: flex;
   flex-direction: column;
-  gap: 0.8em;
+  gap: 1.2em;
+  height: 100%;                        /* займёт всю доступную высоту панели */
 }
 
 #info-content.visible {
   visibility: visible;
   height: auto;
   opacity: 1;
-  transition: opacity 0.25s ease, visibility 0s linear 0s; /* сразу visible */
+  transition: opacity 0.25s ease, visibility 0s linear 0s;
 }
+
+.info-image-container {
+  flex: 0 0 33%;                       /* или 1/3 */
+  position: relative;
+  background: #000;
+  border: 2px solid #600;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-image-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      #0a0000,
+      #0a0000 8px,
+      #050000 8px,
+      #050000 16px
+    );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #600;
+  font-size: 1.1em;
+  text-align: center;
+}
+
+.no-signal {
+  color: #c00;
+  font-size: 1.8em;
+  text-shadow: 0 0 6px #800;
+  margin-bottom: 0.3em;
+}
+
+.image-pending {
+  color: #800;
+  font-size: 1em;
+  opacity: 0.7;
+}
+
+.static-lines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(200,0,0,0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Когда добавишь картинку — используй этот класс */
+.info-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid #700;
+  image-rendering: pixelated;          /* если хочешь ретро-стиль */
+}
+
+/* Текстовая часть — оставшееся пространство (≈66%) */
+.info-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  overflow-y: auto;                    /* если текст очень длинный — прокрутка только здесь */
+}
+
+
 
 /* когда ничего не выбрано — делаем панель "пустой" визуально */
 #info-panel:not(.has-selection) {
@@ -259,12 +335,27 @@ h2 {
 
     <div id="info-panel">
       <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
+  
       <div id="info-content">
+        <!-- Верхняя часть — изображение (1/3) -->
+        <div class="info-image-container">
+          <div class="info-image-placeholder">
+            <div class="no-signal">NO SIGNAL</div>
+            <div class="image-pending">IMAGE PENDING</div>
+            <div class="static-lines"></div>
+          </div>
+          <!-- Когда добавишь реальное изображение — замени на: -->
+          <!-- <img src="assets/images/zone-5.jpg" alt="Сектор" class="info-image"> -->
+        </div>
+
+        <!-- Нижняя часть — текстовая информация (2/3) -->
+        <div class="info-text">
           <h2 id="i-title"></h2>
           <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
           <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
           <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
           <div class="description" id="i-desc"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -420,3 +511,4 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
