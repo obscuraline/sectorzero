@@ -280,73 +280,127 @@ h2 {
   opacity: 0.75;
 }
 
-/* Мобильная версия — вертикальная раскладка */
-@media screen and (max-width: 1024px) {
+/* Мобильная версия — карта большая, панель снизу как лента */
+@media screen and (max-width: 1024px) and (orientation: portrait) {
   #content {
     flex-direction: column !important;
-    gap: 1.5vh !important;
+    gap: 0 !important;
   }
 
   #map-container {
     flex: none !important;
-    width: 100% !important;
-    height: 50vh !important;          /* или 45–55vh — подбери под вкус */
-    min-height: 320px !important;
-    max-height: 60vh !important;
-    aspect-ratio: 2048 / 1360 !important;
+    width: 100vw !important;
+    height: 75vh !important;               /* основная часть экрана */
+    min-height: 420px !important;
+    max-height: 80vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
   }
 
+  /* Поворот карты на 90° для лучшего заполнения экрана */
+  #map-wrapper {
+    width: 1360px !important;               /* меняем местами ширину/высоту после поворота */
+    height: 2048px !important;
+    transform: rotate(90deg) translateY(-100%) !important;
+    transform-origin: top left !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+
+  #map-wrapper svg {
+    width: 1360px !important;
+    height: 2048px !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  /* Панель информации — тонкая лента внизу */
   #info-panel {
     flex: none !important;
     width: 100% !important;
     height: auto !important;
-    max-height: 50vh !important;
-    overflow-y: auto !important;
-    border: 2px solid #500 !important;
-    border-top: none !important;
-    padding: 2vh 4vw !important;      /* удобнее для пальцев */
+    max-height: 25vh !important;
+    min-height: 140px !important;
+    overflow-x: auto !important;           /* ← горизонтальный скролл */
+    overflow-y: hidden !important;
+    padding: 1.2vh 4vw !important;
+    border-top: 2px solid #500 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background: rgba(4,0,0,0.96) !important;
+    display: flex !important;
+    flex-direction: row !important;        /* горизонтально внутри панели */
+    align-items: flex-start !important;
+    gap: 2.5vw !important;
   }
 
   .info-image-fixed {
-    flex: 0 0 200px !important;       /* фиксированная высота картинки */
-    min-height: 200px !important;
+    flex: 0 0 140px !important;
+    width: 140px !important;
+    height: 140px !important;
+    min-width: 140px !important;
+    min-height: 140px !important;
+    margin-right: 2vw !important;
   }
 
-  /* Увеличиваем читаемость текста */
+  .info-text-fixed {
+    flex: 1 !important;
+    min-width: 280px !important;
+    padding: 0.8vh 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Увеличиваем текст для читаемости пальцем */
   h2 {
-    font-size: 1.5em !important;
+    font-size: 1.45em !important;
+    margin: 0 0 0.4em !important;
   }
 
   .meta-line {
-    font-size: 1em !important;
+    font-size: 0.98em !important;
+    margin: 0.3em 0 !important;
   }
 
   .description {
-    font-size: 1.05em !important;
-    line-height: 1.55 !important;
+    font-size: 1.02em !important;
+    line-height: 1.48 !important;
+    white-space: pre-wrap !important;
+    margin-top: 0.6em !important;
   }
 
-  /* Отключаем hover на touch-устройствах */
-  .zone.enabled:hover {
-    fill: rgba(180,0,0,0.14) !important;
-    stroke: rgba(220,0,0,0.8) !important;
+  /* Отключаем ненужные эффекты на мобильных */
+  #map-container::before,
+  #map-container::after,
+  #info-panel.has-selection {
+    animation: none !important;
   }
 }
 
-/* Очень узкие экраны (старые телефоны, портрет) */
+/* Ещё меньше экраны — чуть компактнее */
 @media screen and (max-width: 480px) {
   #map-container {
-    height: 45vh !important;
+    height: 68vh !important;
   }
 
   #info-panel {
-    max-height: 55vh !important;
-    padding: 1.8vh 5vw !important;
+    max-height: 32vh !important;
+    padding: 1vh 3.5vw !important;
   }
 
-  .no-signal {
-    font-size: 1.1em !important;
+  .info-image-fixed {
+    flex: 0 0 110px !important;
+    width: 110px !important;
+    height: 110px !important;
   }
+
+  h2 { font-size: 1.3em !important; }
+  .description { font-size: 0.96em !important; }
 }
 </style>
 </head>
@@ -551,6 +605,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
