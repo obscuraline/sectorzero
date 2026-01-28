@@ -280,149 +280,136 @@ h2 {
   opacity: 0.75;
 }
 
-/* Мобильная версия — портрет */
-@media screen and (max-width: 1024px) and (orientation: portrait) {
-
-  html, body {
-    height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+/* Мобильная версия — поворот карты в портрете */ 
+@media screen and (max-width: 1024px) and (orientation: portrait) 
+{ 
+  #app { 
+    padding: 1vh 1.5vw !important;
+  } 
+  
+  #content { 
+    flex-direction: column !important; 
+    gap: 1vh !important; 
+  } 
+  
+  #map-container 
+  { 
+    flex: none !important; 
+    width: 100% !important; 
+    height: 70vh !important; 
+    min-height: 50vh !important; 
+    max-height: 75vh !important; 
+    overflow: hidden !important; 
+    position: relative !important; 
+    border: none !important; 
+  } 
+  
+  /* Поворот на 90° + корректировка позиции */ 
+  #map-wrapper { 
+    position: absolute !important; 
+    top: 0 !important; 
+    left: 0 !important; 
+    width: 100vh !important; 
+    /* ширина = высоте экрана после поворота */ 
+    height: 100vw !important; 
+    /* высота = ширине экрана */ 
+    transform: rotate(90deg) translate(0, -100%) !important; 
+    transform-origin: top left !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
   }
-
-  #app {
-    padding: 0.5vh 3vw !important;
+  
+  #map-wrapper svg { 
+    width: 100% !important; 
+    height: 100% !important; 
+    object-fit: contain !important; 
   }
-
-  #content {
-    flex-direction: column !important;
-    gap: 1vh !important;
+  
+  /* Панель информации снизу с вертикальным скроллом */ 
+  #info-panel { 
+    flex: none !important; 
+    width: 100% !important; 
+    height: auto !important; 
+    max-height: 30vh !important; 
+    min-height: 25vh !important; 
+    overflow-y: auto !important; 
+    overflow-x: hidden !important; 
+    padding: 1.2vh 4vw !important; 
+    border-top: 2px solid #500 !important; 
+  } 
+  
+  .info-image-fixed { 
+    flex: 0 0 140px !important; 
+    height: 140px !important; 
+    width: 100% !important; 
+  } 
+  
+  .info-text-fixed { 
+    padding: 0.8vh 0 !important; 
+  } 
+  
+  h2 { 
+    font-size: 1.45em !important; 
+  } 
+  
+  .meta-line { 
+    font-size: 1em !important; 
   }
-
-  /* Контейнер карты — больше не режем */
-  #map-container {
-    flex: none !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: unset !important;
-    max-height: unset !important;
-    overflow: visible !important;
-    position: relative !important;
-    border: none !important;
-    margin-top: -6vh !important; /* поднимаем карту */
-  }
-
-  /* Поворот карты */
-  #map-wrapper {
-    position: relative !important;
-    width: 100vh !important;
-    height: 100vw !important;
-    transform: rotate(90deg) translateY(-100%) !important;
-    transform-origin: top left !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  #map-wrapper svg {
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-  }
-
-  /* Инфо-панель — без локального скролла и уже */
-  #info-panel {
-    flex: none !important;
-    width: 92% !important;
-    max-width: 420px !important;
-    height: auto !important;
-    max-height: unset !important;
-    min-height: unset !important;
-    overflow: visible !important;
-    padding: 2vh 0 !important;
-    margin: 0 auto 3vh auto !important;
-    border-top: 2px solid #500 !important;
-    box-sizing: border-box !important;
-  }
-
-  .info-image-fixed {
-    flex: 0 0 120px !important;
-    height: 120px !important;
-    width: 100% !important;
-  }
-
-  .info-text-fixed {
-    padding: 1vh 0 !important;
-  }
-
-  h2 {
-    font-size: 1.35em !important;
-  }
-
-  .meta-line {
-    font-size: 0.95em !important;
-  }
-
-  .description {
-    font-size: 1em !important;
-    line-height: 1.55 !important;
-  }
-
-  /* Отключаем тяжёлые эффекты */
-  #app::before,
-  #map-container::before,
-  #map-container::after {
-    display: none !important;
-  }
-
-  #info-panel.has-selection {
-    animation: none !important;
-  }
-}
-
-/* Альбомная ориентация — без локальных скроллов */
+  
+  .description { 
+    font-size: 1.02em !important; 
+    line-height: 1.5 !important; 
+  } 
+  
+  /* Отключаем тяжёлые эффекты */ 
+  #app::before, #map-container::before, #map-container::after { 
+    display: none !important; 
+  } 
+  
+  #info-panel.has-selection { 
+    animation: none !important; 
+  } 
+} 
+  
+/* Альбомная ориентация — без поворота, горизонтальная раскладка */ 
 @media screen and (max-width: 1024px) and (orientation: landscape) {
-
-  html, body {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+  
+  #content { 
+    flex-direction: row !important; 
+    gap: 1.5vw !important; 
+  } 
+  
+  #map-container { 
+    flex: 65 !important; 
+    width: 65% !important; 
+    height: 100% !important; 
   }
-
-  #content {
-    flex-direction: row !important;
-    gap: 4vw !important;
-  }
-
-  #map-container {
-    flex: 65 !important;
-    width: 65% !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  #info-panel {
-    flex: 35 !important;
-    width: 35% !important;
-    overflow: visible !important;
-    max-width: 420px !important;
-  }
+  
+  #info-panel { 
+    flex: 35 !important; 
+    width: 35% !important; 
+    max-height: 100% !important; 
+    overflow-y: auto !important; 
+  } 
+} 
+  
+/* Узкие экраны — корректировка */ 
+@media screen and (max-width: 480px) { 
+  
+  #map-container { 
+    height: 65vh !important; 
+  } 
+  
+  #info-panel { 
+    max-height: 35vh !important; 
+  } 
+  
+  .info-image-fixed { 
+    height: 110px !important; 
+  } 
 }
-
-/* Узкие экраны */
-@media screen and (max-width: 480px) {
-
-  #map-container {
-    margin-top: -8vh !important;
-  }
-
-  #info-panel {
-    width: 94% !important;
-  }
-
-  .info-image-fixed {
-    height: 100px !important;
-  }
-}
-
+  
 </style>
 </head>
 <body>
@@ -626,3 +613,4 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
