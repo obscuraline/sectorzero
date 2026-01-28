@@ -395,20 +395,21 @@ function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
 
-  // всегда очищаем перед заполнением (важно!)
+  // Очистка перед заполнением
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-extra').textContent = d.extra || ''; // на всякий случай
-  document.getElementById('i-desc').textContent = ''; // мгновенная очистка
+  document.getElementById('i-extra').textContent = d.extra || '';
+  document.getElementById('i-desc').textContent = '';
 
-  // запускаем печать
+  // Запуск печати описания
   typeText(document.getElementById('i-desc'), d.desc);
 
+  // Показываем оба блока
   document.getElementById('info-placeholder').style.display = 'none';
-  document.getElementById('info-content').classList.add('visible');
+  document.getElementById('info-image-fixed').style.display = 'flex';
+  document.getElementById('info-text-fixed').style.display = 'flex';
 
-  // если это hover — можно добавить класс для отличия стиля (опционально)
   if (isHover) {
     document.getElementById('info-panel').classList.add('preview-active');
   } else {
@@ -420,15 +421,19 @@ function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
 
-  // принудительная очистка ВСЕХ полей
+  // Очистка полей
   document.getElementById('i-title').textContent = '';
   document.getElementById('i-class').textContent = '';
   document.getElementById('i-status').textContent = '';
   document.getElementById('i-extra').textContent = '';
   document.getElementById('i-desc').textContent = '';
 
+  // Скрываем блоки с изображением и текстом
+  document.getElementById('info-image-fixed').style.display = 'none';
+  document.getElementById('info-text-fixed').style.display = 'none';
+
+  // Показываем placeholder
   document.getElementById('info-placeholder').style.display = 'flex';
-  document.getElementById('info-content').classList.remove('visible');
 
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
@@ -476,5 +481,6 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
