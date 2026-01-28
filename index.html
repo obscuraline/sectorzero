@@ -280,105 +280,72 @@ h2 {
   opacity: 0.75;
 }
 
-/* Базовые улучшения для мобильных */
-@media (max-width: 900px) {
-  #app {
-    padding: 1.5vh 2vw;           /* меньше отступов по бокам */
-  }
-
+/* Мобильная версия — вертикальная раскладка */
+@media screen and (max-width: 1024px) {
   #content {
-    flex-direction: column;       /* карта сверху, панель снизу */
-    gap: 1.8vh;
+    flex-direction: column !important;
+    gap: 1.5vh !important;
   }
 
   #map-container {
-    flex: none;                   /* перестаём использовать flex-basis */
-    width: 100%;
-    height: 55vh;                 /* фиксированная высота для карты (можно 50–60vh) */
-    aspect-ratio: 2048 / 1360;    /* сохраняем пропорции карты */
-  }
-
-  #map-wrapper svg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    flex: none !important;
+    width: 100% !important;
+    height: 50vh !important;          /* или 45–55vh — подбери под вкус */
+    min-height: 320px !important;
+    max-height: 60vh !important;
+    aspect-ratio: 2048 / 1360 !important;
   }
 
   #info-panel {
-    flex: none;
-    width: 100%;
-    height: auto;                 /* высота подстраивается под контент */
-    max-height: 45vh;             /* чтобы не занимала слишком много места */
-    overflow-y: auto;
-    border-top: 1px solid #500;   /* визуальный разделитель */
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
-    padding: 1.5vh 3vw;           /* больше воздуха по бокам для пальцев */
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 50vh !important;
+    overflow-y: auto !important;
+    border: 2px solid #500 !important;
+    border-top: none !important;
+    padding: 2vh 4vw !important;      /* удобнее для пальцев */
   }
 
   .info-image-fixed {
-    flex: 0 0 180px;              /* фиксированная высота изображения на мобильных */
-    min-height: 180px;
+    flex: 0 0 200px !important;       /* фиксированная высота картинки */
+    min-height: 200px !important;
   }
 
-  .info-text-fixed {
-    padding: 1vh 0;
-  }
-
+  /* Увеличиваем читаемость текста */
   h2 {
-    font-size: 1.6em;
+    font-size: 1.5em !important;
   }
 
   .meta-line {
-    font-size: 0.95em;
+    font-size: 1em !important;
   }
 
   .description {
-    font-size: 1em;
-    line-height: 1.5;
+    font-size: 1.05em !important;
+    line-height: 1.55 !important;
   }
 
-  /* Увеличиваем зону касания для зон карты */
-  .zone {
-    stroke-width: 3.5;            /* толще обводка для удобства тапа */
+  /* Отключаем hover на touch-устройствах */
+  .zone.enabled:hover {
+    fill: rgba(180,0,0,0.14) !important;
+    stroke: rgba(220,0,0,0.8) !important;
   }
 }
 
-/* Очень маленькие экраны (узкие телефоны) */
-@media (max-width: 500px) {
-  #app {
-    padding: 1vh 2.5vw;
-  }
-
+/* Очень узкие экраны (старые телефоны, портрет) */
+@media screen and (max-width: 480px) {
   #map-container {
-    height: 50vh;
+    height: 45vh !important;
   }
 
   #info-panel {
-    padding: 1.2vh 4vw;
-    max-height: 50vh;
+    max-height: 55vh !important;
+    padding: 1.8vh 5vw !important;
   }
 
   .no-signal {
-    font-size: 1.1em;
-  }
-
-  h2 {
-    font-size: 1.4em;
-  }
-
-  .description {
-    font-size: 0.95em;
-  }
-}
-
-/* Отключаем hover на мобильных (опционально, но полезно) */
-@media (hover: none) {
-  .zone.enabled:hover {
-    fill: transparent;
-    stroke: transparent;
+    font-size: 1.1em !important;
   }
 }
 </style>
@@ -584,6 +551,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
