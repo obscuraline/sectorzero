@@ -284,48 +284,49 @@ h2 {
 @media screen and (max-width: 1024px) and (orientation: portrait) {
   html, body {
     height: 100% !important;
-    overflow: hidden !important; /* убираем двойной скролл */
+    overflow-y: auto !important;      /* скролл на всей странице */
+    overflow-x: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   #app {
     padding: 0 !important;
-    height: 100% !important;
-    overflow: hidden !important;
+    height: auto !important;
+    min-height: 100vh !important;
   }
 
   #content {
     flex-direction: column !important;
-    height: 100% !important;
     gap: 0 !important;
+    min-height: 100vh !important;
   }
 
-  /* Карта — основной блок */
+  /* Карта — занимает верхнюю часть, без зума */
   #map-container {
-    flex: 1 !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: 60vh !important;
+    height: 65vh !important;           /* основная часть экрана */
+    min-height: 400px !important;
     max-height: 75vh !important;
     overflow: hidden !important;
     position: relative !important;
-    border: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
     box-shadow: none !important;
   }
 
-  /* Поворот + точное центрирование */
+  /* Поворот + центрирование без смещения вправо */
   #map-wrapper {
     position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    width: 1360px !important;          /* ширина = оригинальная высота */
-    height: 2048px !important;         /* высота = оригинальная ширина */
-    transform: translate(-50%, -50%) rotate(90deg) !important;
-    transform-origin: center center !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transform: rotate(90deg) !important;
+    transform-origin: center center !important;
   }
 
   #map-wrapper svg {
@@ -333,85 +334,82 @@ h2 {
     height: 100% !important;
     max-width: none !important;
     max-height: none !important;
-    object-fit: contain !important;
+    object-fit: contain !important;    /* без приближения */
   }
 
-  /* Панель информации — строго снизу, не перекрывается */
+  /* Панель информации — строго снизу, центрирована, без смещения вправо */
   #info-panel {
-    flex: none !important;
     width: 100% !important;
+    max-width: 100% !important;
     height: auto !important;
-    max-height: 35vh !important;
-    min-height: 180px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    min-height: 25vh !important;
+    max-height: none !important;
+    margin: 0 auto !important;
     padding: 1.5vh 4vw !important;
-    margin: 0 !important;
     border-top: 2px solid #500 !important;
-    border-bottom: none !important;
-    border-left: none !important;
-    border-right: none !important;
     background: rgba(4,0,0,0.96) !important;
-    z-index: 10 !important;           /* выше карты */
+    overflow: visible !important;      /* не скроллим панель */
+    text-align: center !important;     /* центрируем текст */
+  }
+
+  /* Блоки внутри панели — центрируем */
+  .info-image-fixed,
+  .info-text-fixed {
+    margin: 0 auto !important;
+    max-width: 90% !important;
   }
 
   .info-image-fixed {
     flex: 0 0 140px !important;
     height: 140px !important;
-    width: 100% !important;
-    margin-bottom: 1vh !important;
+    width: 140px !important;
   }
 
   .info-text-fixed {
-    padding: 0.5vh 0 !important;
+    width: 100% !important;
+    max-width: 420px !important;
+    margin: 0 auto !important;
   }
 
-  h2 { font-size: 1.4em !important; }
-  .meta-line { font-size: 0.98em !important; }
-  .description { font-size: 1em !important; line-height: 1.5 !important; }
+  /* Текст читаемее */
+  h2 {
+    font-size: 1.4em !important;
+    text-align: center !important;
+  }
 
-  /* Отключаем эффекты для скорости и чистоты */
+  .meta-line,
+  .description {
+    text-align: left !important;
+    max-width: 420px !important;
+    margin: 0.4em auto !important;
+  }
+
+  .description {
+    font-size: 1em !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Отключаем эффекты */
   #app::before,
   #map-container::before,
   #map-container::after {
     display: none !important;
   }
-  #info-panel.has-selection {
-    animation: none !important;
-  }
 }
 
-/* Узкие экраны — чуть компактнее */
+/* Узкие экраны — чуть меньше отступов */
 @media screen and (max-width: 480px) {
   #map-container {
-    min-height: 55vh !important;
-    max-height: 70vh !important;
+    height: 60vh !important;
   }
 
   #info-panel {
-    max-height: 40vh !important;
+    padding: 1vh 5vw !important;
   }
 
   .info-image-fixed {
     height: 110px !important;
-  }
-}
-
-/* Альбомная ориентация — оставляем как было (без поворота) */
-@media screen and (max-width: 1024px) and (orientation: landscape) {
-  #content {
-    flex-direction: row !important;
-    gap: 2vw !important;
-  }
-
-  #map-container {
-    flex: 70 !important;
-    height: 100% !important;
-  }
-
-  #info-panel {
-    flex: 30 !important;
-    max-height: 100% !important;
+    width: 110px !important;
   }
 }
 </style>
@@ -617,4 +615,5 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
