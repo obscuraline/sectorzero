@@ -302,10 +302,10 @@ h2 {
     min-height: 100vh !important;
   }
 
-  /* Карта — чуть больше, чем раньше */
+  /* Карта — чуть больше */
   #map-container {
     width: 100% !important;
-    height: 72vh !important;               /* ← увеличил до 72vh, можно 74–75vh */
+    height: 72vh !important;               /* было 65–70, теперь больше */
     min-height: 420px !important;
     max-height: 78vh !important;
     overflow: hidden !important;
@@ -316,7 +316,7 @@ h2 {
     box-shadow: none !important;
   }
 
-  /* Поворот + центрирование без смещения */
+  /* Поворот + центрирование */
   #map-wrapper {
     position: absolute !important;
     inset: 0 !important;
@@ -335,39 +335,36 @@ h2 {
     object-fit: contain !important;        /* полный вид без зума */
   }
 
-  /* Панель информации — снизу, без перекрытия */
+  /* Панель информации — снизу */
   #info-panel {
     width: 100% !important;
-    max-width: 100% !important;
     height: auto !important;
-    min-height: 28vh !important;
-    margin: 0 !important;
-    padding: 1.5vh 3vw !important;
+    min-height: 22vh !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 1.5vh 4vw !important;
     border-top: 2px solid #500 !important;
     background: rgba(4,0,0,0.96) !important;
     overflow: visible !important;
+    text-align: center !important;
   }
 
-  /* Блок изображения — не уменьшаем само изображение, ограничиваем ширину блока */
+  /* Блок изображения — уменьшен по ширине, центрирован */
   .info-image-fixed {
     flex: 0 0 140px !important;
     height: 140px !important;
-    width: 90% !important;                 /* ← ограничение ширины под экран */
-    max-width: 360px !important;           /* максимум для узких телефонов */
-    margin: 0 auto 1vh auto !important;    /* центрируем */
+    width: 90% !important;                 /* ← уменьшили ширину */
+    max-width: 360px !important;           /* лимит на узких экранах */
+    margin: 0 auto 1vh auto !important;
+    box-sizing: border-box !important;
   }
 
-  .no-signal {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Текстовый блок — тоже центрируем и ограничиваем ширину */
+  /* Текстовый блок — тоже центрирован */
   .info-text-fixed {
     width: 90% !important;
     max-width: 420px !important;
     margin: 0 auto !important;
-    padding: 0.5vh 0 !important;
+    padding: 0.8vh 0 !important;
   }
 
   h2 {
@@ -378,8 +375,8 @@ h2 {
   .meta-line,
   .description {
     text-align: left !important;
+    max-width: 100% !important;
     margin: 0.4em auto !important;
-    max-width: 420px !important;
   }
 
   .description {
@@ -398,7 +395,7 @@ h2 {
   }
 }
 
-/* Для самых узких экранов */
+/* Узкие экраны — ещё компактнее */
 @media screen and (max-width: 480px) {
   #map-container {
     height: 70vh !important;
@@ -409,7 +406,7 @@ h2 {
   }
 
   .info-image-fixed {
-    height: 120px !important;
+    height: 110px !important;
     width: 85% !important;
     max-width: 300px !important;
   }
@@ -617,6 +614,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
