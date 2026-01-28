@@ -29,6 +29,7 @@ html, body {
   flex-direction: column;
   padding: 2.2vh 2.8vw;
   box-sizing: border-box;
+  position: relative;
   background: #000;                      /* убрали общий градиент с #app */
 }
 
@@ -52,34 +53,29 @@ html, body {
   to { background-position: 0 120px; }
 }
 
-/* Главный контент теперь row, высота определяется картой */
 #content {
   flex: 1;
   display: flex;
-  flex-direction: row;              /* ← горизонтально */
   gap: 2.2vw;
-  min-height: 0;                    /* важно для вложенных flex */
-  align-items: stretch;             /* растягиваем по высоте */
+  min-height: 0;
+  position: relative;
+  z-index: 3;
 }
 
 /* vignette ТОЛЬКО на карту */
 #map-container {
-  flex: 0 1 auto;                   /* не растягивать, подстраиваться под содержимое */
-  width: 75%;                       /* или flex: 0 1 75%; */
+  flex: 75;
   position: relative;
   background: rgba(6,0,0,0.78);
   border: 1px solid #400;
   overflow: hidden;
-  display: flex;                    /* ← чтобы svg внутри центрировался */
-  align-items: center;
-  justify-content: center;
   box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
+  /* добавляем vignette */
 }
 
 #map-wrapper {
-  width: 100%;
-  height: auto;
-  max-height: 100%;                 /* не вылезает за контейнер */
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,9 +84,8 @@ html, body {
 #map-wrapper svg {
   max-width: 100%;
   max-height: 100%;
-  width: 100%;
+  width: auto;
   height: auto;
-  display: block;
   object-fit: contain;
   filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
 }
@@ -117,12 +112,12 @@ html, body {
 
 /* Улучшаем поведение пустой панели */
 #info-panel {
-  flex: 0 1 25%;                    /* ширина 25%, высота = высоте соседа */
+  flex: 25;
   background: rgba(4,0,0,0.94);
   border: 2px solid #500;
   box-shadow: 0 0 28px rgba(160,0,0,0.3);
   padding: 2vh 1.8vw;
-  overflow-y: auto;
+  overflow: hidden;                      /* ← важно, чтобы не было прокрутки пустоты */
   display: flex;
   flex-direction: column;
   gap: 1.1em;
@@ -425,4 +420,3 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
-
