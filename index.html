@@ -284,7 +284,7 @@ h2 {
 @media screen and (max-width: 1024px) and (orientation: portrait) {
   html, body {
     height: 100% !important;
-    overflow-y: auto !important;      /* скролл на всей странице */
+    overflow-y: auto !important;
     overflow-x: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -302,12 +302,12 @@ h2 {
     min-height: 100vh !important;
   }
 
-  /* Карта — занимает верхнюю часть, без зума */
+  /* Карта — чуть больше, чем раньше */
   #map-container {
     width: 100% !important;
-    height: 65vh !important;           /* основная часть экрана */
-    min-height: 400px !important;
-    max-height: 75vh !important;
+    height: 72vh !important;               /* ← увеличил до 72vh, можно 74–75vh */
+    min-height: 420px !important;
+    max-height: 78vh !important;
     overflow: hidden !important;
     position: relative !important;
     margin: 0 !important;
@@ -316,7 +316,7 @@ h2 {
     box-shadow: none !important;
   }
 
-  /* Поворот + центрирование без смещения вправо */
+  /* Поворот + центрирование без смещения */
   #map-wrapper {
     position: absolute !important;
     inset: 0 !important;
@@ -332,46 +332,44 @@ h2 {
   #map-wrapper svg {
     width: 100% !important;
     height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    object-fit: contain !important;    /* без приближения */
+    object-fit: contain !important;        /* полный вид без зума */
   }
 
-  /* Панель информации — строго снизу, центрирована, без смещения вправо */
+  /* Панель информации — снизу, без перекрытия */
   #info-panel {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 25vh !important;
-    max-height: none !important;
-    margin: 0 auto !important;
-    padding: 1.5vh 4vw !important;
+    min-height: 28vh !important;
+    margin: 0 !important;
+    padding: 1.5vh 3vw !important;
     border-top: 2px solid #500 !important;
     background: rgba(4,0,0,0.96) !important;
-    overflow: visible !important;      /* не скроллим панель */
-    text-align: center !important;     /* центрируем текст */
+    overflow: visible !important;
   }
 
-  /* Блоки внутри панели — центрируем */
-  .info-image-fixed,
-  .info-text-fixed {
-    margin: 0 auto !important;
-    max-width: 90% !important;
-  }
-
+  /* Блок изображения — не уменьшаем само изображение, ограничиваем ширину блока */
   .info-image-fixed {
     flex: 0 0 140px !important;
     height: 140px !important;
-    width: 140px !important;
+    width: 90% !important;                 /* ← ограничение ширины под экран */
+    max-width: 360px !important;           /* максимум для узких телефонов */
+    margin: 0 auto 1vh auto !important;    /* центрируем */
   }
 
-  .info-text-fixed {
+  .no-signal {
     width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Текстовый блок — тоже центрируем и ограничиваем ширину */
+  .info-text-fixed {
+    width: 90% !important;
     max-width: 420px !important;
     margin: 0 auto !important;
+    padding: 0.5vh 0 !important;
   }
 
-  /* Текст читаемее */
   h2 {
     font-size: 1.4em !important;
     text-align: center !important;
@@ -380,8 +378,8 @@ h2 {
   .meta-line,
   .description {
     text-align: left !important;
-    max-width: 420px !important;
     margin: 0.4em auto !important;
+    max-width: 420px !important;
   }
 
   .description {
@@ -395,12 +393,15 @@ h2 {
   #map-container::after {
     display: none !important;
   }
+  #info-panel.has-selection {
+    animation: none !important;
+  }
 }
 
-/* Узкие экраны — чуть меньше отступов */
+/* Для самых узких экранов */
 @media screen and (max-width: 480px) {
   #map-container {
-    height: 60vh !important;
+    height: 70vh !important;
   }
 
   #info-panel {
@@ -408,8 +409,9 @@ h2 {
   }
 
   .info-image-fixed {
-    height: 110px !important;
-    width: 110px !important;
+    height: 120px !important;
+    width: 85% !important;
+    max-width: 300px !important;
   }
 }
 </style>
@@ -615,5 +617,6 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
