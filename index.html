@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ZERO SECTOR MAP v0.9 — ARCHIVE TERMINAL</title>
 
 <style>
@@ -117,10 +116,11 @@ html, body {
   background: rgba(4,0,0,0.94);
   border: 2px solid #500;
   box-shadow: 0 0 28px rgba(160,0,0,0.3);
-  padding: 0;
-  overflow: hidden;
+  padding: 2vh 1.8vw;
+  overflow: hidden;                      /* ← важно, чтобы не было прокрутки пустоты */
   display: flex;
   flex-direction: column;
+  gap: 1.1em;
   transition: border-color 0.4s, box-shadow 0.6s;
   color: #c33;
 }
@@ -130,65 +130,19 @@ html, body {
   height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s; /* visibility после opacity */
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 0.8em;
 }
 
 #info-content.visible {
   visibility: visible;
   height: auto;
   opacity: 1;
-  transition: opacity 0.25s ease, visibility 0s linear 0s;
+  transition: opacity 0.25s ease, visibility 0s linear 0s; /* сразу visible */
 }
 
-.info-image-fixed {
-  flex: 0 0 33.33%;               /* фиксированная доля высоты */
-  background: rgba(10,0,0,0.7);
-  border-bottom: 1px solid #500;
-  display: none;                  /* скрыт по умолчанию */
-  align-items: center;
-  justify-content: center;
-  padding: 1vh 1vw;
-}
-
-.no-signal {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(200,0,0,0.12),
-    rgba(200,0,0,0.12) 10px,
-    transparent 10px,
-    transparent 20px
-  );
-  border: 2px solid #600;
-  color: #800;
-  font-size: 1.35em;
-  text-align: center;
-  line-height: 1.3;
-}
-
-.no-signal small {
-  font-size: 0.68em;
-  color: #700;
-  margin-top: 0.5em;
-}
-
-/* Блок с текстом — нижняя часть */
-.info-text-fixed {
-  flex: 1;                        /* забирает всё остальное пространство */
-  display: none;                  /* скрыт по умолчанию */
-  padding: 1.4vh 1.6vw;
-  overflow-y: auto;
-  flex-direction: column;
-  gap: 0.9em;
-}
 /* когда ничего не выбрано — делаем панель "пустой" визуально */
 #info-panel:not(.has-selection) {
   border-color: #500;
@@ -206,7 +160,7 @@ html, body {
   100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
 }
 
-/* Placeholder — только когда ничего не выбрано */
+/* placeholder всегда виден, когда контент скрыт */
 #info-placeholder {
   flex: 1;
   display: flex;
@@ -219,7 +173,7 @@ html, body {
 }
 
 #info-panel.has-selection #info-placeholder,
-#info-panel.preview-active {  /* если хочешь отдельный класс для hover */
+#info-panel.preview-active #info-placeholder {  /* если хочешь отдельный класс для hover */
   display: none;
 }
 
@@ -259,16 +213,13 @@ h2 {
   text-shadow: none;
 }
   
-/* Описание может скроллиться, если очень длинное */
 .description {
-  flex: 1;
-  overflow-y: auto;
-  margin: 0.4em 0 0 0;
-  padding-top: 0.8em;
+  margin-top: 1em;
+  padding-top: 1em;
   border-top: 1px solid #500;
   white-space: pre-wrap;
   font-size: 1.12em;
-  color: #b22;
+  color: #b22;                      /* чуть темнее */
   line-height: 1.45;
 }
 
@@ -279,150 +230,6 @@ h2 {
   margin: auto 0;
   opacity: 0.75;
 }
-
-/* Мобильная версия — портрет */
-@media screen and (max-width: 1024px) and (orientation: portrait) {
-
-  html, body {
-    height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-
-  #app {
-    padding: 0.5vh 3vw !important;
-  }
-
-  #content {
-    flex-direction: column !important;
-    gap: 1vh !important;
-  }
-
-  /* Контейнер карты — больше не режем */
-  #map-container {
-    flex: none !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: unset !important;
-    max-height: unset !important;
-    overflow: visible !important;
-    position: relative !important;
-    border: none !important;
-    margin-top: -6vh !important; /* поднимаем карту */
-  }
-
-  /* Поворот карты */
-  #map-wrapper {
-    position: relative !important;
-    width: 100vh !important;
-    height: 100vw !important;
-    transform: rotate(90deg) translateY(-100%) !important;
-    transform-origin: top left !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  #map-wrapper svg {
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-  }
-
-  /* Инфо-панель — без локального скролла и уже */
-  #info-panel {
-    flex: none !important;
-    width: 92% !important;
-    max-width: 420px !important;
-    height: auto !important;
-    max-height: unset !important;
-    min-height: unset !important;
-    overflow: visible !important;
-    padding: 2vh 0 !important;
-    margin: 0 auto 3vh auto !important;
-    border-top: 2px solid #500 !important;
-    box-sizing: border-box !important;
-  }
-
-  .info-image-fixed {
-    flex: 0 0 120px !important;
-    height: 120px !important;
-    width: 100% !important;
-  }
-
-  .info-text-fixed {
-    padding: 1vh 0 !important;
-  }
-
-  h2 {
-    font-size: 1.35em !important;
-  }
-
-  .meta-line {
-    font-size: 0.95em !important;
-  }
-
-  .description {
-    font-size: 1em !important;
-    line-height: 1.55 !important;
-  }
-
-  /* Отключаем тяжёлые эффекты */
-  #app::before,
-  #map-container::before,
-  #map-container::after {
-    display: none !important;
-  }
-
-  #info-panel.has-selection {
-    animation: none !important;
-  }
-}
-
-/* Альбомная ориентация — без локальных скроллов */
-@media screen and (max-width: 1024px) and (orientation: landscape) {
-
-  html, body {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-
-  #content {
-    flex-direction: row !important;
-    gap: 4vw !important;
-  }
-
-  #map-container {
-    flex: 65 !important;
-    width: 65% !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  #info-panel {
-    flex: 35 !important;
-    width: 35% !important;
-    overflow: visible !important;
-    max-width: 420px !important;
-  }
-}
-
-/* Узкие экраны */
-@media screen and (max-width: 480px) {
-
-  #map-container {
-    margin-top: -8vh !important;
-  }
-
-  #info-panel {
-    width: 94% !important;
-  }
-
-  .info-image-fixed {
-    height: 100px !important;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -450,22 +257,14 @@ h2 {
       </div>
     </div>
 
-   <div id="info-panel">
+    <div id="info-panel">
       <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
-
-      <div id="info-image-fixed" class="info-image-fixed">
-        <div class="no-signal">
-          NO SIGNAL
-          <small>Изображение сектора<br>будет здесь</small>
-        </div>
-      </div>
-
-      <div id="info-text-fixed" class="info-text-fixed">
-        <h2 id="i-title"></h2>
-        <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
-        <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
-        <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
-        <div class="description" id="i-desc"></div>
+      <div id="info-content">
+          <h2 id="i-title"></h2>
+          <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
+          <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
+          <div class="meta-line"><strong>NOTE:</strong> <span id="i-extra"></span></div>
+          <div class="description" id="i-desc"></div>
       </div>
     </div>
   </div>
@@ -540,21 +339,20 @@ function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
 
-  // Очистка перед заполнением
+  // всегда очищаем перед заполнением (важно!)
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-extra').textContent = d.extra || '';
-  document.getElementById('i-desc').textContent = '';
+  document.getElementById('i-extra').textContent = d.extra || ''; // на всякий случай
+  document.getElementById('i-desc').textContent = ''; // мгновенная очистка
 
-  // Запуск печати описания
+  // запускаем печать
   typeText(document.getElementById('i-desc'), d.desc);
 
-  // Показываем оба блока
   document.getElementById('info-placeholder').style.display = 'none';
-  document.getElementById('info-image-fixed').style.display = 'flex';
-  document.getElementById('info-text-fixed').style.display = 'flex';
+  document.getElementById('info-content').classList.add('visible');
 
+  // если это hover — можно добавить класс для отличия стиля (опционально)
   if (isHover) {
     document.getElementById('info-panel').classList.add('preview-active');
   } else {
@@ -566,19 +364,15 @@ function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
 
-  // Очистка полей
+  // принудительная очистка ВСЕХ полей
   document.getElementById('i-title').textContent = '';
   document.getElementById('i-class').textContent = '';
   document.getElementById('i-status').textContent = '';
   document.getElementById('i-extra').textContent = '';
   document.getElementById('i-desc').textContent = '';
 
-  // Скрываем блоки с изображением и текстом
-  document.getElementById('info-image-fixed').style.display = 'none';
-  document.getElementById('info-text-fixed').style.display = 'none';
-
-  // Показываем placeholder
   document.getElementById('info-placeholder').style.display = 'flex';
+  document.getElementById('info-content').classList.remove('visible');
 
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
