@@ -477,6 +477,14 @@ h2 {
     white-space: pre-wrap;
   }
 
+  .zone-modal[open] .modal-content {
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
   .close-btn {
     outline: none;                    /* убираем стандартный outline */
     box-shadow: none;                 /* на случай, если браузер использует shadow вместо outline */
@@ -846,5 +854,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
