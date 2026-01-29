@@ -297,21 +297,6 @@ h2 {
     background: #000;
   }
 
-  /* Сильная виньетка: края полностью чёрные */
-  #map-container::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 35%,               /* центр без затемнения */
-      rgba(0,0,0,0.6) 55%,           /* плавный переход */
-      #000 75%                       /* края полностью чёрные */
-    );
-    z-index: 2;
-  }
-
   #map-wrapper {
     position: absolute;
     top: 0;
@@ -330,44 +315,87 @@ h2 {
     max-height: none;
     display: block;
     object-fit: contain;
+    position: relative;
+  }
+
+  /* Виньетка именно на фото карты (на svg) */
+  #map-wrapper svg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 38%,
+      rgba(0,0,0,0.55) 58%,
+      #000 78%
+    );
+    z-index: 5;                /* выше самой карты, но ниже зон */
   }
 
   /* Скрываем всё лишнее */
   #info-panel,
   #app::before,
+  #map-container::before,
   #map-container::after,
   #content > *:not(#map-container) {
     display: none !important;
   }
 
-  /* Подсветка зон (только видимые, enabled) */
-  .zone.enabled {
-    animation: none; /* отключим hover по умолчанию */
+  /* Статичная подсветка при наведении / выборе (как на десктопе) */
+  .zone.enabled:hover {
+    fill: rgba(180,0,0,0.14);
+    stroke: rgba(220,0,0,0.8);
+    stroke-width: 4;           /* тонкая обводка при hover */
   }
 
-  /* Анимация поочерёдной подсветки */
+  .zone.active {
+    fill: rgba(220,0,0,0.35);
+    stroke: rgba(255,60,60,0.95);
+    stroke-width: 5.5;         /* чуть толще при активной зоне */
+    filter: drop-shadow(0 0 10px #f40);
+  }
+
+  /* Пульсация только для привлечения внимания в начале */
   @keyframes pulseZone {
-    0%   { fill: transparent; stroke: rgba(255, 40, 40, 0.9); stroke-width: 12; }
-    50%  { fill: rgba(255, 40, 40, 0.35); stroke: #ff0000; stroke-width: 18; }
-    100% { fill: transparent; stroke: rgba(255, 40, 40, 0.9); stroke-width: 12; }
+    0%, 100% {
+      fill: transparent;
+      stroke: rgba(255, 60, 60, 0.7);
+      stroke-width: 4;
+    }
+    50% {
+      fill: rgba(255, 60, 60, 0.18);
+      stroke: #ff4040;
+      stroke-width: 8;
+    }
   }
 
-  /* Каждая зона получает свою задержку */
-  .zone.enabled[data-zone="1"] { animation: pulseZone 3s infinite ease-in-out; }
-  .zone.enabled[data-zone="2"] { animation: pulseZone 3s infinite ease-in-out 0.4s; }
-  .zone.enabled[data-zone="3"] { animation: pulseZone 3s infinite ease-in-out 0.8s; }
-  .zone.enabled[data-zone="4"] { animation: pulseZone 3s infinite ease-in-out 1.2s; }
-  .zone.enabled[data-zone="5"] { animation: pulseZone 3s infinite ease-in-out 1.6s; }
-  .zone.enabled[data-zone="6"] { animation: pulseZone 3s infinite ease-in-out 2.0s; }
+  .zone.enabled {
+    animation: pulseZone 4s infinite ease-in-out;
+  }
 
-  /* После первого касания — отключаем всю анимацию */
-  #map-container.touched .zone {
+  /* Задержки для поочерёдности */
+  .zone.enabled[data-zone="1"] { animation-delay: 0s; }
+  .zone.enabled[data-zone="2"] { animation-delay: 0.6s; }
+  .zone.enabled[data-zone="3"] { animation-delay: 1.2s; }
+  .zone.enabled[data-zone="4"] { animation-delay: 1.8s; }
+  .zone.enabled[data-zone="5"] { animation-delay: 2.4s; }
+  .zone.enabled[data-zone="6"] { animation-delay: 3.0s; }
+
+  /* После первого касания — отключаем ТОЛЬКО пульсацию */
+  #map-container.touched .zone.enabled {
     animation: none !important;
-    fill: transparent;
-    stroke: transparent;
+  }
+
+  /* Но активная зона всё равно подсвечивается нормально */
+  #map-container.touched .zone.active {
+    fill: rgba(220,0,0,0.35) !important;
+    stroke: rgba(255,60,60,0.95) !important;
+    stroke-width: 5.5 !important;
+    filter: drop-shadow(0 0 10px #f40) !important;
   }
 }
-
+  
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
 @media (max-width: 1024px) and (orientation: landscape) {
   #map-container {
@@ -635,6 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
