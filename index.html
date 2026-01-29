@@ -476,6 +476,19 @@ h2 {
     color: #b22;
     white-space: pre-wrap;
   }
+
+  .close-btn {
+  outline: none !important;           /* убирает стандартный outline */
+  -webkit-tap-highlight-color: transparent;  /* убирает синий/серый highlight на iOS/Android при тапе */
+  -webkit-appearance: none;           /* помогает на iOS */
+  appearance: none;
+  touch-action: manipulation;         /* улучшает отзывчивость тапа */
+  }
+
+  /* На всякий случай убираем focus-visible, если не нужен */
+  .close-btn:focus-visible {
+    outline: none !important;
+  }
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -769,64 +782,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// Модальное окно
-const modal = document.getElementById('zone-modal');
-const modalImg = document.getElementById('modal-img');
-const modalTitle = document.getElementById('modal-title');
-const modalClass = document.getElementById('modal-class');
-const modalStatus = document.getElementById('modal-status');
-const modalDesc = document.getElementById('modal-desc');
+  // Модальное окно — только для мобильных в портрете
+  const isMobilePortrait = () => {
+    return window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+  };
 
-function openZoneModal(zoneId) {
-  const d = data[zoneId];
-  if (!d) return;
+  function openZoneModal(zoneId) {
+    if (!isMobilePortrait()) return;  // ← ничего не делаем на десктопе/ландшафте
 
-  modalTitle.textContent = d.title;
-  modalClass.textContent = d.class;
-  modalStatus.textContent = d.status;
-  modalDesc.textContent = d.desc;
+    const d = data[zoneId];
+    if (!d) return;
 
-  // Картинка (если в data есть image — используй, иначе placeholder)
-  modalImg.src = d.image || 'assets/info/placeholder.png';
-  modalImg.alt = d.title;
+    modalTitle.textContent = d.title;
+    modalClass.textContent = d.class;
+    modalStatus.textContent = d.status;
+    modalDesc.textContent = d.desc;
 
-  modal.showModal();  // ← открывает как модальное окно
-}
+    modalImg.src = d.image || 'assets/info/placeholder.png';
+    modalImg.alt = d.title;
 
-// Закрытие
-document.querySelector('.close-btn').addEventListener('click', () => {
-  modal.close();
-});
-
-// Закрытие по клику на backdrop (фон)
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) {
-    modal.close();
-  }
-});
-
-// Перехватываем клики по зонам (вместо старой showInfo)
-document.querySelectorAll('.zone').forEach(z => {
-  const zoneNum = +z.dataset.zone;
-  if (zoneNum <= currentStage) {
-    z.classList.add('enabled');
+    modal.showModal();
   }
 
-  z.addEventListener('click', () => {
-    if (!z.classList.contains('enabled')) return;
+  // В обработчике зон — тоже проверка
+  document.querySelectorAll('.zone').forEach(z => {
+    const zoneNum = +z.dataset.zone;
+    if (zoneNum <= currentStage) {
+      z.classList.add('enabled');
+    }
 
-    // Убираем старую active, если нужно
-    document.querySelector('.zone.active')?.classList.remove('active');
-    z.classList.add('active');
+    z.addEventListener('click', () => {
+      if (!z.classList.contains('enabled')) return;
 
-    openZoneModal(zoneNum);
+      document.querySelector('.zone.active')?.classList.remove('active');
+      z.classList.add('active');
 
-    // Если нужно — убираем пульсацию после первого взаимодействия
-    document.getElementById('map-container').classList.add('touched');
+      if (isMobilePortrait()) {
+        openZoneModal(zoneNum);
+      }
+      // else — здесь можно оставить старую showInfo(), если хочешь сохранить десктоп-поведение
+    });
   });
-});
 </script>
   
 </body>
 </html>
+
 
