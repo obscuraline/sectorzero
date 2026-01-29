@@ -296,32 +296,72 @@ h2 {
     padding: 0;
     overflow: hidden;
     position: relative;
+    background: #000;
+  }
+
+  /* Виньетка — тёмные края */
+  #map-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 35%,
+      rgba(0,0,0,0.4) 65%,
+      rgba(0,0,0,0.85) 90%
+    );
+    z-index: 2;
   }
 
   #map-wrapper {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vh;               /* ← после поворота это станет шириной экрана */
-    height: 100vw;              /* ← после поворота это станет высотой экрана */
+    width: 100vh;
+    height: 100vw;
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
+    z-index: 1;
   }
 
   #map-wrapper svg {
-    width: 100%;                /* заполняет wrapper после поворота */
+    width: 100%;
     height: 100%;
     max-width: none;
     max-height: none;
-    display: block;             /* убирает возможные inline-block отступы */
-    object-fit: contain;        /* или cover, если хочешь обрезать края */
+    display: block;
+    object-fit: contain;
+  }
+
+  /* Надпись "Выберите зону" */
+  #map-container::after {
+    content: "Выберите зону на карте";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(200, 0, 0, 0.65);
+    font-size: clamp(1.4rem, 7vw, 3.2rem);
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    z-index: 3;
+    text-shadow: 0 0 12px rgba(180,0,0,0.5);
+    transition: opacity 0.6s ease;
+  }
+
+  /* Скрываем надпись после первого взаимодействия */
+  #map-container.touched::after {
+    opacity: 0;
   }
 
   /* Скрываем всё лишнее */
   #info-panel,
   #app::before,
-  #map-container::before,
-  #map-container::after,
+  #map-container > *:not(#map-wrapper):not(#map-wrapper svg),
   #content > *:not(#map-container) {
     display: none !important;
   }
@@ -572,8 +612,28 @@ z.addEventListener('mouseleave', () => {
   clearInfo(true);                   // ← isHover = true
 });
 </script>
+
+<script>
+  // Скрываем надпись после первого касания/клика по карте
+  document.addEventListener('DOMContentLoaded', () => {
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) return;
+
+    const hideHint = () => {
+      mapContainer.classList.add('touched');
+      // Удаляем слушатели, чтобы не тратить ресурсы
+      document.removeEventListener('touchstart', hideHint);
+      document.removeEventListener('click', hideHint);
+    };
+
+    // touchstart лучше для мобильных, click как запасной
+    document.addEventListener('touchstart', hideHint, { once: true, passive: true });
+    document.addEventListener('click', hideHint, { once: true });
+  });
+</script>
 </body>
 </html>
+
 
 
 
