@@ -380,6 +380,94 @@ h2 {
     stroke-width: 5.5 !important;
     filter: drop-shadow(0 0 10px #f40) !important;
   }
+
+  .mobile-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 5vh 6vw;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .mobile-popup.visible {
+    display: flex;
+    opacity: 1;
+  }
+
+  .popup-content {
+    background: rgba(10,0,0,0.88);
+    border: 2px solid #500;
+    border-radius: 12px;
+    padding: 5vw 6vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(200,0,0,0.4);
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: #c00;
+    font-size: 2.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 8px;
+  }
+
+  .popup-close:hover,
+  .popup-close:active {
+    color: #ff4040;
+  }
+
+  #popup-title {
+    color: #e00;
+    font-size: 1.8rem;
+    margin: 0 0 1.2rem;
+    padding-right: 2.5rem; /* место под крестик */
+  }
+
+  .popup-meta {
+    color: #c40;
+    font-size: 1.05rem;
+    margin-bottom: 1.4rem;
+    line-height: 1.6;
+  }
+
+  .popup-meta strong {
+    color: #e66;
+  }
+
+  .popup-description {
+    color: #b22;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  /* Анимация появления контента */
+  .popup-content {
+    transform: scale(0.92);
+    opacity: 0;
+    transition: all 0.35s ease;
+  }
+
+  .mobile-popup.visible .popup-content {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -451,6 +539,20 @@ h2 {
         <div class="description" id="i-desc"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Мобильный попап с информацией о зоне -->
+<div id="mobile-popup" class="mobile-popup">
+  <div class="popup-content">
+    <button class="popup-close">×</button>
+    
+    <h2 id="popup-title"></h2>
+    <div class="popup-meta">
+      <div><strong>CLASS:</strong> <span id="popup-class"></span></div>
+      <div><strong>STATUS:</strong> <span id="popup-status"></span></div>
+    </div>
+    <div class="popup-description" id="popup-desc"></div>
   </div>
 </div>
 
@@ -626,6 +728,56 @@ z.addEventListener('mouseleave', () => {
   if (!z.classList.contains('enabled')) return;
   clearInfo(true);                   // ← isHover = true
 });
+
+  // Мобильный попап логика (только в портрете)
+if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+  const popup = document.getElementById('mobile-popup');
+  const popupClose = document.querySelector('.popup-close');
+
+  // Закрытие по кнопке
+  if (popupClose) {
+    popupClose.addEventListener('click', () => {
+      popup.classList.remove('visible');
+    });
+  }
+
+  // Закрытие по тапу на фон (вне .popup-content)
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      popup.classList.remove('visible');
+    }
+  });
+
+  // Перехватываем клики по зонам только для мобильного попапа
+  document.querySelectorAll('.zone').forEach(zone => {
+    zone.addEventListener('click', (e) => {
+      if (!zone.classList.contains('enabled')) return;
+
+      e.preventDefault(); // предотвращаем возможные дефолтные действия
+
+      const zoneId = +zone.dataset.zone;
+      const info = data[zoneId];
+
+      if (!info) return;
+
+      // Заполняем попап
+      document.getElementById('popup-title').textContent = info.title;
+      document.getElementById('popup-class').textContent = info.class;
+      document.getElementById('popup-status').textContent = info.status;
+
+      const descEl = document.getElementById('popup-desc');
+      descEl.textContent = ''; // очищаем
+      typeText(descEl, info.desc); // используем твою функцию печатающего текста
+
+      // Показываем попап
+      popup.classList.add('visible');
+
+      // Опционально: подсвечиваем саму зону
+      document.querySelectorAll('.zone.active').forEach(z => z.classList.remove('active'));
+      zone.classList.add('active');
+    });
+  });
+}
 </script>
 
 <script>
@@ -659,3 +811,4 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
