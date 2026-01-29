@@ -281,133 +281,76 @@ h2 {
 }
 
 /* Мобильная версия — поворот карты в портрете */ 
-@media screen and (max-width: 1024px) and (orientation: portrait) 
-{ 
-  #app { 
-    padding: 1vh 1.5vw !important;
-  } 
-  
-  #content { 
-    flex-direction: column !important; 
-    gap: 1vh !important; 
-  } 
-  
-  #map-container 
-  { 
-    flex: none !important; 
-    width: 100% !important; 
-    height: 70vh !important; 
-    min-height: 50vh !important; 
-    max-height: 75vh !important; 
-    overflow: hidden !important; 
-    position: relative !important; 
-    border: none !important; 
-  } 
-  
-  /* Поворот на 90° + корректировка позиции */ 
-  #map-wrapper { 
-    position: absolute !important; 
-    top: 0 !important; 
-    left: 0 !important; 
-    width: 100vh !important; 
-    /* ширина = высоте экрана после поворота */ 
-    height: 100vw !important; 
-    /* высота = ширине экрана */ 
-    transform: rotate(90deg) translate(0, -100%) !important; 
-    transform-origin: top left !important; 
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important; 
+@media (max-width: 1024px) and (orientation: portrait) {
+
+  #content {
+    flex-direction: column;
+    gap: 0;
   }
-  
-  #map-wrapper svg { 
-    width: 100% !important; 
-    height: 100% !important; 
-    object-fit: contain !important; 
+
+  #map-container {
+    flex: none;
+    width: 100%;
+    height: 70vh;                    /* основная высота карты в портрете */
+    min-height: 55vh;
+    max-height: 75vh;
+    border: none;
+    background: #000;
   }
-  
-  /* Панель информации снизу с вертикальным скроллом */ 
-  #info-panel { 
-    flex: none !important; 
-    width: 100% !important; 
-    height: auto !important; 
-    max-height: 30vh !important; 
-    min-height: 25vh !important; 
-    overflow-y: auto !important; 
-    overflow-x: hidden !important; 
-    padding: 1.2vh 4vw !important; 
-    border-top: 2px solid #500 !important; 
-  } 
-  
-  .info-image-fixed { 
-    flex: 0 0 140px !important; 
-    height: 140px !important; 
-    width: 100% !important; 
-  } 
-  
-  .info-text-fixed { 
-    padding: 0.8vh 0 !important; 
-  } 
-  
-  h2 { 
-    font-size: 1.45em !important; 
-  } 
-  
-  .meta-line { 
-    font-size: 1em !important; 
+
+  #map-wrapper {
+    width: 100vw;                    /* ширина = ширине экрана */
+    height: 100vh;                   /* высота = высоте экрана (важно для поворота) */
+    top: 0;
+    left: 0;
+    transform: rotate(90deg) translateY(-100vh);
+    transform-origin: top left;
   }
-  
-  .description { 
-    font-size: 1.02em !important; 
-    line-height: 1.5 !important; 
-  } 
-  
-  /* Отключаем тяжёлые эффекты */ 
-  #app::before, #map-container::before, #map-container::after { 
-    display: none !important; 
-  } 
-  
-  #info-panel.has-selection { 
-    animation: none !important; 
-  } 
-} 
-  
-/* Альбомная ориентация — без поворота, горизонтальная раскладка */ 
-@media screen and (max-width: 1024px) and (orientation: landscape) {
-  
-  #content { 
-    flex-direction: row !important; 
-    gap: 1.5vw !important; 
-  } 
-  
-  #map-container { 
-    flex: 65 !important; 
-    width: 65% !important; 
-    height: 100% !important; 
+
+  #map-wrapper svg {
+    width: 100vh;                    /* после поворота "ширина" = высоте экрана */
+    height: 100vw;                   /* после поворота "высота" = ширине экрана */
+    max-width: none;
+    max-height: none;
   }
-  
-  #info-panel { 
-    flex: 35 !important; 
-    width: 35% !important; 
-    max-height: 100% !important; 
-    overflow-y: auto !important; 
-  } 
-} 
-  
-/* Узкие экраны — корректировка */ 
-@media screen and (max-width: 480px) { 
-  
-  #map-container { 
-    height: 65vh !important; 
-  } 
-  
-  #info-panel { 
-    max-height: 35vh !important; 
-  } 
-  
-  .info-image-fixed { 
-    height: 110px !important; 
-  } 
+
+  #info-panel {
+    flex: none;
+    width: 100%;
+    height: auto;
+    max-height: 30vh;                /* остаток экрана под описание */
+    min-height: 22vh;
+    border-top: 2px solid #500;
+    border-left: none;
+    border-right: none;
+    padding: 12px 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* отключаем эффекты, которые плохо работают после поворота */
+  #app::before,
+  #map-container::before,
+  #map-container::after {
+    display: none;
+  }
+}
+
+/* Ландшафт на мобильных — оставляем почти как на десктопе */
+@media (max-width: 1024px) and (orientation: landscape) {
+  #content {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  #map-container {
+    flex: 65;
+  }
+
+  #info-panel {
+    flex: 35;
+    max-height: 100%;
+  }
 }
   
 </style>
@@ -632,6 +575,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
