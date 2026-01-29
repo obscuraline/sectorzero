@@ -646,6 +646,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', hideEffects, { once: true });
 });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const mapImage = document.querySelector('#map-container image'); // или по id, если добавишь id="main-map-image"
+
+    if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+      mapImage.setAttribute('href', 'assets/maps/open_4_6_v2.png');
+    }
+  });
+</script>
   
 </body>
 </html>
+
