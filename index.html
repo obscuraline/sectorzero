@@ -380,6 +380,101 @@ h2 {
     stroke-width: 5.5 !important;
     filter: drop-shadow(0 0 10px #f40) !important;
   }
+
+  .mobile-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none; /* по умолчанию скрыт */
+  }
+
+  .mobile-popup.visible {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px); /* лёгкое размытие фона — красиво и атмосферно */
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .popup-content {
+    position: relative;
+    background: rgba(10, 0, 0, 0.95);
+    border-top: 3px solid #600;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.5rem 1.2rem 2rem;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+    animation: slide-up 0.4s ease-out;
+  }
+
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 0.8rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #c00;
+    font-size: 2.2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.4rem;
+    z-index: 10;
+  }
+
+  .popup-close:hover,
+  .popup-close:focus {
+    color: #f00;
+  }
+
+  .popup-header h2 {
+    margin: 0 0 1rem;
+    font-size: 1.6rem;
+    color: #e00;
+    text-shadow: 0 0 8px rgba(200,0,0,0.4);
+  }
+
+  .meta-line {
+    font-size: 1.05rem;
+    margin-bottom: 0.8rem;
+    color: #c40;
+  }
+
+  .popup-description {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #b22;
+    white-space: pre-wrap;
+  }
+
+  .popup-image {
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  .popup-image img {
+    max-width: 100%;
+    border: 1px solid #500;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(160,0,0,0.3);
+  }
+
+  /* Чтобы зоны под попапом не кликались */
+  .mobile-popup.visible ~ * {
+    pointer-events: none;
+  }
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -454,6 +549,30 @@ h2 {
   </div>
 </div>
 
+<!-- Мобильный попап (появляется только в портрете) -->
+<div id="mobile-popup" class="mobile-popup hidden">
+  <div class="popup-overlay"></div>
+  <div class="popup-content">
+    <button class="popup-close" aria-label="Закрыть">×</button>
+    
+    <div class="popup-header">
+      <h2 id="popup-title"></h2>
+    </div>
+    
+    <div class="popup-body">
+      <div class="meta-line"><strong>CLASS:</strong> <span id="popup-class"></span></div>
+      <div class="meta-line"><strong>STATUS:</strong> <span id="popup-status"></span></div>
+      
+      <!-- Опционально: изображение сектора, если хочешь -->
+      <div class="popup-image" id="popup-image-container">
+        <!-- сюда будет вставляться <img> -->
+      </div>
+      
+      <div class="popup-description" id="popup-desc"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 let currentStage = 4;
 let activeZone = null;
@@ -519,6 +638,81 @@ function typeText(el, text) {
   }, 38);
 }
 
+function showInfo(zoneId, isHover = false) {
+  const d = data[zoneId];
+  if (!d) return;
+
+  // Проверяем, мобильный портрет ли сейчас
+  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+
+  if (isMobilePortrait) {
+    // Заполняем попап
+    document.getElementById('popup-title').textContent = d.title;
+    document.getElementById('popup-class').textContent = d.class;
+    document.getElementById('popup-status').textContent = d.status;
+    document.getElementById('popup-desc').textContent = d.desc;
+
+    // Изображение (если есть)
+    const imgContainer = document.getElementById('popup-image-container');
+    imgContainer.innerHTML = '';
+    if (d.image) {
+      const img = document.createElement('img');
+      img.src = d.image;
+      img.alt = d.title;
+      imgContainer.appendChild(img);
+    }
+
+    // Показываем попап
+    document.getElementById('mobile-popup').classList.add('visible');
+
+    // Закрытие по клику на оверлей или крестик
+    const popup = document.getElementById('mobile-popup');
+    const closeBtn = document.querySelector('.popup-close');
+    const overlay = document.querySelector('.popup-overlay');
+
+    const closePopup = () => {
+      popup.classList.remove('visible');
+    };
+
+    overlay.addEventListener('click', closePopup, { once: true });
+    closeBtn.addEventListener('click', closePopup, { once: true });
+
+  } else {
+    // Заполняем текстовые поля
+    document.getElementById('i-title').textContent = d.title;
+    document.getElementById('i-class').textContent = d.class;
+    document.getElementById('i-status').textContent = d.status;
+    document.getElementById('i-desc').textContent = '';
+  
+    // Запускаем печать описания
+    typeText(document.getElementById('i-desc'), d.desc);
+
+    // Показываем изображение вместо заглушки
+    const imageBlock = document.getElementById('info-image-fixed');
+    imageBlock.innerHTML = ''; // очищаем старое содержимое
+
+    const img = document.createElement('img');
+    img.src = d.image || 'assets/info/placeholder.png'; // fallback, если изображения нет
+    img.alt = d.title;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover'; // или 'contain', если хочешь без обрезки
+    img.style.border = '2px solid #600';
+    imageBlock.appendChild(img);
+
+    // Показываем блоки
+    document.getElementById('info-placeholder').style.display = 'none';
+    document.getElementById('info-image-fixed').style.display = 'flex';
+    document.getElementById('info-text-fixed').style.display = 'flex';
+
+    if (isHover) {
+      document.getElementById('info-panel').classList.add('preview-active');
+    } else {
+      document.getElementById('info-panel').classList.add('has-selection');
+    }
+  }
+}
+  
 function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
@@ -659,4 +853,5 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
