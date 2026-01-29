@@ -280,7 +280,6 @@ h2 {
   opacity: 0.75;
 }
 
-/* Мобильная версия — поворот карты в портрете */ 
 @media (max-width: 1024px) and (orientation: portrait) {
 
   #app, #content, body, html {
@@ -296,119 +295,32 @@ h2 {
     padding: 0;
     overflow: hidden;
     position: relative;
-    background: #000;
-  }
-
-  /* Виньетка — тёмные края */
-  #map-container::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 35%,
-      rgba(0,0,0,0.4) 65%,
-      rgba(0,0,0,0.85) 90%
-    );
-    z-index: 2;
   }
 
   #map-wrapper {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100vh;
-    height: 100vw;
+    width: 100vh;               /* ← после поворота это станет шириной экрана */
+    height: 100vw;              /* ← после поворота это станет высотой экрана */
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
-    z-index: 1;
   }
 
   #map-wrapper svg {
-    width: 100%;
+    width: 100%;                /* заполняет wrapper после поворота */
     height: 100%;
     max-width: none;
     max-height: none;
-    display: block;
-    object-fit: contain;
+    display: block;             /* убирает возможные inline-block отступы */
+    object-fit: contain;        /* или cover, если хочешь обрезать края */
   }
 
-/* Виньетка остаётся на месте, но без влияния на текст */
-#map-container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 28%,
-    rgba(0,0,0,0.5) 60%,
-    rgba(0,0,0,0.95) 90%
-  );
-  z-index: 2;
-}
-
-/* Новый независимый блок подсказки */
-#mobile-hint {
-  position: absolute;
-  inset: 0;
-  z-index: 10;                      /* очень высоко, поверх всего */
-  pointer-events: none;
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  
-  color: #ff0000;                   /* чистый яркий красный */
-  font-size: clamp(2.4rem, 11vw, 6.2rem);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  line-height: 1.2;
-  
-  /* Максимальная обводка и тень */
-  -webkit-text-stroke: 4px #000000;
-  text-stroke: 4px #000000;
-  text-shadow: 
-    0 0 25px #000,
-    6px 6px 0 #000,
-    -6px -6px 0 #000,
-    6px -6px 0 #000,
-    -6px 6px 0 #000,
-    0 10px 0 #000,
-    10px 0 0 #000,
-    0 -10px 0 #000,
-    -10px 0 0 #000;
-  
-  /* Красный ореол */
-  filter: drop-shadow(0 0 30px rgba(255,0,0,0.85))
-          drop-shadow(0 0 50px rgba(255,0,0,0.6));
-  
-  transition: opacity 0.8s ease, transform 0.8s ease;
-  opacity: 1;
-}
-
-/* Исчезновение после касания */
-#map-container.touched #mobile-hint {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-/* Опционально: лёгкая подложка, если обводки всё ещё мало */
-#mobile-hint.has-backdrop {
-  background: rgba(10, 0, 0, 0.70);
-  backdrop-filter: blur(8px);
-  padding: 1.4em 2.8em;
-  border-radius: 20px;
-  border: 3px solid rgba(180,0,0,0.35);
-  max-width: 90%;
-}
   /* Скрываем всё лишнее */
   #info-panel,
   #app::before,
-  #map-container > *:not(#map-wrapper):not(#map-wrapper svg),
+  #map-container::before,
+  #map-container::after,
   #content > *:not(#map-container) {
     display: none !important;
   }
@@ -464,7 +376,6 @@ h2 {
 
         </svg>
       </div>
-      <div id="mobile-hint">ВЫБЕРИТЕ ЗОНУ НА КАРТЕ</div>
     </div>
 
    <div id="info-panel">
@@ -660,30 +571,9 @@ z.addEventListener('mouseleave', () => {
   clearInfo(true);                   // ← isHover = true
 });
 </script>
-
-<script>
-// ... твой существующий скрипт ...
-
-// Добавь это (или замени существующий обработчик скрытия)
-document.addEventListener('DOMContentLoaded', () => {
-  const mapContainer = document.getElementById('map-container');
-  if (!mapContainer) return;
-
-  const hideHint = () => {
-    mapContainer.classList.add('touched');
-    // Удаляем слушатели
-    document.removeEventListener('touchstart', hideHint);
-    document.removeEventListener('click', hideHint);
-  };
-
-  // touchstart — для мобильных, passive: true для производительности
-  document.addEventListener('touchstart', hideHint, { once: true, passive: true });
-  // click — запасной вариант
-  document.addEventListener('click', hideHint, { once: true });
-});
-</script>
 </body>
 </html>
+
 
 
 
