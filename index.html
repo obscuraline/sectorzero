@@ -476,6 +476,23 @@ h2 {
     color: #b22;
     white-space: pre-wrap;
   }
+
+  .close-btn {
+    outline: none;                    /* убираем стандартный outline */
+    box-shadow: none;                 /* на случай, если браузер использует shadow вместо outline */
+  }
+
+  /* Для клавиатурной навигации оставляем видимый фокус (accessibility) */
+  .close-btn:focus-visible {
+    outline: 2px solid #ff4040;       /* красный контур только при tab/стрелках */
+    outline-offset: 2px;
+  }
+
+  /* Если хочешь полностью убрать фокус даже для клавиатуры (не рекомендуется, но если настаиваешь) */
+  .close-btn:focus {
+    outline: none;
+    box-shadow: none;
+  }
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -829,3 +846,4 @@ document.querySelectorAll('.zone').forEach(z => {
   
 </body>
 </html>
+
