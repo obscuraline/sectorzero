@@ -334,58 +334,76 @@ h2 {
     object-fit: contain;
   }
 
-/* Надпись "Выберите зону на карте" — максимальная читаемость */
-#map-container::after {
-  content: "ВЫБЕРИТЕ ЗОНУ НА КАРТЕ";
+/* Виньетка остаётся на месте, но без влияния на текст */
+#map-container::before {
+  content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 28%,
+    rgba(0,0,0,0.5) 60%,
+    rgba(0,0,0,0.95) 90%
+  );
+  z-index: 2;
+}
+
+/* Новый независимый блок подсказки */
+#mobile-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 10;                      /* очень высоко, поверх всего */
+  pointer-events: none;
+  
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ff1a1a;                    /* яркий насыщенный красный */
-  font-size: clamp(2.2rem, 10vw, 5.8rem);
-  font-weight: 900;                  /* максимально жирный */
+  text-align: center;
+  
+  color: #ff0000;                   /* чистый яркий красный */
+  font-size: clamp(2.4rem, 11vw, 6.2rem);
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  line-height: 1.25;
-  text-align: center;
-  pointer-events: none;
-  z-index: 4;                        /* выше виньетки */
+  line-height: 1.2;
   
-  /* Мощная чёрная обводка со всех сторон */
-  -webkit-text-stroke: 3.5px #000000;  /* основной контур (поддержка в Safari/iOS) */
-  text-stroke: 3.5px #000000;
+  /* Максимальная обводка и тень */
+  -webkit-text-stroke: 4px #000000;
+  text-stroke: 4px #000000;
   text-shadow: 
-    0 0 20px rgba(0,0,0,1),
-    4px 4px 0 #000,
-    -4px -4px 0 #000,
-    4px -4px 0 #000,
-    -4px 4px 0 #000,
-    0 8px 0 #000,
-    8px 0 0 #000,
-    0 -8px 0 #000,
-    -8px 0 0 #000;                   /* многослойная тень для надёжности */
+    0 0 25px #000,
+    6px 6px 0 #000,
+    -6px -6px 0 #000,
+    6px -6px 0 #000,
+    -6px 6px 0 #000,
+    0 10px 0 #000,
+    10px 0 0 #000,
+    0 -10px 0 #000,
+    -10px 0 0 #000;
   
-  /* Красный glow для атмосферы */
-  filter: drop-shadow(0 0 25px rgba(255, 26, 26, 0.9))
-          drop-shadow(0 0 40px rgba(255, 0, 0, 0.6));
+  /* Красный ореол */
+  filter: drop-shadow(0 0 30px rgba(255,0,0,0.85))
+          drop-shadow(0 0 50px rgba(255,0,0,0.6));
   
-  /* Подложка с размытием — сильно помогает на тёмном фоне */
-  background: rgba(20, 0, 0, 0.65);
-  backdrop-filter: blur(6px) saturate(1.4);
-  padding: 1.2em 2.4em;
-  border-radius: 16px;
-  border: 2px solid rgba(180, 0, 0, 0.4);
-  max-width: 92%;
-  box-sizing: border-box;
-  
-  transition: opacity 0.9s ease, transform 0.9s ease;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  opacity: 1;
 }
 
-/* При касании — плавно исчезаем */
-#map-container.touched::after {
+/* Исчезновение после касания */
+#map-container.touched #mobile-hint {
   opacity: 0;
-  transform: scale(0.92);
+  transform: scale(0.9);
+}
+
+/* Опционально: лёгкая подложка, если обводки всё ещё мало */
+#mobile-hint.has-backdrop {
+  background: rgba(10, 0, 0, 0.70);
+  backdrop-filter: blur(8px);
+  padding: 1.4em 2.8em;
+  border-radius: 20px;
+  border: 3px solid rgba(180,0,0,0.35);
+  max-width: 90%;
 }
   /* Скрываем всё лишнее */
   #info-panel,
@@ -446,6 +464,7 @@ h2 {
 
         </svg>
       </div>
+      <div id="mobile-hint">ВЫБЕРИТЕ ЗОНУ НА КАРТЕ</div>
     </div>
 
    <div id="info-panel">
@@ -662,6 +681,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
