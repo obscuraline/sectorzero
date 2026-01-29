@@ -662,25 +662,29 @@ z.addEventListener('mouseleave', () => {
 </script>
 
 <script>
-  // Скрываем надпись после первого касания/клика по карте
-  document.addEventListener('DOMContentLoaded', () => {
-    const mapContainer = document.getElementById('map-container');
-    if (!mapContainer) return;
+// ... твой существующий скрипт ...
 
-    const hideHint = () => {
-      mapContainer.classList.add('touched');
-      // Удаляем слушатели, чтобы не тратить ресурсы
-      document.removeEventListener('touchstart', hideHint);
-      document.removeEventListener('click', hideHint);
-    };
+// Добавь это (или замени существующий обработчик скрытия)
+document.addEventListener('DOMContentLoaded', () => {
+  const mapContainer = document.getElementById('map-container');
+  if (!mapContainer) return;
 
-    // touchstart лучше для мобильных, click как запасной
-    document.addEventListener('touchstart', hideHint, { once: true, passive: true });
-    document.addEventListener('click', hideHint, { once: true });
-  });
+  const hideHint = () => {
+    mapContainer.classList.add('touched');
+    // Удаляем слушатели
+    document.removeEventListener('touchstart', hideHint);
+    document.removeEventListener('click', hideHint);
+  };
+
+  // touchstart — для мобильных, passive: true для производительности
+  document.addEventListener('touchstart', hideHint, { once: true, passive: true });
+  // click — запасной вариант
+  document.addEventListener('click', hideHint, { once: true });
+});
 </script>
 </body>
 </html>
+
 
 
 
