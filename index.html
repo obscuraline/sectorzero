@@ -306,6 +306,23 @@ h2 {
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
     z-index: 1;
+    
+    /* Виньетка именно здесь — она лежит поверх svg, но внутри повёрнутого wrapper'а */
+    box-shadow: inset 0 0 120px 60px #000;  /* сильное затемнение по краям */
+  }
+
+  #map-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 38%,
+      rgba(0,0,0,0.65) 62%,
+      #000 82%
+    );
+    z-index: 3;                     /* выше svg, но ниже зон (если зоны выше) */
   }
 
   #map-wrapper svg {
@@ -316,21 +333,7 @@ h2 {
     display: block;
     object-fit: contain;
     position: relative;
-  }
-
-  /* Виньетка именно на фото карты (на svg) */
-  #map-wrapper svg::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 38%,
-      rgba(0,0,0,0.55) 58%,
-      #000 78%
-    );
-    z-index: 5;                /* выше самой карты, но ниже зон */
+    z-index: 1;                     /* карта ниже виньетки */
   }
 
   /* Скрываем всё лишнее */
@@ -342,52 +345,52 @@ h2 {
     display: none !important;
   }
 
-  /* Статичная подсветка при наведении / выборе (как на десктопе) */
+  /* Статичная подсветка при выборе (остаётся всегда) */
   .zone.enabled:hover {
     fill: rgba(180,0,0,0.14);
     stroke: rgba(220,0,0,0.8);
-    stroke-width: 4;           /* тонкая обводка при hover */
+    stroke-width: 4;
   }
 
   .zone.active {
     fill: rgba(220,0,0,0.35);
     stroke: rgba(255,60,60,0.95);
-    stroke-width: 5.5;         /* чуть толще при активной зоне */
+    stroke-width: 5.5;
     filter: drop-shadow(0 0 10px #f40);
   }
 
-  /* Пульсация только для привлечения внимания в начале */
+  /* Пульсация для привлечения внимания в начале */
   @keyframes pulseZone {
     0%, 100% {
       fill: transparent;
       stroke: rgba(255, 60, 60, 0.7);
-      stroke-width: 4;
+      stroke-width: 2;
     }
     50% {
       fill: rgba(255, 60, 60, 0.18);
       stroke: #ff4040;
-      stroke-width: 8;
+      stroke-width: 4;            /* меньше, чем раньше */
     }
   }
 
   .zone.enabled {
-    animation: pulseZone 4s infinite ease-in-out;
+    animation: pulseZone 4.2s infinite ease-in-out;
   }
 
-  /* Задержки для поочерёдности */
+  /* Задержки поочерёдные */
   .zone.enabled[data-zone="1"] { animation-delay: 0s; }
-  .zone.enabled[data-zone="2"] { animation-delay: 0.6s; }
-  .zone.enabled[data-zone="3"] { animation-delay: 1.2s; }
-  .zone.enabled[data-zone="4"] { animation-delay: 1.8s; }
-  .zone.enabled[data-zone="5"] { animation-delay: 2.4s; }
-  .zone.enabled[data-zone="6"] { animation-delay: 3.0s; }
+  .zone.enabled[data-zone="2"] { animation-delay: 0.7s; }
+  .zone.enabled[data-zone="3"] { animation-delay: 1.4s; }
+  .zone.enabled[data-zone="4"] { animation-delay: 2.1s; }
+  .zone.enabled[data-zone="5"] { animation-delay: 2.8s; }
+  .zone.enabled[data-zone="6"] { animation-delay: 3.5s; }
 
   /* После первого касания — отключаем ТОЛЬКО пульсацию */
   #map-container.touched .zone.enabled {
     animation: none !important;
   }
 
-  /* Но активная зона всё равно подсвечивается нормально */
+  /* Активная зона остаётся подсвеченной даже после .touched */
   #map-container.touched .zone.active {
     fill: rgba(220,0,0,0.35) !important;
     stroke: rgba(255,60,60,0.95) !important;
@@ -430,7 +433,7 @@ h2 {
     <div id="map-container">
       <div id="map-wrapper">
         <svg viewBox="0 0 2048 1360" preserveAspectRatio="xMidYMid meet">
-          <image href="assets/maps/open_6_6.png" width="2048" height="1360"></image>
+          <image href="assets/maps/open_4_6.png" width="2048" height="1360"></image>
             <!-- Зоны (без изменений координат) -->
             <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
 
@@ -469,7 +472,7 @@ h2 {
 </div>
 
 <script>
-let currentStage = 6;
+let currentStage = 4;
 let activeZone = null;
 let typingTimer = null;
 
@@ -663,6 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
