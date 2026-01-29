@@ -285,39 +285,43 @@ h2 {
 
   #app, #content, body, html {
     overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   #map-container {
     width: 100vw;
     height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
   }
 
   #map-wrapper {
-    width: 100vh;          /* после поворота это станет "шириной" экрана */
-    height: 100vw;         /* после поворота это станет "высотой" экрана */
-    transform: rotate(90deg) translateY(-100vh);
-    transform-origin: top left;
+    position: absolute;
     top: 0;
     left: 0;
+    width: 100vh;               /* ← после поворота это станет шириной экрана */
+    height: 100vw;              /* ← после поворота это станет высотой экрана */
+    transform-origin: top left;
+    transform: rotate(90deg) translateY(-100%);
   }
 
   #map-wrapper svg {
-    width: 100vh;          /* соответствует ширине экрана после поворота */
-    height: 100vw;         /* соответствует высоте экрана после поворота */
+    width: 100%;                /* заполняет wrapper после поворота */
+    height: 100%;
     max-width: none;
     max-height: none;
-    object-fit: contain;
+    display: block;             /* убирает возможные inline-block отступы */
+    object-fit: contain;        /* или cover, если хочешь обрезать края */
   }
 
-  /* Скрываем ВСЁ кроме карты */
+  /* Скрываем всё лишнее */
   #info-panel,
   #app::before,
   #map-container::before,
-  #map-container::after {
-    display: none !important;
-  }
-
-  /* Если есть другие элементы вне #map-container — тоже спрячем */
+  #map-container::after,
   #content > *:not(#map-container) {
     display: none !important;
   }
@@ -570,6 +574,7 @@ z.addEventListener('mouseleave', () => {
 </script>
 </body>
 </html>
+
 
 
 
