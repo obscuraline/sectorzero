@@ -306,40 +306,6 @@ h2 {
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
     z-index: 1;
-    
-    /* Существующая круговая виньетка по углам — оставляем */
-    box-shadow: inset 0 0 120px 60px #000;
-  }
-
-  #map-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 38%,
-      rgba(0,0,0,0.65) 62%,
-      #000 82%
-    );
-    z-index: 3;
-  }
-
-  /* Виньетка СВЕРХУ И СНИЗУ ЭКРАНА (после поворота) */
-  #map-wrapper::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      to right,                      /* ← важно: после rotate(90deg) это даёт вертикальное затемнение */
-      #000 0%,
-      transparent 16%,
-      transparent 84%,
-      #000 100%
-    );
-    z-index: 4;
-    mix-blend-mode: multiply;        /* делает затемнение плотнее и естественнее */
   }
 
   #map-wrapper svg {
@@ -683,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
