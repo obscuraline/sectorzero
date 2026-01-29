@@ -307,8 +307,8 @@ h2 {
     transform: rotate(90deg) translateY(-100%);
     z-index: 1;
     
-    /* Виньетка именно здесь — она лежит поверх svg, но внутри повёрнутого wrapper'а */
-    box-shadow: inset 0 0 120px 60px #000;  /* сильное затемнение по краям */
+    /* Существующая круговая виньетка по углам */
+    box-shadow: inset 0 0 120px 60px #000;
   }
 
   #map-wrapper::before {
@@ -322,7 +322,24 @@ h2 {
       rgba(0,0,0,0.65) 62%,
       #000 82%
     );
-    z-index: 3;                     /* выше svg, но ниже зон (если зоны выше) */
+    z-index: 3;
+  }
+
+  /* Новая горизонтальная виньетка сверху и снизу (после поворота — лево/право) */
+  #map-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      #000 0%,
+      transparent 18%,
+      transparent 82%,
+      #000 100%
+    );
+    z-index: 4;                     /* выше радиальной виньетки */
+    mix-blend-mode: multiply;       /* делает затемнение естественнее */
   }
 
   #map-wrapper svg {
@@ -333,7 +350,7 @@ h2 {
     display: block;
     object-fit: contain;
     position: relative;
-    z-index: 1;                     /* карта ниже виньетки */
+    z-index: 1;
   }
 
   /* Скрываем всё лишнее */
@@ -369,7 +386,7 @@ h2 {
     50% {
       fill: rgba(255, 60, 60, 0.18);
       stroke: #ff4040;
-      stroke-width: 3;            /* меньше, чем раньше */
+      stroke-width: 3;
     }
   }
 
@@ -666,6 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
