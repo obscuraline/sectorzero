@@ -218,9 +218,10 @@ html, body {
   opacity: 0.75;
 }
 
+/* Скрываем placeholder для has-selection и preview-active, но НЕ весь panel */
 #info-panel.has-selection #info-placeholder,
-#info-panel.preview-active {  /* если хочешь отдельный класс для hover */
-  display: none;
+#info-panel.preview-active #info-placeholder {
+  display: none !important;
 }
 
 .zone {
@@ -1258,5 +1259,6 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
