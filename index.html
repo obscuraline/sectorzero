@@ -1076,24 +1076,26 @@ z.addEventListener('click', () => {
 
   const zoneNum = +z.dataset.zone;
 
+  // Снимаем active с предыдущей зоны ВСЕГДА при любом клике
+  if (activeZone && activeZone !== z) {
+    activeZone.classList.remove('active');
+    clearInfo(false);  // очищаем инфо-панель, чтобы не было путаницы
+  }
+
   if (openedZones.includes(zoneNum)) {
-    // Уже открыта → обычное поведение
-    hidePasswordPrompts();
-    if (activeZone === z) {
-      clearInfo(false);
-      return;
-    }
-    activeZone?.classList.remove('active');
+    // Уже открыта → делаем её активной
     activeZone = z;
     z.classList.add('active');
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
-    // Готова по дате → проверяем очерёдность
+    // Готова к открытию → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
       // Предыдущие открыты → показываем ввод ключа
+      activeZone = z;           // ← делаем её активной визуально
+      z.classList.add('active'); // ← подсвечиваем как выбранную
       showPasswordPrompt(zoneNum);
     } else {
-      // Предыдущие НЕ открыты → показываем предупреждение
+      // Предыдущие НЕ открыты → предупреждение
       showSequentialLockMessage(zoneNum);
     }
   }
@@ -1351,6 +1353,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
