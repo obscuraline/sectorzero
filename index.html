@@ -344,55 +344,89 @@ h2 {
   opacity: 0.7;
 }
 
-/* Glitch эффект для текста в прелоадере */
+/* Глитч в прелоадере — мрачный, машинный */
 .glitch {
-  animation: glitch-anim 0.8s infinite steps(1);
+  position: relative;
+  display: inline-block;
+  animation: glitch-mono 1.2s infinite steps(2);
 }
 
-@keyframes glitch-anim {
-  0% { transform: translate(0); color: #c00; text-shadow: 2px 2px 0 #f00, -2px -2px 0 #800; }
-  20% { transform: translate(2px, 1px); color: #f00; text-shadow: -2px 0 #800, 2px 0 #0f0; }
-  40% { transform: translate(-2px, -1px); color: #800; text-shadow: 1px 1px 0 #f00, -1px -1px 0 #00f; }
-  60% { transform: translate(3px, 0); color: #c00; text-shadow: 0 0 4px #f00; }
-  80% { transform: translate(-1px, 2px); color: #f00; text-shadow: 3px 0 #800, -3px 0 #f00; }
-  100% { transform: translate(0); color: #c00; text-shadow: 0 0 6px #800; }
+.glitch::before,
+.glitch::after {
+  content: attr(data-text); /* нужно добавить data-text="текст" в HTML или JS */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
 }
 
-/* Глобальные glitch эффекты на весь сайт */
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 #800;
+  clip: rect(0, 900px, 0, 0); /* обрезает случайные куски */
+  animation: glitch-clip 3s infinite;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: 2px 0 #400;
+  clip: rect(0, 900px, 0, 0);
+  animation: glitch-clip 2.5s infinite reverse;
+}
+
+@keyframes glitch-mono {
+  0%, 5%, 100% { transform: translate(0); }
+  2%  { transform: translate(-1.5px, 0.5px); }
+  4%  { transform: translate(1.5px, -0.5px); }
+}
+
+@keyframes glitch-clip {
+  0%    { clip: rect(42px, 9999px, 44px, 0); }
+  5%    { clip: rect(17px, 9999px, 59px, 0); }
+  10%   { clip: rect(63px, 9999px, 27px, 0); }
+  /* ... можно добавить больше случайных значений, но для простоты хватит */
+  100%  { clip: rect(68px, 9999px, 29px, 0); }
+}
+
+/* Глобальный glitch на #app — мрачный, как сбой системы */
 #app.glitch-global {
-  animation: glitch-global-anim 0.6s steps(1);
+  animation: system-decay 0.7s steps(1);
+  filter: brightness(0.85) contrast(1.15) sepia(0.1) hue-rotate(350deg);
 }
 
-@keyframes glitch-global-anim {
-  0% { transform: translate(0); filter: brightness(1); }
-  15% { transform: translate(4px, 2px); filter: brightness(0.8) hue-rotate(10deg); }
-  30% { transform: translate(-4px, -2px); filter: brightness(1.2) hue-rotate(-10deg); }
-  45% { transform: translate(2px, -4px); filter: brightness(0.7) saturate(1.5); }
-  60% { transform: translate(-2px, 4px); filter: brightness(1.5) hue-rotate(20deg); }
-  75% { transform: translate(3px, 1px); filter: brightness(0.9) saturate(2); }
-  90% { transform: translate(-3px, -1px); filter: brightness(1.1) hue-rotate(-20deg); }
-  100% { transform: translate(0); filter: brightness(1); }
+@keyframes system-decay {
+  0%   { transform: translate(0); }
+  20%  { transform: translate(3px, 1px); }
+  40%  { transform: translate(-4px, -2px); }
+  60%  { transform: translate(2px, 3px); }
+  80%  { transform: translate(-2px, -1px); }
+  100% { transform: translate(0); }
 }
 
-/* Дополнительные помехи (overlay) */
+/* Тёмный красный шум/помехи вместо радуги */
 .glitch-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,0,0,0.1) 2px, rgba(255,0,0,0.1) 4px);
+  background: 
+    linear-gradient(transparent 50%, rgba(200,0,0,0.04) 50%),
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(80,0,0,0.15) 1px, rgba(80,0,0,0.15) 2px);
+  mix-blend-mode: multiply;
   opacity: 0;
-  transition: opacity 0.3s;
+  animation: noise-pulse 8s infinite;
   z-index: 10;
 }
 
 #app.glitch-global .glitch-overlay {
-  opacity: 0.4;
-  animation: glitch-overlay-anim 0.6s infinite;
+  opacity: 0.6;
+  animation: noise-pulse 1.2s steps(4), scanline 60s linear infinite;
 }
 
-@keyframes glitch-overlay-anim {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+@keyframes noise-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 0.9; }
 }
 
 @media (max-width: 1024px) and (orientation: portrait) {
@@ -650,7 +684,7 @@ h2 {
 <div id="preloader">
   <div class="scanline"></div>
   <div>ИНИЦИАЛИЗАЦИЯ СИГНАЛА...</div>
-  <div class="status glitch" id="preload-status">Поиск носителя данных</div>
+<div class="status glitch" id="preload-status" data-text="Поиск носителя данных">Поиск носителя данных</div>
   <div class="progress">
     <div class="bar" id="preload-bar"></div>
   </div>
@@ -1064,35 +1098,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 15000);
 });
 
-// Глобальные glitch эффекты
-function startGlobalGlitches() {
-  const app = document.getElementById('app');
-  const overlay = document.createElement('div');
-  overlay.classList.add('glitch-overlay');
-  app.appendChild(overlay);
+function triggerGlitch() {
+  app.classList.add('glitch-global');
+  setTimeout(() => {
+    app.classList.remove('glitch-global');
+  }, 700 + Math.random() * 500); // 0.7–1.2 сек
 
-  function triggerGlitch() {
-    app.classList.add('glitch-global');
-    setTimeout(() => {
-      app.classList.remove('glitch-global');
-    }, 600 + Math.random() * 400); // Длительность 0.6-1 сек
-
-    // Следующий glitch через 10-30 сек (редко)
-    setTimeout(triggerGlitch, 10000 + Math.random() * 20000);
+  // Редко: сильный "сбой" с затемнением
+  if (Math.random() < 0.15) {
+    app.style.filter = 'brightness(0.4) contrast(1.8)';
+    setTimeout(() => { app.style.filter = ''; }, 400);
   }
 
-  // Первый через 5-15 сек после загрузки
-  setTimeout(triggerGlitch, 5000 + Math.random() * 10000);
-
-  // На мобильных — реже (каждые 20-40 сек)
-  if (window.matchMedia("(max-width: 1024px)").matches) {
-    setTimeout(triggerGlitch, 20000 + Math.random() * 20000);
-  }
+  // Следующий через 12–35 сек (ещё реже, чтобы не раздражало)
+  setTimeout(triggerGlitch, 12000 + Math.random() * 23000);
 }
 </script>
   
 </body>
 </html>
+
 
 
 
