@@ -504,6 +504,12 @@ h2 {
   margin-top: 0.5em;
 }
 
+#password-input,
+#password-submit,
+#password-error {
+  display: none;
+}
+
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
@@ -758,6 +764,10 @@ h2 {
   color: #f00;
   font-size: 0.9em;
   margin-top: 0.5em;
+}
+
+.modal-password {
+  display: none !important;
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -1042,6 +1052,7 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
+  hidePasswordPrompts();   // ← добавь эту строку
 }
 
 // Обработка зон
@@ -1057,24 +1068,25 @@ document.querySelectorAll('.zone').forEach(z => {
     z.classList.add('ready');
   }
 
-  z.addEventListener('click', () => {
-    if (z.classList.contains('locked')) return;
+z.addEventListener('click', () => {
+  if (z.classList.contains('locked')) return;
 
-    if (openedZones.includes(zoneNum)) {
-      // Уже открыта — обычное поведение
-      if (activeZone === z) {
-        clearInfo(false);
-        return;
-      }
-      activeZone?.classList.remove('active');
-      activeZone = z;
-      z.classList.add('active');
-      showInfo(zoneNum, false);
-    } else if (z.classList.contains('ready')) {
-      // Готова к открытию — показываем ввод ключа
-      showPasswordPrompt(zoneNum);
+  if (openedZones.includes(zoneNum)) {
+    // Уже открыта — показываем инфо и прячем пароль
+    hidePasswordPrompts();
+    if (activeZone === z) {
+      clearInfo(false);
+      return;
     }
-  });
+    activeZone?.classList.remove('active');
+    activeZone = z;
+    z.classList.add('active');
+    showInfo(zoneNum, false);
+  } else if (z.classList.contains('ready')) {
+    // Только для ready — показываем ввод
+    showPasswordPrompt(zoneNum);
+  }
+});
 
   // Hover (только для уже открытых зон)
   z.addEventListener('mouseenter', () => {
@@ -1145,6 +1157,25 @@ function showPasswordPrompt(zoneNum) {
   }
 }
 
+function hidePasswordPrompts() {
+  // ПК-версия
+  document.getElementById('password-input').style.display = 'none';
+  document.getElementById('password-submit').style.display = 'none';
+  document.getElementById('password-error').textContent = '';
+
+  // Мобильная версия
+  document.querySelectorAll('.modal-password').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // Возвращаем placeholder, если ничего не выбрано
+  if (!activeZone) {
+    document.getElementById('info-placeholder').style.display = 'flex';
+    document.getElementById('info-image-fixed').style.display = 'none';
+    document.getElementById('info-text-fixed').style.display = 'none';
+  }
+}
+
 // Функция открытия зоны
 function openZone(zoneNum) {
   if (openedZones.includes(zoneNum)) return;
@@ -1164,6 +1195,7 @@ function openZone(zoneNum) {
   document.getElementById('password-submit').style.display = 'none';
   document.querySelectorAll('.modal-password').forEach(el => el.style.display = 'none');
 
+  hidePasswordPrompts();   // ← добавь
   updateMap();
   showInfo(zoneNum, false); // сразу показываем информацию о секторе
 }
@@ -1185,6 +1217,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === document.getElementById('zone-modal')) {
       document.getElementById('zone-modal').close();
     }
+  });
+
+  document.getElementById('zone-modal')?.addEventListener('close', () => {
+    hidePasswordPrompts();
   });
 });
 
@@ -1258,3 +1294,4 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
