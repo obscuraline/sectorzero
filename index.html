@@ -940,15 +940,51 @@ function updateMap() {
 // Инициализация карты при загрузке
 updateMap();
 
-// Данные секторов (без изменений)
 const data = {
-  1: { title: "TRANSIT STATION", class: "Auxiliary Transport and Service Area", status: "Partially Activated / Unstable", desc: "...", image: "assets/info/image_1.png" },
-  2: { title: "INFRASTRUCTURE CORE", class: "Critical Infrastructure Node", status: "Fully Functional", desc: "...", image: "assets/info/image_2.png" },
-  3: { title: "HABITATION CLUSTERS", class: "Obsolete Residential Areas", status: "Fragmented", desc: "...", image: "assets/info/image_3.png" },
-  4: { title: "CENTRAL RESEARCH LAB", class: "Research Complex (Closed)", status: "Partially Accessible", desc: "...", image: "assets/info/image_4.png" },
-  5: { title: "BIOMECHANICAL INTEGRATION SUITE", class: "Anomalous Zone", status: "Active", desc: "...", image: "assets/info/image_5.png" },
-  6: { title: "LOWER VOID", class: "Limit Zone", status: "Unstable", desc: "...", image: "assets/info/image_6.png" }
+  1: {
+    title: "TRANSIT STATION",
+    class: "Auxiliary Transport and Service Area",
+    status: "Partially Activated / Unstable",
+    desc: "Когда-то это был чётко регламентированный коридор между слоями мегаструктуры. Теперь вертикальные шахты доступа, лифтовые стволы, аварийные лестницы и бесконечные сервисные ленты образуют здесь плотный, перекрученный узел. \nБольшая часть механизмов работает по инерции.",
+    image: "assets/info/image_1.png"
+  },
+  2: {
+    title: "INFRASTRUCTURE CORE",
+    class: "Critical Infrastructure Node",
+    status: "Fully Functional",
+    desc: "Здесь сходятся энергоканалы, распределение давления, термальные контуры, первичные вычислительные узлы. \nЭто одно из немногих мест, где чувствуется присутствие исходной логики мегаструктуры до начала эксперимента.",
+    image: "assets/info/image_2.png"
+  },
+  3: {
+    title: "HABITATION CLUSTERS",
+    class: "Obsolete Residential Areas",
+    status: "Fragmented",
+    desc: "Модульные жилые блоки, пристроенные друг к другу без единого плана, соединённые переходами, которые давно не числятся в схемах.",
+    image: "assets/info/image_3.png"
+  },
+  4: {
+    title: "CENTRAL RESEARCH LAB",
+    class: "Research Complex (Closed)",
+    status: "Partially Accessible",
+    desc: "Лаборатория не числится ни в одном актуальном реестре, но продолжает физически присутствовать в структуре. Здесь использовались старые протоколы, экспериментальные среды, которые позже были запрещены или «утеряны». Большая часть данных либо уничтожена, либо намеренно повреждена. \nИменно здесь впервые зафиксированы несанкционированные изменения среды, которые позже были списаны на «ошибки сборки мегаструктуры».",
+    image: "assets/info/image_4.png"
+  },
+  5: {
+    title: "BIOMECHANICAL INTEGRATION SUITE",
+    class: "Anomalous Zone",
+    status: "Active",
+    desc: "Именно здесь начался эксперимент по созданию полностью автоматизированного сектора. Учёными было создано биомеханическое ядро способное самостоятельно расширяться. Рост биомеханической массы оказался непланомерным, несмотря на созданные условия. Биомеханику не удалось сдержать под контролем из-за чего эксперимент был остановлен. \nСектор был закрыт, данные о нём засекречены.",
+    image: "assets/info/image_5.png"
+  },
+  6: {
+    title: "LOWER VOID",
+    class: "Limit Zone",
+    status: "Unstable",
+    desc: "Здесь мегаструктура теряет плотность. \nПространство кажется глубже, чем должно быть. \nГравитационные показатели нестабильны. \nБиомеханика стремится к поглощению этой зоны.",
+    image: "assets/info/image_6.png"
+  }
 };
+
 
 // Функции typeText, showInfo, clearInfo (без изменений)
 function typeText(el, text) {
@@ -1259,6 +1295,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
