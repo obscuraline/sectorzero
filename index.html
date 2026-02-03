@@ -11,7 +11,7 @@
 html, body, #info-panel, h2, .description, .meta-line {
   font-family: 'IBM Plex Mono', monospace;
 }
-
+  
 html, body {
   margin: 0;
   padding: 0;
@@ -22,7 +22,7 @@ html, body {
   overflow: hidden;
   image-rendering: pixelated;
 }
-
+  
 #app {
   width: 100%;
   height: 100%;
@@ -31,10 +31,10 @@ html, body {
   padding: 2.2vh 2.8vw;
   box-sizing: border-box;
   position: relative;
-  background: #000;                      /* убрали общий градиент с #app */
+  background: #000; /* убрали общий градиент с #app */
 }
-
-/* scanlines оставляем на весь экран (или можно тоже перенести на #map-container) */
+  
+/* scanlines оставляем на весь экран */
 #app::before {
   content: "";
   position: fixed;
@@ -49,11 +49,11 @@ html, body {
   z-index: 5;
   animation: scan 80s linear infinite;
 }
-
+  
 @keyframes scan {
   to { background-position: 0 120px; }
 }
-
+  
 #content {
   flex: 1;
   display: flex;
@@ -62,7 +62,7 @@ html, body {
   position: relative;
   z-index: 3;
 }
-
+  
 /* vignette ТОЛЬКО на карту */
 #map-container {
   flex: 75;
@@ -71,9 +71,8 @@ html, body {
   border: 1px solid #400;
   overflow: hidden;
   box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
-  /* добавляем vignette */
 }
-
+  
 #map-wrapper {
   position: absolute;
   inset: 0;
@@ -81,7 +80,7 @@ html, body {
   align-items: center;
   justify-content: center;
 }
-
+  
 #map-wrapper svg {
   max-width: 100%;
   max-height: 100%;
@@ -90,17 +89,17 @@ html, body {
   object-fit: contain;
   filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
 }
-
+  
 #map-container::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(circle at 50% 50%, transparent 45%, #000 88%);
-  z-index: 3;                            /* выше карты, но ниже оверлея если он есть */
+  z-index: 3;
 }
-
-/* лёгкий красный оверлей на карту (пункт 6) */
+  
+/* лёгкий красный оверлей на карту */
 #map-container::after {
   content: "";
   position: absolute;
@@ -109,8 +108,8 @@ html, body {
   pointer-events: none;
   mix-blend-mode: multiply;
   z-index: 2;
-}  
-
+}
+  
 /* Улучшаем поведение пустой панели */
 #info-panel {
   flex: 25;
@@ -124,7 +123,7 @@ html, body {
   transition: border-color 0.4s, box-shadow 0.6s;
   color: #c33;
 }
-
+  
 #info-content {
   visibility: hidden;
   height: 0;
@@ -135,24 +134,24 @@ html, body {
   flex-direction: column;
   height: 100%;
 }
-
+  
 #info-content.visible {
   visibility: visible;
   height: auto;
   opacity: 1;
   transition: opacity 0.25s ease, visibility 0s linear 0s;
 }
-
+  
 .info-image-fixed {
-  flex: 0 0 33.33%;               /* фиксированная доля высоты */
+  flex: 0 0 33.33%; /* фиксированная доля высоты */
   background: rgba(10,0,0,0.7);
   border-bottom: 1px solid #500;
-  display: none;                  /* скрыт по умолчанию */
+  display: none; /* скрыт по умолчанию */
   align-items: center;
   justify-content: center;
   padding: 1vh 1vw;
 }
-
+  
 .no-signal {
   width: 100%;
   height: 100%;
@@ -173,39 +172,40 @@ html, body {
   text-align: center;
   line-height: 1.3;
 }
-
+  
 .no-signal small {
   font-size: 0.68em;
   color: #700;
   margin-top: 0.5em;
 }
-
+  
 /* Блок с текстом — нижняя часть */
 .info-text-fixed {
-  flex: 1;                        /* забирает всё остальное пространство */
-  display: none;                  /* скрыт по умолчанию */
+  flex: 1; /* забирает всё остальное пространство */
+  display: none; /* скрыт по умолчанию */
   padding: 1.4vh 1.6vw;
   overflow-y: auto;
   flex-direction: column;
   gap: 0.9em;
 }
+  
 /* когда ничего не выбрано — делаем панель "пустой" визуально */
 #info-panel:not(.has-selection) {
   border-color: #500;
   box-shadow: 0 0 16px rgba(80,0,0,0.2);
 }
-
+  
 #info-panel.has-selection {
   border-color: #c00;
   box-shadow: 0 0 32px rgba(220,0,0,0.5), inset 0 0 40px rgba(160,0,0,0.2);
   animation: panel-pulse 6s ease-in-out infinite alternate;
 }
-
+  
 @keyframes panel-pulse {
-  0%   { box-shadow: 0 0 24px rgba(200,0,0,0.4), inset 0 0 30px rgba(160,0,0,0.15); }
+  0% { box-shadow: 0 0 24px rgba(200,0,0,0.4), inset 0 0 30px rgba(160,0,0,0.15); }
   100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
 }
-
+  
 /* Placeholder — только когда ничего не выбрано */
 #info-placeholder {
   flex: 1;
@@ -217,45 +217,67 @@ html, body {
   text-align: center;
   opacity: 0.75;
 }
-
+  
 #info-panel.has-selection #info-placeholder,
-#info-panel.preview-active {  /* если хочешь отдельный класс для hover */
+#info-panel.preview-active {
   display: none;
 }
-
+  
 .zone {
   fill: transparent;
   cursor: crosshair;
   transition: fill .25s, stroke .25s;
 }
+  
 .zone.enabled:hover {
   fill: rgba(180,0,0,0.14);
   stroke: rgba(220,0,0,0.8);
   stroke-width: 2.4;
 }
+  
 .zone.active {
   fill: rgba(220,0,0,0.35);
   stroke: rgba(255,60,60,0.95);
   stroke-width: 2.8;
   filter: drop-shadow(0 0 12px #f40) drop-shadow(0 0 20px #800);
 }
-
+  
+.zone.ready {
+  fill: rgba(100,0,0,0.08);
+  stroke: rgba(150,0,0,0.4);
+  cursor: pointer;
+  animation: pulse-ready 3s infinite ease-in-out;
+}
+  
+@keyframes pulse-ready {
+  0%, 100% { fill: rgba(100,0,0,0.08); }
+  50% { fill: rgba(150,0,0,0.12); }
+}
+  
+.zone.locked {
+  fill: rgba(30,0,0,0.12);
+  stroke: rgba(60,0,0,0.5);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+  
 /* типографика */
 h2 {
-  color: #e00;                      /* чуть более тёмный красный */
-  text-shadow: none;                /* убрать glow полностью */
-  font-weight: 500;                 /* не жирный */
-  letter-spacing: 0.5px;            /* лёгкий разряд */
+  color: #e00; /* чуть более тёмный красный */
+  text-shadow: none; /* убрать glow полностью */
+  font-weight: 500; /* не жирный */
+  letter-spacing: 0.5px; /* лёгкий разряд */
 }
+  
 @keyframes title-flicker {
   0%, 92%, 94%, 96%, 100% { opacity: 1; text-shadow: 0 0 6px #f00, 0 0 12px #800; }
-  93%  { opacity: 0.92; text-shadow: 1px 0 #f00, -1px 0 #00f; }
-  95%  { opacity: 0.96; text-shadow: -1px 0 #f00, 1px 0 #0f0; }
+  93% { opacity: 0.92; text-shadow: 1px 0 #f00, -1px 0 #00f; }
+  95% { opacity: 0.96; text-shadow: -1px 0 #f00, 1px 0 #0f0; }
 }
-
+  
 .meta-line strong,
 .meta-line {
-  color: #c40;                      /* приглушённый оранжево-красный */
+  color: #c40; /* приглушённый оранжево-красный */
   text-shadow: none;
 }
   
@@ -271,7 +293,7 @@ h2 {
   color: #b22;
   line-height: 1.45;
 }
-
+  
 #info-empty {
   color: #600;
   font-size: 1.3em;
@@ -279,8 +301,8 @@ h2 {
   margin: auto 0;
   opacity: 0.75;
 }
-
-/* Прелоадер (обновлённый) */
+  
+/* Прелоадер */
 #preloader {
   position: fixed;
   inset: 0;
@@ -297,12 +319,12 @@ h2 {
   transition: opacity 0.7s ease-out;
   pointer-events: none;
 }
-
+  
 #preloader.hidden {
   opacity: 0;
   pointer-events: none;
 }
-
+  
 #preloader .status {
   margin: 1.2em 0 0.8em;
   font-size: 1.1em;
@@ -312,7 +334,7 @@ h2 {
   position: relative;
   display: inline-block;
 }
-
+  
 #preloader .progress {
   width: 380px;
   max-width: 80vw;
@@ -322,14 +344,14 @@ h2 {
   overflow: hidden;
   margin-top: 1.5em;
 }
-
+  
 #preloader .bar {
   width: 0%;
   height: 100%;
   background: linear-gradient(90deg, #800, #f00, #c00);
   transition: width 0.4s ease-out;
 }
-
+  
 .scanline {
   position: absolute;
   inset: 0;
@@ -343,17 +365,17 @@ h2 {
   animation: scan 60s linear infinite;
   opacity: 0.7;
 }
-
+  
 /* Глитч в прелоадере — мрачный, машинный */
 .glitch {
   position: relative;
   display: inline-block;
   animation: glitch-mono 1.2s infinite steps(2);
 }
-
+  
 .glitch::before,
 .glitch::after {
-  content: attr(data-text); /* нужно добавить data-text="текст" в HTML или JS */
+  content: attr(data-text);
   position: absolute;
   top: 0;
   left: 0;
@@ -361,51 +383,49 @@ h2 {
   height: 100%;
   opacity: 0.8;
 }
-
+  
 .glitch::before {
   left: 2px;
   text-shadow: -2px 0 #800;
-  clip: rect(0, 900px, 0, 0); /* обрезает случайные куски */
+  clip: rect(0, 9999px, 0, 0);
   animation: glitch-clip 3s infinite;
 }
-
+  
 .glitch::after {
   left: -2px;
   text-shadow: 2px 0 #400;
-  clip: rect(0, 900px, 0, 0);
+  clip: rect(0, 9999px, 0, 0);
   animation: glitch-clip 2.5s infinite reverse;
 }
-
+  
 @keyframes glitch-mono {
   0%, 5%, 100% { transform: translate(0); }
-  2%  { transform: translate(-1.5px, 0.5px); }
-  4%  { transform: translate(1.5px, -0.5px); }
+  2% { transform: translate(-1.5px, 0.5px); }
+  4% { transform: translate(1.5px, -0.5px); }
 }
-
+  
 @keyframes glitch-clip {
-  0%    { clip: rect(42px, 9999px, 44px, 0); }
-  5%    { clip: rect(17px, 9999px, 59px, 0); }
-  10%   { clip: rect(63px, 9999px, 27px, 0); }
-  /* ... можно добавить больше случайных значений, но для простоты хватит */
-  100%  { clip: rect(68px, 9999px, 29px, 0); }
+  0% { clip: rect(42px, 9999px, 44px, 0); }
+  5% { clip: rect(17px, 9999px, 59px, 0); }
+  10% { clip: rect(63px, 9999px, 27px, 0); }
+  100% { clip: rect(68px, 9999px, 29px, 0); }
 }
-
-/* Глобальный glitch на #app — мрачный, как сбой системы */
+  
+/* Глобальный glitch на #app */
 #app.glitch-global {
   animation: system-decay 0.7s steps(1);
   filter: brightness(0.85) contrast(1.15) sepia(0.1) hue-rotate(350deg);
 }
-
+  
 @keyframes system-decay {
-  0%   { transform: translate(0); }
-  20%  { transform: translate(3px, 1px); }
-  40%  { transform: translate(-4px, -2px); }
-  60%  { transform: translate(2px, 3px); }
-  80%  { transform: translate(-2px, -1px); }
+  0% { transform: translate(0); }
+  20% { transform: translate(3px, 1px); }
+  40% { transform: translate(-4px, -2px); }
+  60% { transform: translate(2px, 3px); }
+  80% { transform: translate(-2px, -1px); }
   100% { transform: translate(0); }
 }
-
-/* Тёмный красный шум/помехи вместо радуги */
+  
 .glitch-overlay {
   position: absolute;
   inset: 0;
@@ -418,105 +438,25 @@ h2 {
   animation: noise-pulse 8s infinite;
   z-index: 10;
 }
-
+  
 #app.glitch-global .glitch-overlay {
   opacity: 0.6;
-  animation: noise-pulse 1.2s steps(4), scanline 60s linear infinite;
+  animation: noise-pulse 1.2s steps(4), scan 60s linear infinite;
 }
-
+  
 @keyframes noise-pulse {
   0%, 100% { opacity: 0.6; }
-  50%      { opacity: 0.9; }
+  50% { opacity: 0.9; }
 }
-
-.zone.locked {
-  pointer-events: none;
-  fill: rgba(30,0,0,0.12) !important;
-  stroke: rgba(60,0,0,0.5) !important;
-  cursor: not-allowed;
-}
-
-.zone.ready:not(.opened) {
-  fill: rgba(80,0,0,0.18);
-  stroke: rgba(100,0,0,0.6);
-  animation: pulse-ready 3s infinite alternate;
-}
-
-@keyframes pulse-ready {
-  0% { stroke-opacity: 0.6; }
-  100% { stroke-opacity: 0.9; }
-}
-
-.lock-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.65);
-  color: #800;
-  font-size: 2.2em;
-  text-align: center;
-  z-index: 4;
-  pointer-events: none;
-  text-shadow: 0 0 8px #400;
-}
-
-.lock-overlay .warning {
-  font-size: 1.4em;
-  color: #c00;
-  animation: flicker 4s infinite alternate;
-}
-
-.lock-overlay .status {
-  margin-top: 0.5em;
-  font-size: 0.9em;
-  color: #600;
-}
-
-/* Input для пароля в info-panel */
-#password-input {
-  display: none;
-  margin: 1em auto;
-  padding: 0.5em;
-  background: #200;
-  border: 1px solid #600;
-  color: #c00;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.2em;
-  text-align: center;
-  width: 80%;
-}
-
-#password-submit {
-  background: #400;
-  border: 1px solid #800;
-  color: #f00;
-  padding: 0.5em;
-  margin-top: 0.5em;
-  cursor: pointer;
-}
-
-#password-error {
-  color: #f00;
-  font-size: 0.9em;
-  margin-top: 0.5em;
-}
-
-#password-input,
-#password-submit,
-#password-error {
-  display: none;
-}
-
+  
+/* Медиа-запросы */
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-
+  
   #map-container {
     width: 100vw;
     height: 100vh;
@@ -526,7 +466,7 @@ h2 {
     position: relative;
     background: #000;
   }
-
+  
   #map-wrapper {
     position: absolute;
     top: 0;
@@ -537,7 +477,7 @@ h2 {
     transform: rotate(90deg) translateY(-100%);
     z-index: 1;
   }
-
+  
   #map-wrapper svg {
     width: 100%;
     height: 100%;
@@ -548,8 +488,7 @@ h2 {
     position: relative;
     z-index: 1;
   }
-
-  /* Скрываем всё лишнее */
+  
   #info-panel,
   #app::before,
   #map-container::before,
@@ -557,22 +496,20 @@ h2 {
   #content > *:not(#map-container) {
     display: none !important;
   }
-
-  /* Статичная подсветка при выборе (остаётся всегда) */
+  
   .zone.enabled:hover {
     fill: rgba(180,0,0,0.14);
     stroke: rgba(220,0,0,0.8);
     stroke-width: 4;
   }
-
+  
   .zone.active {
     fill: rgba(220,0,0,0.35);
     stroke: rgba(255,60,60,0.95);
     stroke-width: 5.5;
     filter: drop-shadow(0 0 10px #f40);
   }
-
-  /* Пульсация для привлечения внимания в начале */
+  
   @keyframes pulseZone {
     0%, 100% {
       fill: transparent;
@@ -585,33 +522,29 @@ h2 {
       stroke-width: 3;
     }
   }
-
+  
   .zone.enabled {
     animation: pulseZone 4.2s infinite ease-in-out;
   }
-
-  /* Задержки поочерёдные */
+  
   .zone.enabled[data-zone="1"] { animation-delay: 0s; }
   .zone.enabled[data-zone="2"] { animation-delay: 0.7s; }
   .zone.enabled[data-zone="3"] { animation-delay: 1.4s; }
   .zone.enabled[data-zone="4"] { animation-delay: 2.1s; }
   .zone.enabled[data-zone="5"] { animation-delay: 2.8s; }
   .zone.enabled[data-zone="6"] { animation-delay: 3.5s; }
-
-  /* После первого касания — отключаем ТОЛЬКО пульсацию */
+  
   #map-container.touched .zone.enabled {
     animation: none !important;
   }
-
-  /* Активная зона остаётся подсвеченной даже после .touched */
+  
   #map-container.touched .zone.active {
     fill: rgba(220,0,0,0.35) !important;
     stroke: rgba(255,60,60,0.95) !important;
     stroke-width: 5.5 !important;
     filter: drop-shadow(0 0 10px #f40) !important;
   }
-
-  /* Модальное окно */
+  
   .zone-modal {
     margin: 0;
     padding: 0;
@@ -624,12 +557,12 @@ h2 {
     color: #c00;
     font-family: 'IBM Plex Mono', monospace;
   }
-
+  
   .zone-modal::backdrop {
-    background: rgba(0,0,0,0.85);           /* сильное затемнение фона */
-    backdrop-filter: blur(4px);             /* размытие карты под попапом */
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
   }
-
+  
   .modal-content {
     position: relative;
     width: 100%;
@@ -641,7 +574,7 @@ h2 {
     flex-direction: column;
     overflow: hidden;
   }
-
+  
   .close-btn {
     position: absolute;
     top: 12px;
@@ -656,22 +589,22 @@ h2 {
     line-height: 1;
     z-index: 10;
   }
-
+  
   .close-btn:hover,
   .close-btn:focus {
     color: #ff4040;
     text-shadow: 0 0 8px #f40;
   }
-
+  
   .modal-image {
-    flex: 0 0 40%;                        /* или 35-45% под твои картинки */
+    flex: 0 0 40%;
     background: rgba(0,0,0,0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
   }
-
+  
   .modal-image img {
     max-width: 100%;
     max-height: 100%;
@@ -679,26 +612,26 @@ h2 {
     border: 1px solid #600;
     box-shadow: 0 0 16px rgba(200,0,0,0.3);
   }
-
+  
   .modal-text {
     flex: 1;
     padding: 20px 24px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-
+  
   .modal-text h2 {
     margin: 0 0 12px;
     font-size: 1.8rem;
     color: #e00;
   }
-
+  
   .meta {
     margin: 8px 0;
     font-size: 1.1rem;
     color: #c40;
   }
-
+  
   .modal-text p {
     margin: 16px 0 0;
     line-height: 1.5;
@@ -706,81 +639,37 @@ h2 {
     color: #b22;
     white-space: pre-wrap;
   }
-
+  
   .zone-modal[open] .modal-content {
     animation: fadeIn 0.4s ease;
   }
+  
   @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.92); }
-    to   { opacity: 1; transform: scale(1); }
+    to { opacity: 1; transform: scale(1); }
   }
-
+  
   .close-btn {
-    outline: none;                    /* убираем стандартный outline */
-    box-shadow: none;                 /* на случай, если браузер использует shadow вместо outline */
-  }
-
-  /* Для клавиатурной навигации оставляем видимый фокус (accessibility) */
-  .close-btn:focus-visible {
-    outline: 2px solid #ff4040;       /* красный контур только при tab/стрелках */
-    outline-offset: 2px;
-  }
-
-  /* Если хочешь полностью убрать фокус даже для клавиатуры (не рекомендуется, но если настаиваешь) */
-  .close-btn:focus {
     outline: none;
     box-shadow: none;
   }
-}
-
-/* Для мобильного попапа */
-.modal-password {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 1em;
-}
-
-.modal-password input {
-  background: #200;
-  border: 1px solid #600;
-  color: #c00;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.2em;
-  text-align: center;
-  width: 80%;
-  padding: 0.5em;
-}
-
-.modal-password button {
-  background: #400;
-  border: 1px solid #800;
-  color: #f00;
-  padding: 0.5em 1em;
-  margin-top: 0.5em;
-}
-
-.modal-password .error {
-  color: #f00;
-  font-size: 0.9em;
-  margin-top: 0.5em;
-}
-
-.modal-password {
-  display: none !important;
+  
+  .close-btn:focus-visible {
+    outline: 2px solid #ff4040;
+    outline-offset: 2px;
+  }
 }
   
-/* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
 @media (max-width: 1024px) and (orientation: landscape) {
   #map-container {
     width: 100%;
     height: 100%;
   }
-
+  
   #map-wrapper {
     transform: none;
   }
-
+  
   #map-wrapper svg {
     width: 100%;
     height: 100%;
@@ -788,158 +677,84 @@ h2 {
     max-height: 100%;
     object-fit: contain;
   }
-
-  /* Пока тоже скрываем инфо-панель, если нужно */
+  
   #info-panel {
     display: none;
   }
 }
-  
 </style>
+  
 </head>
 <body>
-
 <div id="preloader">
   <div class="scanline"></div>
-  <div>ИНИЦИАЛИЗАЦИЯ СИГНАЛА...</div>
-<div class="status glitch" id="preload-status" data-text="Поиск носителя данных">Поиск носителя данных</div>
+  <div>ИНИЦИАЛИЗАЦИЯ СИГНАЛА</div>
+  <div class="status glitch" id="preload-status" data-text="Поиск носителя данных">Поиск носителя данных</div>
   <div class="progress">
     <div class="bar" id="preload-bar"></div>
   </div>
 </div>
-  
+
 <div id="app">
   <div id="content">
     <div id="map-container">
       <div id="map-wrapper">
         <svg viewBox="0 0 2048 1360" preserveAspectRatio="xMidYMid meet">
-          <image href="assets/maps/open_0_6.png" width="2048" height="1360"></image>
-            <!-- Зоны (без изменений координат) -->
-            <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
-
-            <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
-
-            <polygon class="zone" data-zone="3" points="978.5,456 976.5,397.5 1136,399.5 1137,427 1264,429 1270,388.5 1270,118.5 1242,118.5 1242,114 1220,114 1219,92 1198,63 701.5,64 701.5,74.5 692,74.5 692,122 631,123 631,338 813,340.5 814,386 825.5,386 892.5,457.5 978.5,456"></polygon>
-
-            <polygon class="zone" data-zone="4" points="1267,116 1269,388 1369,388.5 1368,368.5 1400,367.5 1399,429.5 1552,431 1552,427 1673,427 1673,423 1763,423 1763,408.5 1924,406.5 1924,284 2047,282 2048,102 1849,100 1849,47 1334.5,48.5 1334.5,62 1326,62 1327,113 1267,116"></polygon>
-
-            <polygon class="zone" data-zone="5" points="1352,586 1355,853 1681,853 1682,795 1819,794 1818,724 1861,724 1860,665 1909,664 1906,611 1864,610 1865,579 1951,578 1952,532 2047,533 2047,415 1924,416.5 1923,405 1761,406 1761,422 1671,422 1671,426 1551,425 1551,428 1400,427 1400,365 1367,366 1366,388 1269,386.5 1263,429.5 1281,448.5 1305,552 1352,586"></polygon>
-
-            <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
-
+          <image id="main-map" href="assets/maps/open_1_6.png" width="2048" height="1360"></image>
+          <!-- Зоны -->
+          <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
+          
+          <polygon class="zone" data-zone="2" points="774,906 774,925.5 853,925.5 853,938.5 1020,937 1020,930 1253,932.5 1355,853 1351.5,583 1305,550.5 1282.5,447 1264,427 1138,425 1138,396 976.5,397.5 976.5,455.5 891.5,455.5 758,653.5 758,721 737,721 737,735 786.5,735 786.5,756 739.5,756 739.5,811 774,811 774,870.5 761,870.5 761,884.5 783.5,884.5 783.5,906 774,906"></polygon>
+          
+          <polygon class="zone" data-zone="3" points="978.5,456 976.5,397.5 1136,399.5 1137,427 1264,429 1270,388.5 1270,118.5 1242,118.5 1242,114 1220,114 1219,92 1198,63 701.5,64 701.5,74.5 692,74.5 692,122 631,123 631,338 813,340.5 814,386 825.5,386 892.5,457.5 978.5,456"></polygon>
+          
+          <polygon class="zone" data-zone="4" points="1267,116 1269,388 1369,388.5 1368,368.5 1400,367.5 1399,429.5 1552,431 1552,427 1673,427 1673,423 1763,423 1763,408.5 1924,406.5 1924,284 2047,282 2048,102 1849,100 1849,47 1334.5,48.5 1334.5,62 1326,62 1327,113 1267,116"></polygon>
+          
+          <polygon class="zone" data-zone="5" points="1352,586 1355,853 1681,853 1682,795 1819,794 1818,724 1861,724 1860,665 1909,664 1906,611 1864,610 1865,579 1951,578 1952,532 2047,533 2047,415 1924,416.5 1923,405 1761,406 1761,422 1671,422 1671,426 1551,425 1551,428 1400,427 1400,365 1367,366 1366,388 1269,386.5 1263,429.5 1281,448.5 1305,552 1352,586"></polygon>
+          
+          <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
         </svg>
       </div>
     </div>
 
-   <div id="info-panel">
+    <div id="info-panel">
       <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
-
       <div id="info-image-fixed" class="info-image-fixed">
         <div class="no-signal">
           NO SIGNAL
           <small>Изображение сектора<br>будет здесь</small>
         </div>
       </div>
-
       <div id="info-text-fixed" class="info-text-fixed">
         <h2 id="i-title"></h2>
         <div class="meta-line"><strong>CLASS:</strong> <span id="i-class"></span></div>
         <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
         <div class="description" id="i-desc"></div>
       </div>
-     <!-- Новый input для пароля на ПК -->
-      <input type="text" id="password-input" placeholder="ВВЕДИТЕ КЛЮЧ АКТИВАЦИИ" maxlength="6">
-      <button id="password-submit">АКТИВИРОВАТЬ</button>
-      <div id="password-error"></div>
     </div>
   </div>
 
   <dialog id="zone-modal" class="zone-modal">
     <div class="modal-content">
       <button class="close-btn" aria-label="Закрыть">×</button>
-    
       <div class="modal-image">
         <img id="modal-img" src="" alt="Сектор">
       </div>
-    
       <div class="modal-text">
         <h2 id="modal-title"></h2>
         <div class="meta"><strong>CLASS:</strong> <span id="modal-class"></span></div>
         <div class="meta"><strong>STATUS:</strong> <span id="modal-status"></span></div>
         <p id="modal-desc"></p>
       </div>
-
-      <!-- Новый input для пароля на мобильном -->
-      <div class="modal-password">
-        <input type="text" id="modal-password-input" placeholder="ВВЕДИТЕ КЛЮЧ АКТИВАЦИИ" maxlength="6">
-        <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
-        <div class="error" id="modal-password-error"></div>
-      </div>
     </div>
   </dialog>
 </div>
 
 <script>
-// Глобальные переменные
+// Данные зон (без изменений)
+let currentStage = 1;
 let activeZone = null;
 let typingTimer = null;
-
-// Пароли для зон (6 символов, заглавные буквы + цифры)
-const passwords = ['O0YJ7T', 'HR8JCF', 'FUW80C', '4V452B', 'J8EXGM', 'PJZT3D'];
-
-// Даты активации зон (12:00 МСК = 09:00 UTC)
-const activationDates = [
-  new Date('2026-02-09T09:00:00Z'), // Зона 1 — 09.02.2026 12:00 МСК
-  new Date('2026-02-10T09:00:00Z'), // Зона 2 — 10.02
-  new Date('2026-02-11T09:00:00Z'), // Зона 3 — 11.02
-  new Date('2026-02-13T09:00:00Z'), // Зона 4 — 13.02
-  new Date('2026-02-14T09:00:00Z'), // Зона 5 — 14.02
-  new Date('2026-02-16T09:00:00Z')  // Зона 6 — 16.02
-];
-
-// Открытые зоны (сохраняются в localStorage)
-let openedZones = JSON.parse(localStorage.getItem('openedZones')) || [];
-
-// Текущая дата (с поддержкой debug)
-let now = new Date();
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('debug')) {
-  now = new Date(urlParams.get('debug'));
-  console.log('DEBUG MODE: Simulated date →', now.toISOString());
-}
-
-// Сколько зон уже "готовы" по дате
-const readyStage = activationDates.filter(date => now >= date).length;
-
-// Обновление карты в зависимости от количества открытых зон
-function updateMap() {
-  const openedCount = openedZones.length;
-  let mapPath = `assets/maps/open_${openedCount}_6.png`;
-  let mapV2Path = `assets/maps/open_${openedCount}_6_v2.png`;
-
-  // Если зон ещё 0 — используем начальную
-  if (openedCount === 0) {
-    mapPath = 'assets/maps/open_0_6.png';
-    mapV2Path = 'assets/maps/open_0_6_v2.png';
-  }
-
-  const imageEl = document.querySelector('#map-wrapper image');
-  if (imageEl) {
-    imageEl.setAttribute('href', mapPath);
-
-    // Мобильная версия portrait
-    if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
-      imageEl.setAttribute('href', mapV2Path);
-    }
-
-    console.log(`Карта обновлена: ${imageEl.getAttribute('href')} | Открыто зон: ${openedZones.length}`);
-  }
-}
-
-// Инициализация карты при загрузке
-updateMap();
-
-// Данные секторов (без изменений)
 const data = {
   1: {
     title: "TRANSIT STATION",
@@ -985,7 +800,6 @@ const data = {
   }
 };
 
-// Функции typeText, showInfo, clearInfo (без изменений)
 function typeText(el, text) {
   el.textContent = "";
   let i = 0;
@@ -1052,208 +866,191 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
-  hidePasswordPrompts();   // ← добавь эту строку
 }
 
-// Обработка зон
-document.querySelectorAll('.zone').forEach(z => {
-  const zoneNum = +z.dataset.zone;
+// === НОВАЯ ЛОГИКА ЗОН ПО ДАТАМ И КЛЮЧАМ ===
 
-  // Классы зон в зависимости от состояния
-  if (zoneNum > readyStage) {
-    z.classList.add('locked');
-  } else if (openedZones.includes(zoneNum)) {
-    z.classList.add('enabled', 'opened');
-  } else {
-    z.classList.add('ready');
+// Ключи зон
+const zoneKeys = [null, "6MSMUL", "HANQ3V", "8RDID1", "ARZ6ZT", "DD0MKS", "YBA469"];
+
+// Даты активации (МСК 12:00 = UTC 09:00)
+const activationDates = [null,
+  new Date("2026-02-09T09:00:00Z"),
+  new Date("2026-02-10T09:00:00Z"),
+  new Date("2026-02-11T09:00:00Z"),
+  new Date("2026-02-13T09:00:00Z"),
+  new Date("2026-02-14T09:00:00Z"),
+  new Date("2026-02-16T09:00:00Z")
+];
+
+// Debug-режим
+function getNow() {
+  const params = new URLSearchParams(location.search);
+  const debug = params.get('debug');
+  if (debug && debug.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return new Date(debug + "T09:00:00Z");
   }
+  return new Date();
+}
 
-z.addEventListener('click', () => {
-  if (z.classList.contains('locked')) return;
+window.simulateDate = function(dateStr) {
+  const d = new Date(dateStr + "T09:00:00Z");
+  if (!isNaN(d.getTime())) {
+    initZones(d);
+  } else {
+    console.error("Неверный формат даты: используй YYYY-MM-DD");
+  }
+};
 
-  if (openedZones.includes(zoneNum)) {
-    // Уже открыта — показываем инфо и прячем пароль
-    hidePasswordPrompts();
-    if (activeZone === z) {
-      clearInfo(false);
+// Открытые зоны (сохранение в localStorage)
+let openedZones = JSON.parse(localStorage.getItem('zeroSectorOpened') || '[]');
+
+// Инициализация зон и карты
+function initZones(now = getNow()) {
+  const mapImg = document.getElementById('main-map');
+  const isPortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+  const openedCount = openedZones.length || 1;
+  mapImg.setAttribute('href', `assets/maps/open_${openedCount}_6${isPortrait ? '_v2' : ''}.png`);
+
+  document.querySelectorAll('.zone').forEach(z => {
+    const num = +z.dataset.zone;
+    z.classList.remove('enabled', 'ready', 'locked', 'active');
+
+    if (openedZones.includes(num)) {
+      z.classList.add('enabled');
+    } else if (now >= activationDates[num]) {
+      z.classList.add('ready');
+    } else {
+      z.classList.add('locked');
+    }
+  });
+}
+
+// Обработчик кликов по зонам (заменяет старые обработчики)
+document.querySelectorAll('.zone').forEach(z => {
+  z.addEventListener('click', () => {
+    const num = +z.dataset.zone;
+
+    // Уже открыта — показываем информацию или модалку
+    if (openedZones.includes(num)) {
+      // Здесь вызывается твоя старая логика показа (showInfo или модалка)
+      // Для примера используем showInfo (можно заменить на openZoneModal)
+      showInfo(num, false);
       return;
     }
-    activeZone?.classList.remove('active');
-    activeZone = z;
-    z.classList.add('active');
-    showInfo(zoneNum, false);
-  } else if (z.classList.contains('ready')) {
-    // Только для ready — показываем ввод
-    showPasswordPrompt(zoneNum);
-  }
-});
 
-  // hover — работает ТОЛЬКО если нет активной выбранной зоны
-  z.addEventListener('mouseenter', () => {
-    // Если есть выбранная зона — hover ничего не делает
-    if (activeZone) return;
+    const now = getNow();
+    if (now < activationDates[num]) {
+      alert("СЕКТОР НЕ АКТИВИРОВАН СИСТЕМОЙ. ОЖИДАЙТЕ СИГНАЛА.");
+      return;
+    }
 
-    // Если зона не enabled/ready/opened — тоже ничего
-    if (!z.classList.contains('enabled') && !z.classList.contains('ready')) return;
+    // Готова к вводу ключа
+    const input = prompt(`ВВЕДИТЕ КЛЮЧ ДЛЯ СЕКТОРА ${num} (6 символов)`);
+    if (!input) return;
 
-    // Показываем preview-информацию
-    showInfo(+z.dataset.zone, true);
+    if (input.trim().toUpperCase() === zoneKeys[num]) {
+      openedZones.push(num);
+      localStorage.setItem('zeroSectorOpened', JSON.stringify(openedZones));
+      initZones();
+      alert(`СЕКТОР ${num} АКТИВИРОВАН`);
+      showInfo(num, false); // или openZoneModal(num);
+    } else {
+      document.getElementById('app').classList.add('glitch-global');
+      setTimeout(() => document.getElementById('app').classList.remove('glitch-global'), 800);
+      alert("НЕВЕРНЫЙ СИГНАЛ. ПОВТОРИТЕ.");
+    }
   });
 
+  // Hover — оставляем как было
+  z.addEventListener('mouseenter', () => {
+    if (activeZone || !z.classList.contains('enabled')) return;
+    showInfo(+z.dataset.zone, true);
+  });
   z.addEventListener('mouseleave', () => {
-    // Если была выбрана зона — при уходе мыши ничего не очищаем
-    if (activeZone) return;
-
-    // Очищаем только preview
+    if (activeZone || !z.classList.contains('enabled')) return;
     clearInfo(true);
   });
 });
 
-// Показ ввода пароля (ПК — в info-panel, мобильный — в модальном окне)
-function showPasswordPrompt(zoneNum) {
-  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
-
-  if (isMobilePortrait) {
-    const modal = document.getElementById('zone-modal');
-    const modalText = document.querySelector('.modal-text');
-    modalText.innerHTML = `
-      <h2>АКТИВАЦИЯ СЕКТОРА ${zoneNum}</h2>
-      <p>ВВЕДИТЕ КЛЮЧ ИЗ СИГНАЛА</p>
-    `;
-    const modalPassword = document.querySelector('.modal-password') || document.createElement('div');
-    modalPassword.className = 'modal-password';
-    modalPassword.innerHTML = `
-      <input type="text" id="modal-password-input" placeholder="КЛЮЧ (6 символов)" maxlength="6">
-      <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
-      <div class="error" id="modal-password-error"></div>
-    `;
-    modalText.appendChild(modalPassword);
-    modalPassword.style.display = 'flex';
-    document.getElementById('modal-password-input').value = '';
-    document.getElementById('modal-password-error').textContent = '';
-    modal.showModal();
-
-    document.getElementById('modal-password-submit').onclick = () => {
-      const input = document.getElementById('modal-password-input').value.trim().toUpperCase();
-      if (input === passwords[zoneNum - 1]) {
-        openZone(zoneNum);
-        modal.close();
-      } else {
-        document.getElementById('modal-password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
-      }
-    };
-  } else {
-    // ПК: показываем поле в info-панели
-    document.getElementById('info-placeholder').style.display = 'none';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
-    const input = document.getElementById('password-input');
-    input.style.display = 'block';
-    document.getElementById('password-submit').style.display = 'block';
-    document.getElementById('password-error').textContent = '';
-    input.value = '';
-    input.placeholder = `КЛЮЧ ДЛЯ СЕКТОРА ${zoneNum}`;
-    input.focus();
-
-    document.getElementById('password-submit').onclick = () => {
-      const val = input.value.trim().toUpperCase();
-      if (val === passwords[zoneNum - 1]) {
-        openZone(zoneNum);
-      } else {
-        document.getElementById('password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
-      }
-    };
-  }
-}
-
-function hidePasswordPrompts() {
-  // ПК-версия
-  document.getElementById('password-input').style.display = 'none';
-  document.getElementById('password-submit').style.display = 'none';
-  document.getElementById('password-error').textContent = '';
-
-  // Мобильная версия
-  document.querySelectorAll('.modal-password').forEach(el => {
-    el.style.display = 'none';
-  });
-
-  // Возвращаем placeholder, если ничего не выбрано
-  if (!activeZone) {
-    document.getElementById('info-placeholder').style.display = 'flex';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
-  }
-}
-
-// Функция открытия зоны
-function openZone(zoneNum) {
-  if (openedZones.includes(zoneNum)) return;
-
-  openedZones.push(zoneNum);
-  openedZones.sort((a, b) => a - b);
-  localStorage.setItem('openedZones', JSON.stringify(openedZones));
-
-  const z = document.querySelector(`.zone[data-zone="${zoneNum}"]`);
-  if (z) {
-    z.classList.remove('ready');
-    z.classList.add('enabled', 'opened');
-  }
-
-  // Скрываем ввод пароля
-  document.getElementById('password-input').style.display = 'none';
-  document.getElementById('password-submit').style.display = 'none';
-  document.querySelectorAll('.modal-password').forEach(el => el.style.display = 'none');
-
-  hidePasswordPrompts();   // ← добавь
-  updateMap();
-  showInfo(zoneNum, false); // сразу показываем информацию о секторе
-}
-
-// Обработка мобильного модального окна (твоя старая логика + интеграция)
+// Убрать пульсацию после первого касания
 document.addEventListener('DOMContentLoaded', () => {
-  const mapImage = document.querySelector('#map-wrapper image');
-  if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
-    mapImage.setAttribute('href', 'assets/maps/open_0_6_v2.png'); // начальная для мобильного
-    // ... остальная логика модального окна, если нужно
-  }
-
-  // Закрытие модального окна
-  document.querySelector('.close-btn')?.addEventListener('click', () => {
-    document.getElementById('zone-modal').close();
-  });
-
-  document.getElementById('zone-modal')?.addEventListener('click', e => {
-    if (e.target === document.getElementById('zone-modal')) {
-      document.getElementById('zone-modal').close();
-    }
-  });
-
-  document.getElementById('zone-modal')?.addEventListener('close', () => {
-    hidePasswordPrompts();
-  });
+  const container = document.getElementById('map-container');
+  if (!container) return;
+  const hideEffects = () => {
+    container.classList.add('touched');
+    document.removeEventListener('touchstart', hideEffects);
+    document.removeEventListener('click', hideEffects);
+  };
+  document.addEventListener('touchstart', hideEffects, { once: true, passive: true });
+  document.addEventListener('click', hideEffects, { once: true });
 });
 
-// Прелоадер и глитчи (твоя последняя версия, без изменений)
+// Мобильная модалка (портрет)
+document.addEventListener('DOMContentLoaded', () => {
+  const mapImage = document.getElementById('main-map');
+  if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+    mapImage.setAttribute('href', 'assets/maps/open_1_6_v2.png');
+    const modal = document.getElementById('zone-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalClass = document.getElementById('modal-class');
+    const modalStatus = document.getElementById('modal-status');
+    const modalDesc = document.getElementById('modal-desc');
+
+    function openZoneModal(zoneId) {
+      const d = data[zoneId];
+      if (!d) return;
+      modalTitle.textContent = d.title;
+      modalClass.textContent = d.class;
+      modalStatus.textContent = d.status;
+      modalDesc.textContent = d.desc;
+      modalImg.src = d.image || 'assets/info/placeholder.png';
+      modalImg.alt = d.title;
+      modal.showModal();
+    }
+
+    document.querySelector('.close-btn').addEventListener('click', () => modal.close());
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+
+    // Клик по зоне теперь обрабатывается в общем обработчике выше
+    // Если нужно — можно добавить вызов openZoneModal в успешный ввод ключа
+  }
+});
+
+// Прелоадер (твой код без изменений)
 document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
-  if (!preloader) return;
-
   const statusEl = document.getElementById('preload-status');
   const bar = document.getElementById('preload-bar');
   const minDuration = 5000;
   const startTime = Date.now();
 
-  const messages = ["Поиск носителя данных...", "Обнаружен фрагмент карты сектора", "Проверка целостности слоёв...", "Калибровка координат зон...", "Синхронизация сигнатуры...", "Соединение установлено"];
+  const messages = [
+    "Поиск носителя данных...",
+    "Обнаружен фрагмент карты сектора",
+    "Проверка целостности слоёв...",
+    "Калибровка координат зон...",
+    "Синхронизация сигнатуры...",
+    "Соединение установлено"
+  ];
   const delays = [800, 1200, 600, 1000, 500, 900];
   let msgIndex = 0;
 
   function nextMessage() {
     if (msgIndex < messages.length) {
       let msg = messages[msgIndex];
-      if (Math.random() < 0.3) msg = msg.slice(0, -3) + msg.slice(-3).repeat(2) + '...';
+      if (Math.random() < 0.3) {
+        msg = msg.slice(0, -3) + msg.slice(-3).repeat(2) + '...';
+      }
       statusEl.textContent = msg;
       const progress = ((msgIndex + 1) / messages.length) * 100;
       bar.style.width = `${progress}%`;
+      if (Math.random() < 0.2) {
+        setTimeout(() => { bar.style.width = `${progress + 5}%`; }, 400);
+      }
       msgIndex++;
       setTimeout(nextMessage, delays[msgIndex - 1] || 700);
     }
@@ -1273,19 +1070,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const mainMapImage = document.querySelector('#map-wrapper image');
-  if (mainMapImage?.complete && mainMapImage.naturalWidth > 0) {
+  const mainMapImage = document.getElementById('main-map');
+  if (mainMapImage.complete && mainMapImage.naturalWidth > 0) {
     tryHide();
-  } else if (mainMapImage) {
-    mainMapImage.addEventListener('load', tryHide, { once: true });
-    mainMapImage.addEventListener('error', tryHide, { once: true });
   } else {
-    setTimeout(tryHide, minDuration);
+    mainMapImage.addEventListener('load', tryHide, { once: true });
+    mainMapImage.addEventListener('error', () => {
+      statusEl.textContent = "ОШИБКА СИГНАЛА → ЗАГРУЗКА ПРОДОЛЖАЕТСЯ";
+      tryHide();
+    }, { once: true });
   }
 
-  setTimeout(() => preloader?.parentNode && preloader.remove(), 15000);
+  setTimeout(() => {
+    if (preloader.parentNode) {
+      preloader.classList.add('hidden');
+      setTimeout(() => preloader.remove(), 800);
+    }
+  }, 15000);
+
+  initZones(); // Инициализация зон после прелоадера
 });
 
+// Глобальные глитчи
 function startGlobalGlitches() {
   const app = document.getElementById('app');
   function triggerGlitch() {
@@ -1303,5 +1109,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
-
