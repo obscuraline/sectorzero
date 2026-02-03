@@ -1088,14 +1088,23 @@ z.addEventListener('click', () => {
   }
 });
 
-  // Hover (только для уже открытых зон)
+  // hover — работает ТОЛЬКО если нет активной выбранной зоны
   z.addEventListener('mouseenter', () => {
-    if (activeZone || !z.classList.contains('enabled')) return;
-    showInfo(zoneNum, true);
+    // Если есть выбранная зона — hover ничего не делает
+    if (activeZone) return;
+
+    // Если зона не enabled/ready/opened — тоже ничего
+    if (!z.classList.contains('enabled') && !z.classList.contains('ready')) return;
+
+    // Показываем preview-информацию
+    showInfo(+z.dataset.zone, true);
   });
 
   z.addEventListener('mouseleave', () => {
-    if (activeZone || !z.classList.contains('enabled')) return;
+    // Если была выбрана зона — при уходе мыши ничего не очищаем
+    if (activeZone) return;
+
+    // Очищаем только preview
     clearInfo(true);
   });
 });
@@ -1294,4 +1303,5 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
