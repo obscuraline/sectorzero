@@ -504,12 +504,6 @@ h2 {
   margin-top: 0.5em;
 }
 
-#password-input,
-#password-submit,
-#password-error {
-  display: none !important; /* скрыто по умолчанию */
-}
-
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
@@ -1099,85 +1093,59 @@ function showPasswordPrompt(zoneNum) {
   const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
 
   if (isMobilePortrait) {
-    // Мобильный — модалка
     const modal = document.getElementById('zone-modal');
-    document.querySelector('.modal-text').innerHTML = `
+    const modalText = document.querySelector('.modal-text');
+    modalText.innerHTML = `
       <h2>АКТИВАЦИЯ СЕКТОРА ${zoneNum}</h2>
-      <p style="color:#c00;margin:1em 0;">ВВЕДИТЕ КЛЮЧ ИЗ СИГНАЛА</p>
-      <div class="modal-password">
-        <input type="text" id="modal-password-input" placeholder="______" maxlength="6" autocomplete="off">
-        <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
-        <div class="error" id="modal-password-error"></div>
-      </div>
+      <p>ВВЕДИТЕ КЛЮЧ ИЗ СИГНАЛА</p>
     `;
+    const modalPassword = document.querySelector('.modal-password') || document.createElement('div');
+    modalPassword.className = 'modal-password';
+    modalPassword.innerHTML = `
+      <input type="text" id="modal-password-input" placeholder="КЛЮЧ (6 символов)" maxlength="6">
+      <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
+      <div class="error" id="modal-password-error"></div>
+    `;
+    modalText.appendChild(modalPassword);
+    modalPassword.style.display = 'flex';
+    document.getElementById('modal-password-input').value = '';
+    document.getElementById('modal-password-error').textContent = '';
     modal.showModal();
 
-    const submitBtn = document.getElementById('modal-password-submit');
-    const input = document.getElementById('modal-password-input');
-    input.focus();
-
-    submitBtn.onclick = () => {
-      const val = input.value.trim().toUpperCase();
-      if (val === passwords[zoneNum - 1]) {
+    document.getElementById('modal-password-submit').onclick = () => {
+      const input = document.getElementById('modal-password-input').value.trim().toUpperCase();
+      if (input === passwords[zoneNum - 1]) {
         openZone(zoneNum);
         modal.close();
       } else {
         document.getElementById('modal-password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
-        input.style.borderColor = '#f00';
-        setTimeout(() => input.style.borderColor = '', 600);
       }
     };
-
-    // Enter тоже работает
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') submitBtn.click();
-    });
-
   } else {
-    // Десктоп — показываем в info-panel
-    clearInfo(); // очищаем всё старое
-
+    // ПК: показываем поле в info-панели
     document.getElementById('info-placeholder').style.display = 'none';
     document.getElementById('info-image-fixed').style.display = 'none';
     document.getElementById('info-text-fixed').style.display = 'none';
-
     const input = document.getElementById('password-input');
-    const submit = document.getElementById('password-submit');
-    const error = document.getElementById('password-error');
-
     input.style.display = 'block';
-    submit.style.display = 'block';
-    error.textContent = '';
-
+    document.getElementById('password-submit').style.display = 'block';
+    document.getElementById('password-error').textContent = '';
     input.value = '';
     input.placeholder = `КЛЮЧ ДЛЯ СЕКТОРА ${zoneNum}`;
     input.focus();
 
-    // Один раз вешаем обработчик (чтобы не плодить)
-    submit.onclick = () => {
+    document.getElementById('password-submit').onclick = () => {
       const val = input.value.trim().toUpperCase();
       if (val === passwords[zoneNum - 1]) {
         openZone(zoneNum);
       } else {
-        error.textContent = 'НЕВЕРНЫЙ КЛЮЧ';
-        input.style.borderColor = '#f00';
-        setTimeout(() => {
-          input.style.borderColor = '';
-          error.textContent = '';
-        }, 1000);
+        document.getElementById('password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
       }
     };
-
-    // Enter в поле
-    input.addEventListener('keydown', function handler(e) {
-      if (e.key === 'Enter') {
-        submit.click();
-        input.removeEventListener('keydown', handler);
-      }
-    });
   }
 }
 
+// Функция открытия зоны
 function openZone(zoneNum) {
   if (openedZones.includes(zoneNum)) return;
 
@@ -1186,16 +1154,18 @@ function openZone(zoneNum) {
   localStorage.setItem('openedZones', JSON.stringify(openedZones));
 
   const z = document.querySelector(`.zone[data-zone="${zoneNum}"]`);
-  z.classList.remove('ready');
-  z.classList.add('enabled', 'opened');
+  if (z) {
+    z.classList.remove('ready');
+    z.classList.add('enabled', 'opened');
+  }
 
-  // СКРЫВАЕМ ВВОД ПАРОЛЯ НА ДЕСКТОПЕ
+  // Скрываем ввод пароля
   document.getElementById('password-input').style.display = 'none';
   document.getElementById('password-submit').style.display = 'none';
-  document.getElementById('password-error').textContent = '';
+  document.querySelectorAll('.modal-password').forEach(el => el.style.display = 'none');
 
   updateMap();
-  showInfo(zoneNum, false); // сразу открываем инфо о секторе
+  showInfo(zoneNum, false); // сразу показываем информацию о секторе
 }
 
 // Обработка мобильного модального окна (твоя старая логика + интеграция)
@@ -1288,5 +1258,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
-
