@@ -280,7 +280,7 @@ h2 {
   opacity: 0.75;
 }
 
-/* Прелоадер */
+/* Прелоадер (обновлённый) */
 #preloader {
   position: fixed;
   inset: 0;
@@ -309,6 +309,8 @@ h2 {
   letter-spacing: 1px;
   text-shadow: 0 0 6px #800;
   min-height: 1.4em;
+  position: relative;
+  display: inline-block;
 }
 
 #preloader .progress {
@@ -340,6 +342,57 @@ h2 {
   );
   animation: scan 60s linear infinite;
   opacity: 0.7;
+}
+
+/* Glitch эффект для текста в прелоадере */
+.glitch {
+  animation: glitch-anim 0.8s infinite steps(1);
+}
+
+@keyframes glitch-anim {
+  0% { transform: translate(0); color: #c00; text-shadow: 2px 2px 0 #f00, -2px -2px 0 #800; }
+  20% { transform: translate(2px, 1px); color: #f00; text-shadow: -2px 0 #800, 2px 0 #0f0; }
+  40% { transform: translate(-2px, -1px); color: #800; text-shadow: 1px 1px 0 #f00, -1px -1px 0 #00f; }
+  60% { transform: translate(3px, 0); color: #c00; text-shadow: 0 0 4px #f00; }
+  80% { transform: translate(-1px, 2px); color: #f00; text-shadow: 3px 0 #800, -3px 0 #f00; }
+  100% { transform: translate(0); color: #c00; text-shadow: 0 0 6px #800; }
+}
+
+/* Глобальные glitch эффекты на весь сайт */
+#app.glitch-global {
+  animation: glitch-global-anim 0.6s steps(1);
+}
+
+@keyframes glitch-global-anim {
+  0% { transform: translate(0); filter: brightness(1); }
+  15% { transform: translate(4px, 2px); filter: brightness(0.8) hue-rotate(10deg); }
+  30% { transform: translate(-4px, -2px); filter: brightness(1.2) hue-rotate(-10deg); }
+  45% { transform: translate(2px, -4px); filter: brightness(0.7) saturate(1.5); }
+  60% { transform: translate(-2px, 4px); filter: brightness(1.5) hue-rotate(20deg); }
+  75% { transform: translate(3px, 1px); filter: brightness(0.9) saturate(2); }
+  90% { transform: translate(-3px, -1px); filter: brightness(1.1) hue-rotate(-20deg); }
+  100% { transform: translate(0); filter: brightness(1); }
+}
+
+/* Дополнительные помехи (overlay) */
+.glitch-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,0,0,0.1) 2px, rgba(255,0,0,0.1) 4px);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+#app.glitch-global .glitch-overlay {
+  opacity: 0.4;
+  animation: glitch-overlay-anim 0.6s infinite;
+}
+
+@keyframes glitch-overlay-anim {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 @media (max-width: 1024px) and (orientation: portrait) {
@@ -597,7 +650,7 @@ h2 {
 <div id="preloader">
   <div class="scanline"></div>
   <div>ИНИЦИАЛИЗАЦИЯ СИГНАЛА...</div>
-  <div class="status" id="preload-status">Поиск носителя данных</div>
+  <div class="status glitch" id="preload-status">Поиск носителя данных</div>
   <div class="progress">
     <div class="bar" id="preload-bar"></div>
   </div>
@@ -924,13 +977,13 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
-// Прелоадер логика
+// Прелоадер логика (обновлённая)
 document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
   const statusEl  = document.getElementById('preload-status');
   const bar       = document.getElementById('preload-bar');
 
-  const minDuration = 3800;          // минимум 3.8 секунды
+  const minDuration = 5000;          // минимум 5 секунд
   const startTime   = Date.now();
 
   const messages = [
@@ -942,62 +995,105 @@ document.addEventListener('DOMContentLoaded', () => {
     "Соединение установлено"
   ];
 
+  const delays = [800, 1200, 600, 1000, 500, 900]; // Разные задержки для этапов (мс)
+
   let msgIndex = 0;
-  const msgInterval = setInterval(() => {
+  let totalDelay = 0;
+
+  function nextMessage() {
     if (msgIndex < messages.length) {
-      statusEl.textContent = messages[msgIndex];
-      bar.style.width = `${(msgIndex + 1) / messages.length * 100}%`;
+      // Случайный "лаг" — иногда добавляем повтор символов
+      let msg = messages[msgIndex];
+      if (Math.random() < 0.3) { // 30% шанс на glitch-лаг
+        msg = msg.slice(0, -3) + msg.slice(-3).repeat(2) + '...'; // Типа "заикание"
+      }
+      statusEl.textContent = msg;
+
+      // Нелинейный прогресс: скачки + паузы
+      const progress = ((msgIndex + 1) / messages.length) * 100;
+      bar.style.width = `${progress}%`;
+      if (Math.random() < 0.2) { // 20% шанс "застревания" бара
+        setTimeout(() => { bar.style.width = `${progress + 5}%`; }, 400); // Лёгкий скачок после
+      }
+
       msgIndex++;
+      totalDelay += delays[msgIndex - 1] || 700;
+      setTimeout(nextMessage, delays[msgIndex - 1] || 700);
     }
-  }, 700); // смена каждые ~0.7 сек
+  }
+
+  nextMessage(); // Запуск цепочки
 
   function tryHide() {
     const elapsed = Date.now() - startTime;
-    if (elapsed >= minDuration) {
+    if (elapsed >= minDuration && msgIndex >= messages.length) { // Ждём и минимум, и все этапы
       preloader.classList.add('hidden');
-      setTimeout(() => preloader.remove(), 800); // полностью убираем из DOM
-      clearInterval(msgInterval);
+      setTimeout(() => {
+        preloader.remove();
+        startGlobalGlitches(); // После загрузки запускаем глобальные эффекты
+      }, 800);
     } else {
-      setTimeout(tryHide, minDuration - elapsed + 100);
+      setTimeout(tryHide, 200);
     }
   }
 
   // Главная картинка карты
   const mainMapImage = document.querySelector('#map-wrapper image');
   if (!mainMapImage) {
-    // на всякий случай fallback
+    // fallback
     setTimeout(tryHide, minDuration);
     return;
   }
 
-  // Если уже загружена (кэш)
   if (mainMapImage.complete && mainMapImage.naturalWidth > 0) {
     tryHide();
   } else {
-    // Ждём загрузки именно этой картинки
-    mainMapImage.addEventListener('load', () => {
-      tryHide();
-    }, { once: true });
-
-    // Защита от ошибок загрузки (если картинка 404)
+    mainMapImage.addEventListener('load', tryHide, { once: true });
     mainMapImage.addEventListener('error', () => {
       statusEl.textContent = "ОШИБКА СИГНАЛА → ЗАГРУЗКА ПРОДОЛЖАЕТСЯ";
-      tryHide(); // всё равно показываем контент через минимум
+      tryHide();
     }, { once: true });
   }
 
-  // Дополнительная страховка — через 12 сек принудительно скрываем
+  // Принудительно через 15 сек
   setTimeout(() => {
     if (preloader.parentNode) {
       preloader.classList.add('hidden');
       setTimeout(() => preloader.remove(), 800);
     }
-  }, 12000);
+  }, 15000);
 });
+
+// Глобальные glitch эффекты
+function startGlobalGlitches() {
+  const app = document.getElementById('app');
+  const overlay = document.createElement('div');
+  overlay.classList.add('glitch-overlay');
+  app.appendChild(overlay);
+
+  function triggerGlitch() {
+    app.classList.add('glitch-global');
+    setTimeout(() => {
+      app.classList.remove('glitch-global');
+    }, 600 + Math.random() * 400); // Длительность 0.6-1 сек
+
+    // Следующий glitch через 10-30 сек (редко)
+    setTimeout(triggerGlitch, 10000 + Math.random() * 20000);
+  }
+
+  // Первый через 5-15 сек после загрузки
+  setTimeout(triggerGlitch, 5000 + Math.random() * 10000);
+
+  // На мобильных — реже (каждые 20-40 сек)
+  if (window.matchMedia("(max-width: 1024px)").matches) {
+    setTimeout(triggerGlitch, 20000 + Math.random() * 20000);
+  }
+}
 </script>
   
 </body>
 </html>
+
 
 
 
