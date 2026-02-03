@@ -280,6 +280,68 @@ h2 {
   opacity: 0.75;
 }
 
+/* Прелоадер */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #c00;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.5rem;
+  text-align: center;
+  transition: opacity 0.7s ease-out;
+  pointer-events: none;
+}
+
+#preloader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#preloader .status {
+  margin: 1.2em 0 0.8em;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px #800;
+  min-height: 1.4em;
+}
+
+#preloader .progress {
+  width: 380px;
+  max-width: 80vw;
+  height: 6px;
+  background: #200;
+  border: 1px solid #400;
+  overflow: hidden;
+  margin-top: 1.5em;
+}
+
+#preloader .bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #800, #f00, #c00);
+  transition: width 0.4s ease-out;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    rgba(180,0,0,0.06) 3px,
+    rgba(180,0,0,0.06) 6px
+  );
+  animation: scan 60s linear infinite;
+  opacity: 0.7;
+}
+
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
@@ -532,6 +594,15 @@ h2 {
 </head>
 <body>
 
+<div id="preloader">
+  <div class="scanline"></div>
+  <div>ИНИЦИАЛИЗАЦИЯ СИГНАЛА...</div>
+  <div class="status" id="preload-status">Поиск носителя данных</div>
+  <div class="progress">
+    <div class="bar" id="preload-bar"></div>
+  </div>
+</div>
+  
 <div id="app">
   <div id="content">
     <div id="map-container">
@@ -851,9 +922,83 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 </script>
+
+<script>
+// Прелоадер логика
+document.addEventListener('DOMContentLoaded', () => {
+  const preloader = document.getElementById('preloader');
+  const statusEl  = document.getElementById('preload-status');
+  const bar       = document.getElementById('preload-bar');
+
+  const minDuration = 3800;          // минимум 3.8 секунды
+  const startTime   = Date.now();
+
+  const messages = [
+    "Поиск носителя данных...",
+    "Обнаружен фрагмент карты сектора",
+    "Проверка целостности слоёв...",
+    "Калибровка координат зон...",
+    "Синхронизация сигнатуры...",
+    "Соединение установлено"
+  ];
+
+  let msgIndex = 0;
+  const msgInterval = setInterval(() => {
+    if (msgIndex < messages.length) {
+      statusEl.textContent = messages[msgIndex];
+      bar.style.width = `${(msgIndex + 1) / messages.length * 100}%`;
+      msgIndex++;
+    }
+  }, 700); // смена каждые ~0.7 сек
+
+  function tryHide() {
+    const elapsed = Date.now() - startTime;
+    if (elapsed >= minDuration) {
+      preloader.classList.add('hidden');
+      setTimeout(() => preloader.remove(), 800); // полностью убираем из DOM
+      clearInterval(msgInterval);
+    } else {
+      setTimeout(tryHide, minDuration - elapsed + 100);
+    }
+  }
+
+  // Главная картинка карты
+  const mainMapImage = document.querySelector('#map-wrapper image');
+  if (!mainMapImage) {
+    // на всякий случай fallback
+    setTimeout(tryHide, minDuration);
+    return;
+  }
+
+  // Если уже загружена (кэш)
+  if (mainMapImage.complete && mainMapImage.naturalWidth > 0) {
+    tryHide();
+  } else {
+    // Ждём загрузки именно этой картинки
+    mainMapImage.addEventListener('load', () => {
+      tryHide();
+    }, { once: true });
+
+    // Защита от ошибок загрузки (если картинка 404)
+    mainMapImage.addEventListener('error', () => {
+      statusEl.textContent = "ОШИБКА СИГНАЛА → ЗАГРУЗКА ПРОДОЛЖАЕТСЯ";
+      tryHide(); // всё равно показываем контент через минимум
+    }, { once: true });
+  }
+
+  // Дополнительная страховка — через 12 сек принудительно скрываем
+  setTimeout(() => {
+    if (preloader.parentNode) {
+      preloader.classList.add('hidden');
+      setTimeout(() => preloader.remove(), 800);
+    }
+  }, 12000);
+});
+</script>
   
 </body>
 </html>
+
 
 
 
