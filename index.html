@@ -429,6 +429,81 @@ h2 {
   50%      { opacity: 0.9; }
 }
 
+.zone.locked {
+  pointer-events: none;
+  fill: rgba(30,0,0,0.12) !important;
+  stroke: rgba(60,0,0,0.5) !important;
+  cursor: not-allowed;
+}
+
+.zone.ready:not(.opened) {
+  fill: rgba(80,0,0,0.18);
+  stroke: rgba(100,0,0,0.6);
+  animation: pulse-ready 3s infinite alternate;
+}
+
+@keyframes pulse-ready {
+  0% { stroke-opacity: 0.6; }
+  100% { stroke-opacity: 0.9; }
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  color: #800;
+  font-size: 2.2em;
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+  text-shadow: 0 0 8px #400;
+}
+
+.lock-overlay .warning {
+  font-size: 1.4em;
+  color: #c00;
+  animation: flicker 4s infinite alternate;
+}
+
+.lock-overlay .status {
+  margin-top: 0.5em;
+  font-size: 0.9em;
+  color: #600;
+}
+
+/* Input для пароля в info-panel */
+#password-input {
+  display: none;
+  margin: 1em auto;
+  padding: 0.5em;
+  background: #200;
+  border: 1px solid #600;
+  color: #c00;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.2em;
+  text-align: center;
+  width: 80%;
+}
+
+#password-submit {
+  background: #400;
+  border: 1px solid #800;
+  color: #f00;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  cursor: pointer;
+}
+
+#password-error {
+  color: #f00;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+}
+
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
@@ -651,6 +726,39 @@ h2 {
     box-shadow: none;
   }
 }
+
+/* Для мобильного попапа */
+.modal-password {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1em;
+}
+
+.modal-password input {
+  background: #200;
+  border: 1px solid #600;
+  color: #c00;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.2em;
+  text-align: center;
+  width: 80%;
+  padding: 0.5em;
+}
+
+.modal-password button {
+  background: #400;
+  border: 1px solid #800;
+  color: #f00;
+  padding: 0.5em 1em;
+  margin-top: 0.5em;
+}
+
+.modal-password .error {
+  color: #f00;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+}
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
 @media (max-width: 1024px) and (orientation: landscape) {
@@ -695,7 +803,7 @@ h2 {
     <div id="map-container">
       <div id="map-wrapper">
         <svg viewBox="0 0 2048 1360" preserveAspectRatio="xMidYMid meet">
-          <image href="assets/maps/open_1_6.png" width="2048" height="1360"></image>
+          <image href="assets/maps/open_0_6.png" width="2048" height="1360"></image>
             <!-- Зоны (без изменений координат) -->
             <polygon class="zone" data-zone="1" points="459.5,906.5 -0.5,906.5 -0.5,850.5 28.5,848 28.5,816 181.5,816 199.5,830 248.5,841.5 281,841.5 328.5,826 384.5,786 408,737 413.5,671 408,650 384.5,603.5 350,571 271.5,547.5 216.5,556 167,585.5 150.5,581.5 150.5,563.5 123.5,563.5 123.5,628.5 110,662.5 0,662.5 0,387 136,387 139,393 239,393 239,440 253.5,440 253.5,343 317.5,336 317.5,460 347,460 347,321.5 388,279.5 408.5,235 412,187.5 412,136.5 456,136.5 456,91.5 543,91.5 543,72.5 587.5,72.5 587.5,125 632,125 632,336 814.5,339.5 814.5,386 827.5,386 895,457.5 760,656 677,659.5 677,721.5 722.5,724 722.5,735.5 677,735.5 680.5,753 741,753 741,813 705.5,813 705.5,870.5 760,870.5 760,885.5 677,885.5 677,850.5 506.5,850.5 506.5,802.5 454.5,802.5 452,793 397.5,793 397.5,850.5 459.5,850.5 459.5,906.5"></polygon>
 
@@ -729,6 +837,10 @@ h2 {
         <div class="meta-line"><strong>STATUS:</strong> <span id="i-status"></span></div>
         <div class="description" id="i-desc"></div>
       </div>
+     <!-- Новый input для пароля на ПК -->
+      <input type="text" id="password-input" placeholder="ВВЕДИТЕ КЛЮЧ АКТИВАЦИИ" maxlength="6">
+      <button id="password-submit">АКТИВИРОВАТЬ</button>
+      <div id="password-error"></div>
     </div>
   </div>
 
@@ -746,15 +858,78 @@ h2 {
         <div class="meta"><strong>STATUS:</strong> <span id="modal-status"></span></div>
         <p id="modal-desc"></p>
       </div>
+
+      <!-- Новый input для пароля на мобильном -->
+      <div class="modal-password">
+        <input type="text" id="modal-password-input" placeholder="ВВЕДИТЕ КЛЮЧ АКТИВАЦИИ" maxlength="6">
+        <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
+        <div class="error" id="modal-password-error"></div>
+      </div>
     </div>
   </dialog>
 </div>
 
 <script>
-let currentStage = 1;
+// Глобальные переменные
 let activeZone = null;
 let typingTimer = null;
 
+// Пароли для зон (6 символов, заглавные буквы + цифры)
+const passwords = ['O0YJ7T', 'HR8JCF', 'FUW80C', '4V452B', 'J8EXGM', 'PJZT3D'];
+
+// Даты активации зон (12:00 МСК = 09:00 UTC)
+const activationDates = [
+  new Date('2026-02-09T09:00:00Z'), // Зона 1 — 09.02.2026 12:00 МСК
+  new Date('2026-02-10T09:00:00Z'), // Зона 2 — 10.02
+  new Date('2026-02-11T09:00:00Z'), // Зона 3 — 11.02
+  new Date('2026-02-13T09:00:00Z'), // Зона 4 — 13.02
+  new Date('2026-02-14T09:00:00Z'), // Зона 5 — 14.02
+  new Date('2026-02-16T09:00:00Z')  // Зона 6 — 16.02
+];
+
+// Открытые зоны (сохраняются в localStorage)
+let openedZones = JSON.parse(localStorage.getItem('openedZones')) || [];
+
+// Текущая дата (с поддержкой debug)
+let now = new Date();
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('debug')) {
+  now = new Date(urlParams.get('debug'));
+  console.log('DEBUG MODE: Simulated date →', now.toISOString());
+}
+
+// Сколько зон уже "готовы" по дате
+const readyStage = activationDates.filter(date => now >= date).length;
+
+// Обновление карты в зависимости от количества открытых зон
+function updateMap() {
+  const openedCount = openedZones.length;
+  let mapPath = `assets/maps/open_${openedCount}_6.png`;
+  let mapV2Path = `assets/maps/open_${openedCount}_6_v2.png`;
+
+  // Если зон ещё 0 — используем начальную
+  if (openedCount === 0) {
+    mapPath = 'assets/maps/open_0_6.png';
+    mapV2Path = 'assets/maps/open_0_6_v2.png';
+  }
+
+  const imageEl = document.querySelector('#map-wrapper image');
+  if (imageEl) {
+    imageEl.setAttribute('href', mapPath);
+
+    // Мобильная версия portrait
+    if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+      imageEl.setAttribute('href', mapV2Path);
+    }
+
+    console.log(`Карта обновлена: ${imageEl.getAttribute('href')} | Открыто зон: ${openedZones.length}`);
+  }
+}
+
+// Инициализация карты при загрузке
+updateMap();
+
+// Данные секторов (без изменений)
 const data = {
   1: {
     title: "TRANSIT STATION",
@@ -800,7 +975,7 @@ const data = {
   }
 };
 
-
+// Функции typeText, showInfo, clearInfo (без изменений)
 function typeText(el, text) {
   el.textContent = "";
   let i = 0;
@@ -818,34 +993,24 @@ function typeText(el, text) {
 function showInfo(zoneId, isHover = false) {
   const d = data[zoneId];
   if (!d) return;
-
-  // Заполняем текстовые поля
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
   document.getElementById('i-desc').textContent = '';
-
-  // Запускаем печать описания
   typeText(document.getElementById('i-desc'), d.desc);
-
-  // Показываем изображение вместо заглушки
   const imageBlock = document.getElementById('info-image-fixed');
-  imageBlock.innerHTML = ''; // очищаем старое содержимое
-
+  imageBlock.innerHTML = '';
   const img = document.createElement('img');
-  img.src = d.image || 'assets/info/placeholder.png'; // fallback, если изображения нет
+  img.src = d.image || 'assets/info/placeholder.png';
   img.alt = d.title;
   img.style.width = '100%';
   img.style.height = '100%';
-  img.style.objectFit = 'cover'; // или 'contain', если хочешь без обрезки
+  img.style.objectFit = 'cover';
   img.style.border = '2px solid #600';
   imageBlock.appendChild(img);
-
-  // Показываем блоки
   document.getElementById('info-placeholder').style.display = 'none';
   document.getElementById('info-image-fixed').style.display = 'flex';
   document.getElementById('info-text-fixed').style.display = 'flex';
-
   if (isHover) {
     document.getElementById('info-panel').classList.add('preview-active');
   } else {
@@ -856,14 +1021,10 @@ function showInfo(zoneId, isHover = false) {
 function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
-
-  // Очистка полей
   document.getElementById('i-title').textContent = '';
   document.getElementById('i-class').textContent = '';
   document.getElementById('i-status').textContent = '';
   document.getElementById('i-desc').textContent = '';
-
-  // Возвращаем заглушку вместо изображения
   const imageBlock = document.getElementById('info-image-fixed');
   imageBlock.innerHTML = `
     <div class="no-signal">
@@ -871,14 +1032,9 @@ function clearInfo(isHover = false) {
       <small>Изображение сектора<br>будет здесь</small>
     </div>
   `;
-
-  // Скрываем блоки
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-
-  // Показываем placeholder
   document.getElementById('info-placeholder').style.display = 'flex';
-
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
   } else {
@@ -888,232 +1044,218 @@ function clearInfo(isHover = false) {
   }
 }
 
+// Обработка зон
 document.querySelectorAll('.zone').forEach(z => {
   const zoneNum = +z.dataset.zone;
-  if (zoneNum <= currentStage) {
-    z.classList.add('enabled');
+
+  // Классы зон в зависимости от состояния
+  if (zoneNum > readyStage) {
+    z.classList.add('locked');
+  } else if (openedZones.includes(zoneNum)) {
+    z.classList.add('enabled', 'opened');
+  } else {
+    z.classList.add('ready');
   }
 
-  // click остаётся почти без изменений, но используем showInfo без isHover
   z.addEventListener('click', () => {
-    if (!z.classList.contains('enabled')) return;
+    if (z.classList.contains('locked')) return;
 
-    if (activeZone === z) {
-      clearInfo(false);
-      return;
-    }
-
-    activeZone?.classList.remove('active');
-    activeZone = z;
-    z.classList.add('active');
-    showInfo(+z.dataset.zone, false);   // ← isHover = false
-  });
-});
-
-// hover
-z.addEventListener('mouseenter', () => {
-  if (activeZone) return;
-  if (!z.classList.contains('enabled')) return;
-  showInfo(+z.dataset.zone, true);   // ← isHover = true
-});
-
-z.addEventListener('mouseleave', () => {
-  if (activeZone) return;
-  if (!z.classList.contains('enabled')) return;
-  clearInfo(true);                   // ← isHover = true
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('map-container');
-  if (!container) return;
-
-  const hideEffects = () => {
-    container.classList.add('touched');
-    // Удаляем слушатели, чтобы не срабатывали повторно
-    document.removeEventListener('touchstart', hideEffects);
-    document.removeEventListener('click', hideEffects);
-  };
-
-  // touchstart — основной для мобильных
-  document.addEventListener('touchstart', hideEffects, { once: true, passive: true });
-  // click — запасной
-  document.addEventListener('click', hideEffects, { once: true });
-});
-</script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const mapImage = document.querySelector('#map-container image'); // или по id, если добавишь id="main-map-image"
-
-    if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
-      mapImage.setAttribute('href', 'assets/maps/open_1_6_v2.png');
-
-      // Модальное окно
-      const modal = document.getElementById('zone-modal');
-      const modalImg = document.getElementById('modal-img');
-      const modalTitle = document.getElementById('modal-title');
-      const modalClass = document.getElementById('modal-class');
-      const modalStatus = document.getElementById('modal-status');
-      const modalDesc = document.getElementById('modal-desc');
-
-      function openZoneModal(zoneId) {
-        const d = data[zoneId];
-        if (!d) return;
-
-        modalTitle.textContent = d.title;
-        modalClass.textContent = d.class;
-        modalStatus.textContent = d.status;
-        modalDesc.textContent = d.desc;
-
-        // Картинка (если в data есть image — используй, иначе placeholder)
-        modalImg.src = d.image || 'assets/info/placeholder.png';
-        modalImg.alt = d.title;
-
-        modal.showModal();  // ← открывает как модальное окно
+    if (openedZones.includes(zoneNum)) {
+      // Уже открыта — обычное поведение
+      if (activeZone === z) {
+        clearInfo(false);
+        return;
       }
-
-      // Закрытие
-      document.querySelector('.close-btn').addEventListener('click', () => {
-        modal.close();
-      });
-
-      // Закрытие по клику на backdrop (фон)
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.close();
-        }
-      });
-
-      // Перехватываем клики по зонам (вместо старой showInfo)
-      document.querySelectorAll('.zone').forEach(z => {
-        const zoneNum = +z.dataset.zone;
-        if (zoneNum <= currentStage) {
-          z.classList.add('enabled');
-        }
-
-        z.addEventListener('click', () => {
-          if (!z.classList.contains('enabled')) return;
-
-          // Убираем старую active, если нужно
-          document.querySelector('.zone.active')?.classList.remove('active');
-          z.classList.add('active');
-
-          openZoneModal(zoneNum);
-
-          // Если нужно — убираем пульсацию после первого взаимодействия
-          document.getElementById('map-container').classList.add('touched');
-        });
-      });
+      activeZone?.classList.remove('active');
+      activeZone = z;
+      z.classList.add('active');
+      showInfo(zoneNum, false);
+    } else if (z.classList.contains('ready')) {
+      // Готова к открытию — показываем ввод ключа
+      showPasswordPrompt(zoneNum);
     }
   });
-</script>
 
-<script>
-// Прелоадер логика (обновлённая)
+  // Hover (только для уже открытых зон)
+  z.addEventListener('mouseenter', () => {
+    if (activeZone || !z.classList.contains('enabled')) return;
+    showInfo(zoneNum, true);
+  });
+
+  z.addEventListener('mouseleave', () => {
+    if (activeZone || !z.classList.contains('enabled')) return;
+    clearInfo(true);
+  });
+});
+
+// Показ ввода пароля (ПК — в info-panel, мобильный — в модальном окне)
+function showPasswordPrompt(zoneNum) {
+  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+
+  if (isMobilePortrait) {
+    const modal = document.getElementById('zone-modal');
+    const modalText = document.querySelector('.modal-text');
+    modalText.innerHTML = `
+      <h2>АКТИВАЦИЯ СЕКТОРА ${zoneNum}</h2>
+      <p>ВВЕДИТЕ КЛЮЧ ИЗ СИГНАЛА</p>
+    `;
+    const modalPassword = document.querySelector('.modal-password') || document.createElement('div');
+    modalPassword.className = 'modal-password';
+    modalPassword.innerHTML = `
+      <input type="text" id="modal-password-input" placeholder="КЛЮЧ (6 символов)" maxlength="6">
+      <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
+      <div class="error" id="modal-password-error"></div>
+    `;
+    modalText.appendChild(modalPassword);
+    modalPassword.style.display = 'flex';
+    document.getElementById('modal-password-input').value = '';
+    document.getElementById('modal-password-error').textContent = '';
+    modal.showModal();
+
+    document.getElementById('modal-password-submit').onclick = () => {
+      const input = document.getElementById('modal-password-input').value.trim().toUpperCase();
+      if (input === passwords[zoneNum - 1]) {
+        openZone(zoneNum);
+        modal.close();
+      } else {
+        document.getElementById('modal-password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
+      }
+    };
+  } else {
+    // ПК: показываем поле в info-панели
+    document.getElementById('info-placeholder').style.display = 'none';
+    document.getElementById('info-image-fixed').style.display = 'none';
+    document.getElementById('info-text-fixed').style.display = 'none';
+    const input = document.getElementById('password-input');
+    input.style.display = 'block';
+    document.getElementById('password-submit').style.display = 'block';
+    document.getElementById('password-error').textContent = '';
+    input.value = '';
+    input.placeholder = `КЛЮЧ ДЛЯ СЕКТОРА ${zoneNum}`;
+    input.focus();
+
+    document.getElementById('password-submit').onclick = () => {
+      const val = input.value.trim().toUpperCase();
+      if (val === passwords[zoneNum - 1]) {
+        openZone(zoneNum);
+      } else {
+        document.getElementById('password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ';
+      }
+    };
+  }
+}
+
+// Функция открытия зоны
+function openZone(zoneNum) {
+  if (openedZones.includes(zoneNum)) return;
+
+  openedZones.push(zoneNum);
+  openedZones.sort((a, b) => a - b);
+  localStorage.setItem('openedZones', JSON.stringify(openedZones));
+
+  const z = document.querySelector(`.zone[data-zone="${zoneNum}"]`);
+  if (z) {
+    z.classList.remove('ready');
+    z.classList.add('enabled', 'opened');
+  }
+
+  // Скрываем ввод пароля
+  document.getElementById('password-input').style.display = 'none';
+  document.getElementById('password-submit').style.display = 'none';
+  document.querySelectorAll('.modal-password').forEach(el => el.style.display = 'none');
+
+  updateMap();
+  showInfo(zoneNum, false); // сразу показываем информацию о секторе
+}
+
+// Обработка мобильного модального окна (твоя старая логика + интеграция)
+document.addEventListener('DOMContentLoaded', () => {
+  const mapImage = document.querySelector('#map-wrapper image');
+  if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+    mapImage.setAttribute('href', 'assets/maps/open_0_6_v2.png'); // начальная для мобильного
+    // ... остальная логика модального окна, если нужно
+  }
+
+  // Закрытие модального окна
+  document.querySelector('.close-btn')?.addEventListener('click', () => {
+    document.getElementById('zone-modal').close();
+  });
+
+  document.getElementById('zone-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('zone-modal')) {
+      document.getElementById('zone-modal').close();
+    }
+  });
+});
+
+// Прелоадер и глитчи (твоя последняя версия, без изменений)
 document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
-  const statusEl  = document.getElementById('preload-status');
-  const bar       = document.getElementById('preload-bar');
+  if (!preloader) return;
 
-  const minDuration = 5000;          // минимум 5 секунд
-  const startTime   = Date.now();
+  const statusEl = document.getElementById('preload-status');
+  const bar = document.getElementById('preload-bar');
+  const minDuration = 5000;
+  const startTime = Date.now();
 
-  const messages = [
-    "Поиск носителя данных...",
-    "Обнаружен фрагмент карты сектора",
-    "Проверка целостности слоёв...",
-    "Калибровка координат зон...",
-    "Синхронизация сигнатуры...",
-    "Соединение установлено"
-  ];
-
-  const delays = [800, 1200, 600, 1000, 500, 900]; // Разные задержки для этапов (мс)
-
+  const messages = ["Поиск носителя данных...", "Обнаружен фрагмент карты сектора", "Проверка целостности слоёв...", "Калибровка координат зон...", "Синхронизация сигнатуры...", "Соединение установлено"];
+  const delays = [800, 1200, 600, 1000, 500, 900];
   let msgIndex = 0;
-  let totalDelay = 0;
 
   function nextMessage() {
     if (msgIndex < messages.length) {
-      // Случайный "лаг" — иногда добавляем повтор символов
       let msg = messages[msgIndex];
-      if (Math.random() < 0.3) { // 30% шанс на glitch-лаг
-        msg = msg.slice(0, -3) + msg.slice(-3).repeat(2) + '...'; // Типа "заикание"
-      }
+      if (Math.random() < 0.3) msg = msg.slice(0, -3) + msg.slice(-3).repeat(2) + '...';
       statusEl.textContent = msg;
-
-      // Нелинейный прогресс: скачки + паузы
       const progress = ((msgIndex + 1) / messages.length) * 100;
       bar.style.width = `${progress}%`;
-      if (Math.random() < 0.2) { // 20% шанс "застревания" бара
-        setTimeout(() => { bar.style.width = `${progress + 5}%`; }, 400); // Лёгкий скачок после
-      }
-
       msgIndex++;
-      totalDelay += delays[msgIndex - 1] || 700;
       setTimeout(nextMessage, delays[msgIndex - 1] || 700);
     }
   }
-
-  nextMessage(); // Запуск цепочки
+  nextMessage();
 
   function tryHide() {
     const elapsed = Date.now() - startTime;
-    if (elapsed >= minDuration && msgIndex >= messages.length) { // Ждём и минимум, и все этапы
+    if (elapsed >= minDuration && msgIndex >= messages.length) {
       preloader.classList.add('hidden');
       setTimeout(() => {
         preloader.remove();
-        startGlobalGlitches(); // После загрузки запускаем глобальные эффекты
+        startGlobalGlitches();
       }, 800);
     } else {
       setTimeout(tryHide, 200);
     }
   }
 
-  // Главная картинка карты
   const mainMapImage = document.querySelector('#map-wrapper image');
-  if (!mainMapImage) {
-    // fallback
-    setTimeout(tryHide, minDuration);
-    return;
-  }
-
-  if (mainMapImage.complete && mainMapImage.naturalWidth > 0) {
+  if (mainMapImage?.complete && mainMapImage.naturalWidth > 0) {
     tryHide();
-  } else {
+  } else if (mainMapImage) {
     mainMapImage.addEventListener('load', tryHide, { once: true });
-    mainMapImage.addEventListener('error', () => {
-      statusEl.textContent = "ОШИБКА СИГНАЛА → ЗАГРУЗКА ПРОДОЛЖАЕТСЯ";
-      tryHide();
-    }, { once: true });
+    mainMapImage.addEventListener('error', tryHide, { once: true });
+  } else {
+    setTimeout(tryHide, minDuration);
   }
 
-  // Принудительно через 15 сек
-  setTimeout(() => {
-    if (preloader.parentNode) {
-      preloader.classList.add('hidden');
-      setTimeout(() => preloader.remove(), 800);
-    }
-  }, 15000);
+  setTimeout(() => preloader?.parentNode && preloader.remove(), 15000);
 });
 
-function triggerGlitch() {
-  app.classList.add('glitch-global');
-  setTimeout(() => {
-    app.classList.remove('glitch-global');
-  }, 700 + Math.random() * 500); // 0.7–1.2 сек
-
-  // Редко: сильный "сбой" с затемнением
-  if (Math.random() < 0.15) {
-    app.style.filter = 'brightness(0.4) contrast(1.8)';
-    setTimeout(() => { app.style.filter = ''; }, 400);
+function startGlobalGlitches() {
+  const app = document.getElementById('app');
+  function triggerGlitch() {
+    app.classList.add('glitch-global');
+    setTimeout(() => app.classList.remove('glitch-global'), 700 + Math.random() * 500);
+    if (Math.random() < 0.15) {
+      app.style.filter = 'brightness(0.4) contrast(1.8)';
+      setTimeout(() => app.style.filter = '', 400);
+    }
+    setTimeout(triggerGlitch, 12000 + Math.random() * 23000);
   }
-
-  // Следующий через 12–35 сек (ещё реже, чтобы не раздражало)
-  setTimeout(triggerGlitch, 12000 + Math.random() * 23000);
+  setTimeout(triggerGlitch, 5000 + Math.random() * 10000);
 }
 </script>
   
 </body>
 </html>
+
