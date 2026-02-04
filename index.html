@@ -511,6 +511,31 @@ h2 {
   display: none;
 }
 
+#info-no-zones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #600;
+  font-size: 1.35em;
+  text-align: center;
+  line-height: 1.4;
+  padding: 1em;
+  opacity: 0.9;
+}
+
+#info-no-zones strong {
+  color: #c00;
+  font-size: 1.1em;
+}
+
+#info-no-zones small {
+  margin-top: 1em;
+  font-size: 0.75em;
+  color: #400;
+}
+
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
@@ -834,12 +859,22 @@ h2 {
     </div>
 
    <div id="info-panel">
-      <div id="info-placeholder" class="info-placeholder">Выберите сектор на карте</div>
-
+      <div id="info-placeholder" class="info-placeholder">Выберите зону на карте</div>
+     
+      <div id="info-no-zones" style="display: none;">
+        <div>
+          <strong>СИСТЕМА В РЕЖИМЕ СПЯЧКИ</strong><br>
+            НИ ОДНА ЗОНА НЕ АКТИВИРОВАНА
+        </div>
+        <small>
+          ПЕРВЫЙ СИГНАЛ ОЖИДАЕТСЯ 09.02.2026<br>
+        </small>
+      </div>
+     
       <div id="info-image-fixed" class="info-image-fixed">
         <div class="no-signal">
           NO SIGNAL
-          <small>Изображение сектора<br>будет здесь</small>
+          <small>Изображение зоны<br>будет здесь</small>
         </div>
       </div>
 
@@ -861,7 +896,7 @@ h2 {
       <button class="close-btn" aria-label="Закрыть">×</button>
     
       <div class="modal-image">
-        <img id="modal-img" src="" alt="Сектор">
+        <img id="modal-img" src="" alt="Зона">
       </div>
     
       <div class="modal-text">
@@ -936,6 +971,34 @@ function updateMap() {
     console.log(`Карта обновлена: ${imageEl.getAttribute('href')} | Открыто зон: ${openedZones.length}`);
   }
 }
+
+// Функция обновления состояния инфо-панели при отсутствии открытых зон
+function updateNoZonesPlaceholder() {
+  const noZonesEl = document.getElementById('info-no-zones');
+  const placeholder = document.getElementById('info-placeholder');
+  
+  if (openedZones.length === 0) {
+    // Нет открытых зон → показываем специальную заглушку
+    placeholder.style.display = 'none';
+    document.getElementById('info-image-fixed').style.display = 'none';
+    document.getElementById('info-text-fixed').style.display = 'none';
+    noZonesEl.style.display = 'flex';
+    
+    // Если есть lock-overlay на карте — можно оставить, но инфо тоже информирует
+  } else {
+    noZonesEl.style.display = 'none';
+    
+    // Если ничего не выбрано — возвращаем обычный placeholder
+    if (!activeZone) {
+      placeholder.style.display = 'flex';
+      document.getElementById('info-image-fixed').style.display = 'none';
+      document.getElementById('info-text-fixed').style.display = 'none';
+    }
+  }
+}
+
+// Вызываем при загрузке
+updateNoZonesPlaceholder();
 
 // Инициализация карты при загрузке
 updateMap();
@@ -1042,7 +1105,7 @@ function clearInfo(isHover = false) {
   imageBlock.innerHTML = `
     <div class="no-signal">
       NO SIGNAL
-      <small>Изображение сектора<br>будет здесь</small>
+      <small>Изображение зоны<br>будет здесь</small>
     </div>
   `;
   document.getElementById('info-image-fixed').style.display = 'none';
@@ -1072,6 +1135,11 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
 z.addEventListener('click', () => {
+  if (openedZones.length === 0 && !z.classList.contains('ready')) {
+    // Ничего не делаем, если зон нет и зона не готова
+    return;
+  }
+  
   if (z.classList.contains('locked')) return;
 
   const zoneNum = +z.dataset.zone;
@@ -1130,8 +1198,8 @@ function showPasswordPrompt(zoneNum) {
     const modal = document.getElementById('zone-modal');
     const modalText = document.querySelector('.modal-text');
     modalText.innerHTML = `
-      <h2>АКТИВАЦИЯ СЕКТОРА ${zoneNum}</h2>
-      <p>ВВЕДИТЕ КЛЮЧ ИЗ СИГНАЛА</p>
+      <h2>АКТИВАЦИЯ ЗОНЫ ${zoneNum}</h2>
+      <p>ВВЕДИТЕ КЛЮЧ</p>
     `;
     const modalPassword = document.querySelector('.modal-password') || document.createElement('div');
     modalPassword.className = 'modal-password';
@@ -1165,7 +1233,7 @@ function showPasswordPrompt(zoneNum) {
     document.getElementById('password-submit').style.display = 'block';
     document.getElementById('password-error').textContent = '';
     input.value = '';
-    input.placeholder = `КЛЮЧ ДЛЯ СЕКТОРА ${zoneNum}`;
+    input.placeholder = `КЛЮЧ ДЛЯ ЗОНЫ ${zoneNum}`;
     input.focus();
 
     document.getElementById('password-submit').onclick = () => {
@@ -1219,6 +1287,7 @@ function openZone(zoneNum) {
 
   hidePasswordPrompts();   // ← добавь
   updateMap();
+  updateNoZonesPlaceholder();  // ← добавь сюда
   showInfo(zoneNum, false); // сразу показываем информацию о секторе
 }
 
@@ -1245,7 +1314,7 @@ function showSequentialLockMessage(zoneNum) {
   placeholder.style.display = 'flex';
   placeholder.innerHTML = `
     <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1em;">
-      СЕКТОР ${zoneNum} НЕДОСТУПЕН<br>
+      ЗОНА ${zoneNum} НЕДОСТУПНА<br>
       ТРЕБУЕТСЯ ПОСЛЕДОВАТЕЛЬНАЯ АКТИВАЦИЯ<br><br>
       <small style="color: #600; font-size: 0.85em;">
         Необходимо открыть все предыдущие уровни
@@ -1260,8 +1329,8 @@ function showSequentialLockMessage(zoneNum) {
     if (modal) {
       const modalText = document.querySelector('.modal-text');
       modalText.innerHTML = `
-        <h2>СЕКТОР ${zoneNum} ЗАБЛОКИРОВАН</h2>
-        <p style="color: #c00;">Требуется последовательная активация предыдущих секторов</p>
+        <h2>ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
+        <p style="color: #c00;">Требуется последовательная активация предыдущих зон</p>
       `;
       modal.showModal();
     }
@@ -1362,6 +1431,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
