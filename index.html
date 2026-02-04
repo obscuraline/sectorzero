@@ -1145,39 +1145,44 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
 z.addEventListener('click', () => {
+  if (openedZones.length === 0 && !z.classList.contains('ready')) {
+    // Ничего не делаем, если зон нет и зона не готова
+    return;
+  }
+  
   if (z.classList.contains('locked')) return;
 
   const zoneNum = +z.dataset.zone;
 
-  // Всегда очищаем предыдущее состояние
-  if (activeZone && activeZone !== z) {
-    activeZone.classList.remove('active');
-  }
-  clearInfo(false);           // ← очищаем панель и снимаем active
-  hidePasswordPrompts();      // прячем ввод пароля
-
-  // Если кликнули повторно по той же зоне — ничего больше не делаем
+  // Если кликнули по уже активной зоне → снимаем выделение и очищаем инфо
   if (activeZone === z) {
+    activeZone.classList.remove('active');
     activeZone = null;
+    clearInfo(false);
+    hidePasswordPrompts(); // на всякий случай
     return;
   }
 
-  // Теперь устанавливаем новое состояние
+  // Снимаем active с предыдущей зоны (если была другая)
+  if (activeZone) {
+    activeZone.classList.remove('active');
+    clearInfo(false);
+  }
+
   if (openedZones.includes(zoneNum)) {
-    // Открытая зона → показываем информацию
+    // Уже открыта → делаем активной
     activeZone = z;
     z.classList.add('active');
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
+    // Готова к открытию → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Готова по последовательности → показываем ввод ключа
+      // Предыдущие открыты → показываем ввод ключа и делаем активной
       activeZone = z;
       z.classList.add('active');
       showPasswordPrompt(zoneNum);
     } else {
-      // НЕ готова по последовательности → показываем сообщение
-      activeZone = z;                    // ← даём визуальное выделение
-      z.classList.add('active');         // чтобы пользователь видел, что зона выбрана
+      // Предыдущие НЕ открыты → предупреждение
       showSequentialLockMessage(zoneNum);
     }
   }
@@ -1448,4 +1453,14 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
