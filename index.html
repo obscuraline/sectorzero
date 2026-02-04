@@ -1145,51 +1145,46 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
 z.addEventListener('click', () => {
+  if (openedZones.length === 0 && !z.classList.contains('ready')) {
+    // Ничего не делаем, если зон нет и зона не готова
+    return;
+  }
+  
   if (z.classList.contains('locked')) return;
 
   const zoneNum = +z.dataset.zone;
 
-  // Если кликнули по уже активной зоне → снимаем выделение и очищаем
+  // Если кликнули по уже активной зоне → снимаем выделение и очищаем инфо
   if (activeZone === z) {
     activeZone.classList.remove('active');
     activeZone = null;
     clearInfo(false);
-    hidePasswordPrompts();
+    hidePasswordPrompts(); // на всякий случай
     return;
   }
 
-  // Снимаем active с предыдущей зоны (если была)
+  // Снимаем active с предыдущей зоны (если была другая)
   if (activeZone) {
     activeZone.classList.remove('active');
-    // НЕ вызываем clearInfo здесь — сделаем позже, в зависимости от ситуации
+    clearInfo(false);
   }
 
   if (openedZones.includes(zoneNum)) {
-    // Уже открыта → делаем активной и показываем инфо
+    // Уже открыта → делаем активной
     activeZone = z;
     z.classList.add('active');
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
+    // Готова к открытию → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Можно открыть → показываем ввод ключа
+      // Предыдущие открыты → показываем ввод ключа и делаем активной
       activeZone = z;
       z.classList.add('active');
       showPasswordPrompt(zoneNum);
     } else {
-      // Заблокирована последовательностью → показываем сообщение
-      // Сначала очищаем всё
-      clearInfo(false);
-      hidePasswordPrompts();
-      activeZone = null;  // снимаем активность полностью
-
-      // Показываем именно сообщение о последовательности
+      // Предыдущие НЕ открыты → предупреждение
       showSequentialLockMessage(zoneNum);
     }
-  } else {
-    // На всякий случай: если зона ни ready, ни opened, ни locked — просто очищаем
-    clearInfo(false);
-    hidePasswordPrompts();
-    activeZone = null;
   }
 });
 
@@ -1458,4 +1453,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
