@@ -1057,6 +1057,8 @@ const data = {
   }
 };
 
+const originalPlaceholderText = 'Выберите зону на карте';
+
 
 // Функции typeText, showInfo, clearInfo (без изменений)
 function typeText(el, text) {
@@ -1119,7 +1121,12 @@ function clearInfo(isHover = false) {
   `;
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  document.getElementById('info-placeholder').style.display = 'flex';
+  
+  // Восстанавливаем оригинальный placeholder
+  const placeholder = document.getElementById('info-placeholder');
+  placeholder.innerHTML = originalPlaceholderText;
+  placeholder.style.display = 'flex';
+  
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
   } else {
@@ -1127,7 +1134,7 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
-  hidePasswordPrompts();   // ← добавь эту строку
+  hidePasswordPrompts();
   updateNoZonesPlaceholder();
 }
 
@@ -1325,24 +1332,23 @@ function isPreviousZonesOpened(zoneNum) {
 }
 
 function showSequentialLockMessage(zoneNum) {
-  // Полностью очищаем панель перед показом сообщения
+  // Прячем всё лишнее
   hidePasswordPrompts();
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  document.getElementById('info-placeholder').style.display = 'none';
-
-  // Показываем сообщение
+  
+  // Показываем сообщение в placeholder (но не трогаем display, если не нужно)
   const placeholder = document.getElementById('info-placeholder');
-  placeholder.style.display = 'flex';
   placeholder.innerHTML = `
-    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1.5em;">
+    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1em;">
       ЗОНА ${zoneNum} НЕДОСТУПНА<br>
       ТРЕБУЕТСЯ ПОСЛЕДОВАТЕЛЬНАЯ АКТИВАЦИЯ<br><br>
       <small style="color: #600; font-size: 0.85em;">
-        Откройте все предыдущие зоны
+        Необходимо открыть все предыдущие уровни
       </small>
     </div>
   `;
+  placeholder.style.display = 'flex';
 
   // На мобильном — модалка
   const isMobile = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
@@ -1457,4 +1463,5 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
