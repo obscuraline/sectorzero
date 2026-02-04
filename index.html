@@ -1326,33 +1326,46 @@ function isPreviousZonesOpened(zoneNum) {
 }
 
 function showSequentialLockMessage(zoneNum) {
-  // Прячем всё лишнее
+  // 1. Прячем ввод пароля и другие блоки
   hidePasswordPrompts();
-  document.getElementById('info-image-fixed').style.display = 'none';
-  document.getElementById('info-text-fixed').style.display = 'none';
   
-  // Показываем сообщение вместо placeholder
+  // 2. Явно показываем placeholder и очищаем от старого содержимого
   const placeholder = document.getElementById('info-placeholder');
-  placeholder.style.display = 'flex';
+  placeholder.style.display = 'flex';           // ← обязательно!
+  placeholder.innerHTML = '';                   // очищаем старое
+  
+  // 3. Вставляем сообщение
   placeholder.innerHTML = `
-    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1em;">
-      ЗОНА ${zoneNum} НЕДОСТУПНА<br>
+    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1.5em 1em;">
+      СЕКТОР ${zoneNum} НЕДОСТУПЕН<br>
       ТРЕБУЕТСЯ ПОСЛЕДОВАТЕЛЬНАЯ АКТИВАЦИЯ<br><br>
       <small style="color: #600; font-size: 0.85em;">
         Необходимо открыть все предыдущие уровни
       </small>
     </div>
   `;
-
-  // На мобильном — можно показать в модалке, если хочешь
+  
+  // 4. Убеждаемся, что остальные блоки скрыты
+  document.getElementById('info-image-fixed').style.display = 'none';
+  document.getElementById('info-text-fixed').style.display = 'none';
+  
+  // 5. Снимаем active с предыдущей зоны (если была)
+  if (activeZone) {
+    activeZone.classList.remove('active');
+    activeZone = null;
+  }
+  
+  // Опционально: на мобильном можно показать в модалке
   const isMobile = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
   if (isMobile) {
     const modal = document.getElementById('zone-modal');
     if (modal) {
       const modalText = document.querySelector('.modal-text');
       modalText.innerHTML = `
-        <h2>ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
-        <p style="color: #c00;">Требуется последовательная активация предыдущих зон</p>
+        <h2>СЕКТОР ${zoneNum} ЗАБЛОКИРОВАН</h2>
+        <p style="color: #c00; text-align: center;">
+          Требуется последовательная активация предыдущих секторов
+        </p>
       `;
       modal.showModal();
     }
@@ -1453,6 +1466,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
