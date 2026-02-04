@@ -1145,46 +1145,47 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
 z.addEventListener('click', () => {
-  if (openedZones.length === 0 && !z.classList.contains('ready')) {
-    // Ничего не делаем, если зон нет и зона не готова
-    return;
-  }
-  
   if (z.classList.contains('locked')) return;
 
   const zoneNum = +z.dataset.zone;
 
-  // Если кликнули по уже активной зоне → снимаем выделение и очищаем инфо
+  // Если кликнули по уже активной зоне → toggle (убрать выделение)
   if (activeZone === z) {
     activeZone.classList.remove('active');
     activeZone = null;
     clearInfo(false);
-    hidePasswordPrompts(); // на всякий случай
+    hidePasswordPrompts();
     return;
   }
 
-  // Снимаем active с предыдущей зоны (если была другая)
+  // Снимаем active с предыдущей, но НЕ очищаем инфо сразу
   if (activeZone) {
     activeZone.classList.remove('active');
-    clearInfo(false);
+    activeZone = null;
   }
 
   if (openedZones.includes(zoneNum)) {
-    // Уже открыта → делаем активной
+    // Уже открыта → показываем инфо
     activeZone = z;
     z.classList.add('active');
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
-    // Готова к открытию → проверяем последовательность
+    // Готова по дате → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Предыдущие открыты → показываем ввод ключа и делаем активной
+      // Можно активировать → показываем ввод ключа
       activeZone = z;
       z.classList.add('active');
       showPasswordPrompt(zoneNum);
     } else {
-      // Предыдущие НЕ открыты → предупреждение
+      // Нельзя активировать → показываем сообщение о последовательности
+      // НЕ очищаем инфо заранее — передаём управление в showSequentialLockMessage
       showSequentialLockMessage(zoneNum);
+      activeZone = z;           // ← оставляем выделение на этой зоне
+      z.classList.add('active'); // чтобы было видно, что именно она выбрана
     }
+  } else {
+    // На всякий случай: если зона ни ready, ни opened, ни locked — очищаем
+    clearInfo(false);
   }
 });
 
@@ -1326,25 +1327,26 @@ function isPreviousZonesOpened(zoneNum) {
 }
 
 function showSequentialLockMessage(zoneNum) {
-  // Прячем всё лишнее
   hidePasswordPrompts();
+
+  // Явно очищаем и показываем сообщение
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  
-  // Показываем сообщение вместо placeholder
+  document.getElementById('info-placeholder').style.display = 'none';
+
   const placeholder = document.getElementById('info-placeholder');
-  placeholder.style.display = 'flex';
   placeholder.innerHTML = `
     <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1em;">
-      ЗОНА ${zoneNum} НЕДОСТУПНА<br>
+      ЗОНА ${zoneNum} НЕДОСТУПЕНА<br>
       ТРЕБУЕТСЯ ПОСЛЕДОВАТЕЛЬНАЯ АКТИВАЦИЯ<br><br>
       <small style="color: #600; font-size: 0.85em;">
-        Необходимо открыть все предыдущие уровни
+        Необходимо открыть все предыдущие уровки
       </small>
     </div>
   `;
+  placeholder.style.display = 'flex';
 
-  // На мобильном — можно показать в модалке, если хочешь
+  // Для мобильного — модалка
   const isMobile = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
   if (isMobile) {
     const modal = document.getElementById('zone-modal');
@@ -1352,7 +1354,9 @@ function showSequentialLockMessage(zoneNum) {
       const modalText = document.querySelector('.modal-text');
       modalText.innerHTML = `
         <h2>ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
-        <p style="color: #c00;">Требуется последовательная активация предыдущих зон</p>
+        <p style="color: #c00; text-align: center;">
+          Необходимо открыть все предыдущие уровки
+        </p>
       `;
       modal.showModal();
     }
@@ -1453,6 +1457,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
