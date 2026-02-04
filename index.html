@@ -1106,31 +1106,20 @@ function showInfo(zoneId, isHover = false) {
 function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
-  
-  // Очистка полей инфо
   document.getElementById('i-title').textContent = '';
   document.getElementById('i-class').textContent = '';
   document.getElementById('i-status').textContent = '';
   document.getElementById('i-desc').textContent = '';
-  
-  // Возвращаем заглушку вместо изображения
   const imageBlock = document.getElementById('info-image-fixed');
   imageBlock.innerHTML = `
     <div class="no-signal">
       NO SIGNAL
-      <small>Изображение сектора<br>будет здесь</small>
+      <small>Изображение зоны<br>будет здесь</small>
     </div>
   `;
-  
-  // Скрываем блоки
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  
-  // Восстанавливаем ИСХОДНЫЙ placeholder
-  const placeholder = document.getElementById('info-placeholder');
-  placeholder.innerHTML = 'Выберите сектор на карте';  // ← ключевая строка: всегда исходный текст
-  placeholder.style.display = 'flex';
-  
+  document.getElementById('info-placeholder').style.display = 'flex';
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
   } else {
@@ -1138,9 +1127,8 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
-  
-  hidePasswordPrompts();
-  updateNoZonesPlaceholder();  // Если есть заглушка спячки
+  hidePasswordPrompts();   // ← добавь эту строку
+  updateNoZonesPlaceholder();
 }
 
 // Обработка зон
@@ -1157,39 +1145,44 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
 z.addEventListener('click', () => {
+  if (openedZones.length === 0 && !z.classList.contains('ready')) {
+    // Ничего не делаем, если зон нет и зона не готова
+    return;
+  }
+  
   if (z.classList.contains('locked')) return;
 
   const zoneNum = +z.dataset.zone;
 
-  // Если кликнули по уже активной зоне → toggle off
+  // Если кликнули по уже активной зоне → снимаем выделение и очищаем инфо
   if (activeZone === z) {
     activeZone.classList.remove('active');
     activeZone = null;
     clearInfo(false);
-    hidePasswordPrompts();
+    hidePasswordPrompts(); // на всякий случай
     return;
   }
 
-  // Снимаем active с предыдущей, если была
+  // Снимаем active с предыдущей зоны (если была другая)
   if (activeZone) {
     activeZone.classList.remove('active');
     clearInfo(false);
   }
 
   if (openedZones.includes(zoneNum)) {
-    // Открыта → active + инфо
+    // Уже открыта → делаем активной
     activeZone = z;
     z.classList.add('active');
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
+    // Готова к открытию → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Готова → active + ввод ключа
+      // Предыдущие открыты → показываем ввод ключа и делаем активной
       activeZone = z;
       z.classList.add('active');
       showPasswordPrompt(zoneNum);
     } else {
-      // Заблокирована последовательностью → сообщение БЕЗ active
-      // НЕ устанавливаем activeZone = z и НЕ добавляем .active
+      // Предыдущие НЕ открыты → предупреждение
       showSequentialLockMessage(zoneNum);
     }
   }
@@ -1338,7 +1331,7 @@ function showSequentialLockMessage(zoneNum) {
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
   
-  // Показываем сообщение в placeholder
+  // Показываем сообщение вместо placeholder
   const placeholder = document.getElementById('info-placeholder');
   placeholder.style.display = 'flex';
   placeholder.innerHTML = `
@@ -1351,14 +1344,7 @@ function showSequentialLockMessage(zoneNum) {
     </div>
   `;
 
-  // Авто-очистка сообщения через 4-6 сек (возврат к placeholder)
-  setTimeout(() => {
-    if (!activeZone) {  // Если ничего не выбрано
-      clearInfo(false);  // Очищаем и возвращаем "Выберите сектор"
-    }
-  }, 4500);
-
-  // На мобильном — в модалке с авто-закрытием
+  // На мобильном — можно показать в модалке, если хочешь
   const isMobile = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
   if (isMobile) {
     const modal = document.getElementById('zone-modal');
@@ -1366,10 +1352,9 @@ function showSequentialLockMessage(zoneNum) {
       const modalText = document.querySelector('.modal-text');
       modalText.innerHTML = `
         <h2>ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
-        <p style="color: #c00;">Требуется последовательная активация предыдущих уровней</p>
+        <p style="color: #c00;">Требуется последовательная активация предыдущих зон</p>
       `;
       modal.showModal();
-      setTimeout(() => modal.close(), 4500);  // Авто-закрытие
     }
   }
 }
@@ -1468,4 +1453,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
