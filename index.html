@@ -972,24 +972,27 @@ function updateMap() {
   }
 }
 
-// Функция обновления состояния инфо-панели при отсутствии открытых зон
 function updateNoZonesPlaceholder() {
   const noZonesEl = document.getElementById('info-no-zones');
   const placeholder = document.getElementById('info-placeholder');
   
-  if (openedZones.length === 0) {
-    // Нет открытых зон → показываем специальную заглушку
+  // Показываем заглушку "спячки" ТОЛЬКО если:
+  // - нет ни одной открытой зоны
+  // - ничего не выбрано (нет active-зоны)
+  // - не показывается ввод пароля
+  const passwordInputVisible = document.getElementById('password-input').style.display === 'block' ||
+                               document.querySelector('.modal-password')?.style.display === 'flex';
+
+  if (openedZones.length === 0 && !activeZone && !passwordInputVisible) {
     placeholder.style.display = 'none';
     document.getElementById('info-image-fixed').style.display = 'none';
     document.getElementById('info-text-fixed').style.display = 'none';
     noZonesEl.style.display = 'flex';
-    
-    // Если есть lock-overlay на карте — можно оставить, но инфо тоже информирует
   } else {
     noZonesEl.style.display = 'none';
     
-    // Если ничего не выбрано — возвращаем обычный placeholder
-    if (!activeZone) {
+    // Если ничего не выбрано и нет ввода пароля → обычный placeholder
+    if (!activeZone && !passwordInputVisible) {
       placeholder.style.display = 'flex';
       document.getElementById('info-image-fixed').style.display = 'none';
       document.getElementById('info-text-fixed').style.display = 'none';
@@ -1119,6 +1122,7 @@ function clearInfo(isHover = false) {
     activeZone = null;
   }
   hidePasswordPrompts();   // ← добавь эту строку
+  updateNoZonesPlaceholder();
 }
 
 // Обработка зон
@@ -1245,6 +1249,7 @@ function showPasswordPrompt(zoneNum) {
       }
     };
   }
+  updateNoZonesPlaceholder();
 }
 
 function hidePasswordPrompts() {
@@ -1431,6 +1436,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
