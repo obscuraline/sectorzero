@@ -1188,24 +1188,16 @@ z.addEventListener('click', () => {
   }
 });
 
-// Hover — ТОЛЬКО для уже открытых зон
-z.addEventListener('mouseenter', () => {
-  // Проверяем, открыта ли зона
-  if (!openedZones.includes(+z.dataset.zone)) return;
-  
-  // Если уже есть активная зона (кликнутая) — hover не мешает
-  if (activeZone) return;
-  
-  showInfo(+z.dataset.zone, true);
-});
+  // Hover (только для уже открытых зон)
+  z.addEventListener('mouseenter', () => {
+    if (activeZone || !z.classList.contains('enabled')) return;
+    showInfo(zoneNum, true);
+  });
 
-z.addEventListener('mouseleave', () => {
-  // Та же проверка
-  if (!openedZones.includes(+z.dataset.zone)) return;
-  
-  if (activeZone) return;
-  
-  clearInfo(true);
+  z.addEventListener('mouseleave', () => {
+    if (activeZone || !z.classList.contains('enabled')) return;
+    clearInfo(true);
+  });
 });
 
 // Показ ввода пароля (ПК — в info-panel, мобильный — в модальном окне)
@@ -1461,4 +1453,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
