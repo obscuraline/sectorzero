@@ -1130,13 +1130,13 @@ function clearInfo(isHover = false) {
   imageBlock.innerHTML = `
     <div class="no-signal">
       NO SIGNAL
-      <small>Изображение сектора<br>будет здесь</small>
+      <small>Изображение зоны<br>будет здесь</small>
     </div>
   `;
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
   const placeholder = document.getElementById('info-placeholder');
-  placeholder.innerHTML = 'Выберите сектор на карте'; // Сброс текста
+  placeholder.innerHTML = 'Выберите зону на карте'; // Сброс текста
   placeholder.style.display = 'flex';
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
@@ -1149,9 +1149,41 @@ function clearInfo(isHover = false) {
   updateNoZonesPlaceholder();
 }
 
-// Обработка зон
+// Модальное окно с информацией о зоне (для мобильного)
+function openZoneModal(zoneId) {
+  const modal = document.getElementById('zone-modal');
+  if (!modal) return;
+
+  const d = data[zoneId];
+  if (!d) return;
+
+  modal.innerHTML = `
+    <div class="modal-content">
+      <button class="close-btn" aria-label="Закрыть">×</button>
+      
+      <div class="modal-image">
+        <img src="${d.image || 'assets/info/placeholder.png'}" alt="${d.title}">
+      </div>
+      
+      <div class="modal-text">
+        <h2>${d.title}</h2>
+        <div class="meta"><strong>CLASS:</strong> ${d.class}</div>
+        <div class="meta"><strong>STATUS:</strong> ${d.status}</div>
+        <p style="white-space: pre-wrap; line-height: 1.5;">${d.desc}</p>
+      </div>
+    </div>
+  `;
+
+  modal.showModal();
+
+  // Закрытие по крестику (на случай, если старый обработчик не сработал)
+  modal.querySelector('.close-btn').onclick = () => modal.close();
+}
+
 document.querySelectorAll('.zone').forEach(z => {
   const zoneNum = +z.dataset.zone;
+
+  // Классы зон
   if (zoneNum > readyStage) {
     z.classList.add('locked');
   } else if (openedZones.includes(zoneNum)) {
@@ -1159,33 +1191,64 @@ document.querySelectorAll('.zone').forEach(z => {
   } else {
     z.classList.add('ready');
   }
+
   z.addEventListener('click', () => {
     if (z.classList.contains('locked')) return;
+
     const zoneNum = +z.dataset.zone;
+    const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+
+    // Повторный клик → снимаем выделение
     if (activeZone === z) {
       z.classList.remove('active');
       activeZone = null;
       clearInfo(false);
       return;
     }
-    activeZone?.classList.remove('active');
-    clearInfo(false);
+
+    // Снимаем старую активную зону
+    if (activeZone) {
+      activeZone.classList.remove('active');
+      clearInfo(false);
+    }
+
+    // Делаем текущую активной
     activeZone = z;
     z.classList.add('active');
+
     if (openedZones.includes(zoneNum)) {
-      showInfo(zoneNum, false);
-    } else {
-      if (isPreviousZonesOpened(zoneNum)) {
-        showPasswordPrompt(zoneNum);
+      // Открытая зона → показываем информацию
+      if (isMobilePortrait) {
+        openZoneModal(zoneNum);          // ← используем новую функцию
       } else {
-        showSequentialLockMessage(zoneNum);
+        showInfo(zoneNum, false);
+      }
+    } else if (z.classList.contains('ready')) {
+      // Готова по дате
+      if (isPreviousZonesOpened(zoneNum)) {
+        // Можно активировать
+        if (isMobilePortrait) {
+          showMobilePasswordModal(zoneNum);  // ← из предыдущего сообщения
+        } else {
+          showPasswordPrompt(zoneNum);
+        }
+      } else {
+        // Заблокирована последовательностью
+        if (isMobilePortrait) {
+          showMobileSequentialWarning(zoneNum);  // ← из предыдущего сообщения
+        } else {
+          showSequentialLockMessage(zoneNum);
+        }
       }
     }
   });
+
+  // Hover (только открытые зоны)
   z.addEventListener('mouseenter', () => {
     if (activeZone || !openedZones.includes(zoneNum)) return;
     showInfo(zoneNum, true);
   });
+
   z.addEventListener('mouseleave', () => {
     if (activeZone || !openedZones.includes(zoneNum)) return;
     clearInfo(true);
@@ -1259,6 +1322,67 @@ function showSequentialLockMessage(zoneNum) {
       </small>
     </div>
   `;
+}
+
+// Модалка с вводом пароля на мобильном
+function showMobilePasswordModal(zoneNum) {
+  const modal = document.getElementById('zone-modal');
+  if (!modal) return;
+
+  const modalContent = document.querySelector('.modal-content');
+  modalContent.innerHTML = `
+    <button class="close-btn" aria-label="Закрыть">×</button>
+    <div style="padding: 1.5em; text-align: center;">
+      <h2 style="color: #e00;">АКТИВАЦИЯ ЗОНЫ ${zoneNum}</h2>
+      <p style="color: #c00; margin: 1em 0;">Введите ключ</p>
+      <input type="text" id="mobile-password-input" placeholder="КЛЮЧ (6 символов)" maxlength="6" style="width: 80%; padding: 0.8em; background: #200; border: 1px solid #600; color: #f00; font-family: 'IBM Plex Mono'; font-size: 1.2em; text-align: center;">
+      <button id="mobile-password-submit" style="margin-top: 1em; background: #400; border: 1px solid #800; color: #f00; padding: 0.8em 1.5em; font-family: 'IBM Plex Mono'; cursor: pointer;">АКТИВИРОВАТЬ</button>
+      <div id="mobile-password-error" style="color: #f00; font-size: 1em; margin-top: 0.8em; min-height: 1.5em;"></div>
+    </div>
+  `;
+
+  modal.showModal();
+
+  document.getElementById('mobile-password-submit').onclick = () => {
+    const input = document.getElementById('mobile-password-input').value.trim().toUpperCase();
+    const errorEl = document.getElementById('mobile-password-error');
+
+    if (input === passwords[zoneNum - 1]) {
+      errorEl.textContent = '';
+      openZone(zoneNum);
+      modal.close();
+    } else {
+      errorEl.textContent = 'НЕВЕРНЫЙ КЛЮЧ';
+    }
+  };
+
+  // Закрытие по крестику
+  modal.querySelector('.close-btn').onclick = () => modal.close();
+}
+
+// Модалка с предупреждением о последовательности на мобильном
+function showMobileSequentialWarning(zoneNum) {
+  const modal = document.getElementById('zone-modal');
+  if (!modal) return;
+
+  modal.innerHTML = `
+    <div class="modal-content" style="padding: 2em; text-align: center;">
+      <button class="close-btn" aria-label="Закрыть">×</button>
+      <h2 style="color: #e00;">ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
+      <p style="color: #c00; font-size: 1.1em; margin: 1em 0;">
+        Требуется последовательная активация предыдущих зон
+      </p>
+      <button class="close-btn-secondary" style="margin-top: 1.5em; background: #400; color: #f00; border: 1px solid #800; padding: 0.8em 1.5em; cursor: pointer;">
+        ЗАКРЫТЬ
+      </button>
+    </div>
+  `;
+
+  modal.showModal();
+
+  modal.querySelectorAll('.close-btn, .close-btn-secondary').forEach(btn => {
+    btn.onclick = () => modal.close();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1354,4 +1478,5 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
