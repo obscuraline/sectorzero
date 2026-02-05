@@ -1153,46 +1153,38 @@ z.addEventListener('click', () => {
 
   const zoneNum = +z.dataset.zone;
 
-  // Повторный клик по той же активной зоне → полный сброс
+  // Повторный клик по активной зоне → снимаем всё
   if (activeZone === z) {
     activeZone.classList.remove('active');
     activeZone = null;
     clearInfo(false);
     hidePasswordPrompts();
-    updateNoZonesPlaceholder();
     return;
   }
 
-  // Снимаем предыдущее выделение и очищаем панель ВСЕГДА перед новым выбором
+  // Снимаем выделение с предыдущей зоны
   if (activeZone) {
     activeZone.classList.remove('active');
+    clearInfo(false);
   }
-  activeZone = null;           // временно сбрасываем
-  clearInfo(false);            // очищаем панель полностью
-  hidePasswordPrompts();
 
-  // Теперь устанавливаем новую зону активной
+  // Устанавливаем новую зону активной (визуально)
   activeZone = z;
   z.classList.add('active');
 
-  // Решаем, что показывать
   if (openedZones.includes(zoneNum)) {
-    // Открытая зона → инфо
+    // Уже открыта → показываем инфо
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
+    // Готова по дате → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Готова к вводу ключа → показываем поле пароля
+      // Можно активировать → показываем ввод ключа
       showPasswordPrompt(zoneNum);
     } else {
       // Заблокирована последовательностью → показываем сообщение
       showSequentialLockMessage(zoneNum);
     }
-  } else {
-    // На всякий случай — если зона ни opened, ни ready
-    document.getElementById('info-placeholder').style.display = 'flex';
   }
-
-  updateNoZonesPlaceholder();
 });
 
   // Hover (только для уже открытых зон)
@@ -1333,8 +1325,6 @@ function isPreviousZonesOpened(zoneNum) {
 }
 
 function showSequentialLockMessage(zoneNum) {
-  console.log("Показываем сообщение блокировки для зоны", zoneNum);
-  
   // Полностью очищаем панель перед показом сообщения
   hidePasswordPrompts();
   document.getElementById('info-image-fixed').style.display = 'none';
@@ -1467,4 +1457,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
