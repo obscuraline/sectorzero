@@ -926,23 +926,23 @@ h2 {
 let activeZone = null;
 let typingTimer = null;
 
-// Пароли для зон (6 символов, заглавные буквы + цифры)
+// Пароли для зон
 const passwords = ['O0YJ7T', 'HR8JCF', 'FUW80C', '4V452B', 'J8EXGM', 'PJZT3D'];
 
-// Даты активации зон (12:00 МСК = 09:00 UTC)
+// Даты активации
 const activationDates = [
-  new Date('2026-02-09T09:00:00Z'), // Зона 1 — 09.02.2026 12:00 МСК
-  new Date('2026-02-10T09:00:00Z'), // Зона 2 — 10.02
-  new Date('2026-02-11T09:00:00Z'), // Зона 3 — 11.02
-  new Date('2026-02-13T09:00:00Z'), // Зона 4 — 13.02
-  new Date('2026-02-14T09:00:00Z'), // Зона 5 — 14.02
-  new Date('2026-02-16T09:00:00Z')  // Зона 6 — 16.02
+  new Date('2026-02-09T09:00:00Z'),
+  new Date('2026-02-10T09:00:00Z'),
+  new Date('2026-02-11T09:00:00Z'),
+  new Date('2026-02-13T09:00:00Z'),
+  new Date('2026-02-14T09:00:00Z'),
+  new Date('2026-02-16T09:00:00Z')
 ];
 
-// Открытые зоны (сохраняются в localStorage)
+// Открытые зоны
 let openedZones = JSON.parse(localStorage.getItem('openedZones')) || [];
 
-// Текущая дата (с поддержкой debug)
+// Текущая дата с debug
 let now = new Date();
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('debug')) {
@@ -950,42 +950,32 @@ if (urlParams.has('debug')) {
   console.log('DEBUG MODE: Simulated date →', now.toISOString());
 }
 
-// Сколько зон уже "готовы" по дате
+// Готовых зон по дате
 const readyStage = activationDates.filter(date => now >= date).length;
 
-// Обновление карты в зависимости от количества открытых зон
+// Обновление карты
 function updateMap() {
   const openedCount = openedZones.length;
   let mapPath = `assets/maps/open_${openedCount}_6.png`;
   let mapV2Path = `assets/maps/open_${openedCount}_6_v2.png`;
-
-  // Если зон ещё 0 — используем начальную
   if (openedCount === 0) {
     mapPath = 'assets/maps/open_0_6.png';
     mapV2Path = 'assets/maps/open_0_6_v2.png';
   }
-
   const imageEl = document.querySelector('#map-wrapper image');
   if (imageEl) {
     imageEl.setAttribute('href', mapPath);
-
-    // Мобильная версия portrait
     if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
       imageEl.setAttribute('href', mapV2Path);
     }
-
     console.log(`Карта обновлена: ${imageEl.getAttribute('href')} | Открыто зон: ${openedZones.length}`);
   }
 }
 
+// Заглушка для 0 открытых зон
 function updateNoZonesPlaceholder() {
   const noZonesEl = document.getElementById('info-no-zones');
   const placeholder = document.getElementById('info-placeholder');
-  
-  // Показываем заглушку "спячки" ТОЛЬКО если:
-  // - нет ни одной открытой зоны
-  // - ничего не выбрано (нет active-зоны)
-  // - не показывается ввод пароля
   const passwordInputVisible = document.getElementById('password-input').style.display === 'block' ||
                                document.querySelector('.modal-password')?.style.display === 'flex';
 
@@ -996,21 +986,20 @@ function updateNoZonesPlaceholder() {
     noZonesEl.style.display = 'flex';
   } else {
     noZonesEl.style.display = 'none';
-    
-    // Если ничего не выбрано и нет ввода пароля → обычный placeholder
     if (!activeZone && !passwordInputVisible) {
+      placeholder.innerHTML = 'Выберите сектор на карте'; // Сброс оригинального текста
       placeholder.style.display = 'flex';
       document.getElementById('info-image-fixed').style.display = 'none';
       document.getElementById('info-text-fixed').style.display = 'none';
+    } else {
+      placeholder.style.display = 'none';
     }
   }
 }
 
-// Вызываем при загрузке
-updateNoZonesPlaceholder();
-
-// Инициализация карты при загрузке
+// Инициализация
 updateMap();
+updateNoZonesPlaceholder();
 
 const data = {
   1: {
@@ -1057,8 +1046,7 @@ const data = {
   }
 };
 
-
-// Функции typeText, showInfo, clearInfo (без изменений)
+// typeText
 function typeText(el, text) {
   el.textContent = "";
   let i = 0;
@@ -1073,9 +1061,9 @@ function typeText(el, text) {
   }, 38);
 }
 
+// showInfo
 function showInfo(zoneId, isHover = false) {
   hidePasswordPrompts();
-  
   const d = data[zoneId];
   if (!d) return;
   document.getElementById('i-title').textContent = d.title;
@@ -1103,6 +1091,7 @@ function showInfo(zoneId, isHover = false) {
   }
 }
 
+// clearInfo
 function clearInfo(isHover = false) {
   clearInterval(typingTimer);
   typingTimer = null;
@@ -1114,12 +1103,14 @@ function clearInfo(isHover = false) {
   imageBlock.innerHTML = `
     <div class="no-signal">
       NO SIGNAL
-      <small>Изображение зоны<br>будет здесь</small>
+      <small>Изображение сектора<br>будет здесь</small>
     </div>
   `;
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  document.getElementById('info-placeholder').style.display = 'flex';
+  const placeholder = document.getElementById('info-placeholder');
+  placeholder.innerHTML = 'Выберите сектор на карте'; // Сброс текста
+  placeholder.style.display = 'flex';
   if (isHover) {
     document.getElementById('info-panel').classList.remove('preview-active');
   } else {
@@ -1127,15 +1118,13 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
-  hidePasswordPrompts();   // ← добавь эту строку
+  hidePasswordPrompts();
   updateNoZonesPlaceholder();
 }
 
 // Обработка зон
 document.querySelectorAll('.zone').forEach(z => {
   const zoneNum = +z.dataset.zone;
-
-  // Классы зон в зависимости от состояния
   if (zoneNum > readyStage) {
     z.classList.add('locked');
   } else if (openedZones.includes(zoneNum)) {
@@ -1143,264 +1132,135 @@ document.querySelectorAll('.zone').forEach(z => {
   } else {
     z.classList.add('ready');
   }
-
-z.addEventListener('click', () => {
-  if (openedZones.length === 0 && !z.classList.contains('ready')) {
-    return;
-  }
-  
-  if (z.classList.contains('locked')) return;
-
-  const zoneNum = +z.dataset.zone;
-
-  // Повторный клик по активной зоне → снимаем всё
-  if (activeZone === z) {
-    activeZone.classList.remove('active');
-    activeZone = null;
-    clearInfo(false);
-    hidePasswordPrompts();
-    return;
-  }
-
-  // Снимаем выделение с предыдущей зоны
-  if (activeZone) {
-    activeZone.classList.remove('active');
-    clearInfo(false);
-  }
-
-  // Устанавливаем новую зону активной (визуально)
-  activeZone = z;
-  z.classList.add('active');
-
-  if (openedZones.includes(zoneNum)) {
-    // Уже открыта → показываем инфо
-    showInfo(zoneNum, false);
-  } else if (z.classList.contains('ready')) {
-    // Готова по дате → проверяем последовательность
-    if (isPreviousZonesOpened(zoneNum)) {
-      // Можно активировать → показываем ввод ключа
-      showPasswordPrompt(zoneNum);
-    } else {
-      // Заблокирована последовательностью → показываем сообщение
-      showSequentialLockMessage(zoneNum);
+  z.addEventListener('click', () => {
+    if (z.classList.contains('locked')) return;
+    const zoneNum = +z.dataset.zone;
+    if (activeZone === z) {
+      z.classList.remove('active');
+      activeZone = null;
+      clearInfo(false);
+      return;
     }
-  }
-});
-
-  // Hover (только для уже открытых зон)
+    activeZone?.classList.remove('active');
+    clearInfo(false);
+    activeZone = z;
+    z.classList.add('active');
+    if (openedZones.includes(zoneNum)) {
+      showInfo(zoneNum, false);
+    } else {
+      if (isPreviousZonesOpened(zoneNum)) {
+        showPasswordPrompt(zoneNum);
+      } else {
+        showSequentialLockMessage(zoneNum);
+      }
+    }
+  });
   z.addEventListener('mouseenter', () => {
-    if (activeZone || !z.classList.contains('enabled')) return;
+    if (activeZone || !openedZones.includes(zoneNum)) return;
     showInfo(zoneNum, true);
   });
-
   z.addEventListener('mouseleave', () => {
-    if (activeZone || !z.classList.contains('enabled')) return;
+    if (activeZone || !openedZones.includes(zoneNum)) return;
     clearInfo(true);
   });
 });
 
-// Показ ввода пароля (ПК — в info-panel, мобильный — в модальном окне)
+// showPasswordPrompt
 function showPasswordPrompt(zoneNum) {
-  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
-
-  if (isMobilePortrait) {
-    const modal = document.getElementById('zone-modal');
-    const modalText = document.querySelector('.modal-text');
-    modalText.innerHTML = `
-      <h2>АКТИВАЦИЯ ЗОНЫ ${zoneNum}</h2>
-      <p>ВВЕДИТЕ КЛЮЧ</p>
-    `;
-    const modalPassword = document.querySelector('.modal-password') || document.createElement('div');
-    modalPassword.className = 'modal-password';
-    modalPassword.innerHTML = `
-      <input type="text" id="modal-password-input" placeholder="КЛЮЧ (6 символов)" maxlength="6">
-      <button id="modal-password-submit">АКТИВИРОВАТЬ</button>
-      <div class="error" id="modal-password-error"></div>
-    `;
-    modalText.appendChild(modalPassword);
-    modalPassword.style.display = 'flex';
-    document.getElementById('modal-password-input').value = '';
-    document.getElementById('modal-password-error').textContent = '';
-    modal.showModal();
-
-    document.getElementById('modal-password-submit').onclick = () => {
-      const input = document.getElementById('modal-password-input').value.trim().toUpperCase();
-      const errorEl = document.getElementById('modal-password-error');
-  
-      if (input === passwords[zoneNum - 1]) {
-        errorEl.textContent = '';
-        openZone(zoneNum);
-      // modal.close(); — если нужно закрыть сразу
-      } else {
-        errorEl.textContent = 'НЕВЕРНЫЙ КЛЮЧ';
-        errorEl.style.animation = 'flicker 1.2s infinite alternate';
-        setTimeout(() => { errorEl.style.animation = ''; }, 3000);
-      }
-    };
-  } else {
-    // ПК: показываем поле в info-панели
-    document.getElementById('info-placeholder').style.display = 'none';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
-    const input = document.getElementById('password-input');
-    input.style.display = 'block';
-    document.getElementById('password-submit').style.display = 'block';
-    document.getElementById('password-error').textContent = '';
-    input.value = '';
-    input.placeholder = `КЛЮЧ ДЛЯ ЗОНЫ ${zoneNum}`;
-    input.focus();
-
-    document.getElementById('password-submit').onclick = () => {
-      const val = document.getElementById('password-input').value.trim().toUpperCase();
-      const errorEl = document.getElementById('password-error');
-  
-      if (val === passwords[zoneNum - 1]) {
-        errorEl.textContent = '';           // очищаем ошибку при успехе
-        openZone(zoneNum);
-      } else {
-        errorEl.textContent = 'НЕВЕРНЫЙ КЛЮЧ. ПОВТОРИТЕ.';
-        // Можно добавить визуальный акцент
-        errorEl.style.animation = 'flicker 1.2s infinite alternate';
-        setTimeout(() => { errorEl.style.animation = ''; }, 3000);
-      }
-    };
-  }
-  updateNoZonesPlaceholder();
+  hidePasswordPrompts();
+  document.getElementById('info-placeholder').style.display = 'none';
+  document.getElementById('info-image-fixed').style.display = 'none';
+  document.getElementById('info-text-fixed').style.display = 'none';
+  document.getElementById('password-input').style.display = 'block';
+  document.getElementById('password-submit').style.display = 'block';
+  document.getElementById('password-error').textContent = '';
+  document.getElementById('password-input').value = '';
+  document.getElementById('password-input').placeholder = `КЛЮЧ ДЛЯ СЕКТОРА ${zoneNum}`;
+  document.getElementById('password-input').focus();
+  document.getElementById('password-submit').onclick = () => {
+    const val = document.getElementById('password-input').value.trim().toUpperCase();
+    if (val === passwords[zoneNum - 1]) {
+      openZone(zoneNum);
+    } else {
+      document.getElementById('password-error').textContent = 'НЕВЕРНЫЙ КЛЮЧ. ПОВТОРИТЕ.';
+    }
+  };
 }
 
+// hidePasswordPrompts
 function hidePasswordPrompts() {
-  // ПК-версия
   document.getElementById('password-input').style.display = 'none';
   document.getElementById('password-submit').style.display = 'none';
   document.getElementById('password-error').textContent = '';
-
-  // Мобильная версия
-  document.querySelectorAll('.modal-password').forEach(el => {
-    el.style.display = 'none';
-  });
-
-  // Возвращаем placeholder, если ничего не выбрано
-  if (!activeZone) {
-    document.getElementById('info-placeholder').style.display = 'flex';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
-  }
 }
 
-// Функция открытия зоны
+// openZone
 function openZone(zoneNum) {
-  if (openedZones.includes(zoneNum)) return;
-
   openedZones.push(zoneNum);
   openedZones.sort((a, b) => a - b);
   localStorage.setItem('openedZones', JSON.stringify(openedZones));
-
   const z = document.querySelector(`.zone[data-zone="${zoneNum}"]`);
-  if (z) {
-    z.classList.remove('ready');
-    z.classList.add('enabled', 'opened');
-  }
-
-  // Скрываем ввод пароля
-  document.getElementById('password-input').style.display = 'none';
-  document.getElementById('password-submit').style.display = 'none';
-  document.querySelectorAll('.modal-password').forEach(el => el.style.display = 'none');
-
-  hidePasswordPrompts();   // ← добавь
+  z.classList.remove('ready');
+  z.classList.add('enabled', 'opened');
+  hidePasswordPrompts();
   updateMap();
-  updateNoZonesPlaceholder();  // ← добавь сюда
-  showInfo(zoneNum, false); // сразу показываем информацию о секторе
+  showInfo(zoneNum, false);
 }
 
-// Проверяет, открыты ли все зоны до указанной (zoneNum - 1)
+// isPreviousZonesOpened
 function isPreviousZonesOpened(zoneNum) {
-  if (zoneNum <= 1) return true; // Первая зона всегда доступна
-  
+  if (zoneNum <= 1) return true;
   for (let i = 1; i < zoneNum; i++) {
-    if (!openedZones.includes(i)) {
-      return false;
-    }
+    if (!openedZones.includes(i)) return false;
   }
   return true;
 }
 
+// showSequentialLockMessage
 function showSequentialLockMessage(zoneNum) {
-  // Полностью очищаем панель перед показом сообщения
   hidePasswordPrompts();
   document.getElementById('info-image-fixed').style.display = 'none';
   document.getElementById('info-text-fixed').style.display = 'none';
-  document.getElementById('info-placeholder').style.display = 'none';
-
-  // Показываем сообщение
   const placeholder = document.getElementById('info-placeholder');
   placeholder.style.display = 'flex';
   placeholder.innerHTML = `
-    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1.5em;">
-      ЗОНА ${zoneNum} НЕДОСТУПНА<br>
+    <div style="color: #800; font-size: 1.3em; line-height: 1.4; text-align: center; padding: 1em;">
+      СЕКТОР ${zoneNum} НЕДОСТУПЕН<br>
       ТРЕБУЕТСЯ ПОСЛЕДОВАТЕЛЬНАЯ АКТИВАЦИЯ<br><br>
       <small style="color: #600; font-size: 0.85em;">
-        Откройте все предыдущие зоны
+        Необходимо открыть все предыдущие уровни
       </small>
     </div>
   `;
-
-  // На мобильном — модалка
-  const isMobile = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
-  if (isMobile) {
-    const modal = document.getElementById('zone-modal');
-    if (modal) {
-      const modalText = document.querySelector('.modal-text');
-      modalText.innerHTML = `
-        <h2>ЗОНА ${zoneNum} ЗАБЛОКИРОВАНА</h2>
-        <p style="color: #c00; text-align: center; margin: 1em 0;">
-          Требуется последовательная активация предыдущих зон
-        </p>
-      `;
-      modal.showModal();
-    }
-  }
-
-  updateNoZonesPlaceholder(); // обновляем состояние заглушки
 }
 
-// Обработка мобильного модального окна (твоя старая логика + интеграция)
+// Мобильный
 document.addEventListener('DOMContentLoaded', () => {
   const mapImage = document.querySelector('#map-wrapper image');
   if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
-    mapImage.setAttribute('href', 'assets/maps/open_0_6_v2.png'); // начальная для мобильного
-    // ... остальная логика модального окна, если нужно
+    mapImage.setAttribute('href', 'assets/maps/open_0_6_v2.png');
   }
-
-  // Закрытие модального окна
   document.querySelector('.close-btn')?.addEventListener('click', () => {
     document.getElementById('zone-modal').close();
   });
-
   document.getElementById('zone-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('zone-modal')) {
       document.getElementById('zone-modal').close();
     }
   });
-
-  document.getElementById('zone-modal')?.addEventListener('close', () => {
-    hidePasswordPrompts();
-  });
 });
 
-// Прелоадер и глитчи (твоя последняя версия, без изменений)
+// Прелоадер
 document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
   if (!preloader) return;
-
   const statusEl = document.getElementById('preload-status');
   const bar = document.getElementById('preload-bar');
   const minDuration = 5000;
   const startTime = Date.now();
-
   const messages = ["Поиск носителя данных...", "Обнаружен фрагмент карты сектора", "Проверка целостности слоёв...", "Калибровка координат зон...", "Синхронизация сигнатуры...", "Соединение установлено"];
   const delays = [800, 1200, 600, 1000, 500, 900];
   let msgIndex = 0;
-
   function nextMessage() {
     if (msgIndex < messages.length) {
       let msg = messages[msgIndex];
@@ -1413,7 +1273,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   nextMessage();
-
   function tryHide() {
     const elapsed = Date.now() - startTime;
     if (elapsed >= minDuration && msgIndex >= messages.length) {
@@ -1426,7 +1285,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(tryHide, 200);
     }
   }
-
   const mainMapImage = document.querySelector('#map-wrapper image');
   if (mainMapImage?.complete && mainMapImage.naturalWidth > 0) {
     tryHide();
@@ -1436,10 +1294,10 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     setTimeout(tryHide, minDuration);
   }
-
   setTimeout(() => preloader?.parentNode && preloader.remove(), 15000);
 });
 
+// Glitch
 function startGlobalGlitches() {
   const app = document.getElementById('app');
   function triggerGlitch() {
