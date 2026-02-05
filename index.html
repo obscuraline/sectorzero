@@ -981,30 +981,28 @@ function updateMap() {
 function updateNoZonesPlaceholder() {
   const noZonesEl = document.getElementById('info-no-zones');
   const placeholder = document.getElementById('info-placeholder');
-  const passwordInputVisible = 
-    document.getElementById('password-input')?.style.display === 'block' ||
-    document.querySelector('.modal-password')?.style.display === 'flex';
+  
+  // Показываем заглушку "спячки" ТОЛЬКО если:
+  // - нет ни одной открытой зоны
+  // - ничего не выбрано (нет active-зоны)
+  // - не показывается ввод пароля
+  const passwordInputVisible = document.getElementById('password-input').style.display === 'block' ||
+                               document.querySelector('.modal-password')?.style.display === 'flex';
 
-  // 1. Логика для "нет ни одной открытой зоны и ничего не выбрано"
   if (openedZones.length === 0 && !activeZone && !passwordInputVisible && readyStage === 0) {
     placeholder.style.display = 'none';
     document.getElementById('info-image-fixed').style.display = 'none';
     document.getElementById('info-text-fixed').style.display = 'none';
     noZonesEl.style.display = 'flex';
-    return;
-  }
-
-  // 2. Скрываем специальную заглушку спячки
-  noZonesEl.style.display = 'none';
-
-  // 3. Обычное состояние: когда НИЧЕГО не выбрано и НЕ показывается ввод пароля
-  if (!activeZone && !passwordInputVisible) {
-    placeholder.style.display = 'flex';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
   } else {
-    // Если что-то выбрано или ввод пароля виден — placeholder прячем
-    placeholder.style.display = 'none';
+    noZonesEl.style.display = 'none';
+    
+    // Если ничего не выбрано и нет ввода пароля → обычный placeholder
+    if (!activeZone && !passwordInputVisible) {
+      placeholder.style.display = 'flex';
+      document.getElementById('info-image-fixed').style.display = 'none';
+      document.getElementById('info-text-fixed').style.display = 'none';
+    }
   }
 }
 
@@ -1129,14 +1127,8 @@ function clearInfo(isHover = false) {
     activeZone?.classList.remove('active');
     activeZone = null;
   }
-  if (!activeZone) {
-    document.getElementById('info-placeholder').style.display = 'flex';
-    document.getElementById('info-image-fixed').style.display = 'none';
-    document.getElementById('info-text-fixed').style.display = 'none';
-  }
-
-  hidePasswordPrompts();
-  updateNoZonesPlaceholder();  // ← уже есть, но для надёжности
+  hidePasswordPrompts();   // ← добавь эту строку
+  updateNoZonesPlaceholder();
 }
 
 // Обработка зон
@@ -1167,7 +1159,6 @@ z.addEventListener('click', () => {
     activeZone = null;
     clearInfo(false);
     hidePasswordPrompts();
-    updateNoZonesPlaceholder();  // ← добавь здесь
     return;
   }
 
@@ -1294,7 +1285,6 @@ function hidePasswordPrompts() {
     document.getElementById('info-image-fixed').style.display = 'none';
     document.getElementById('info-text-fixed').style.display = 'none';
   }
-  updateNoZonesPlaceholder();  // ← добавь
 }
 
 // Функция открытия зоны
@@ -1467,4 +1457,3 @@ function startGlobalGlitches() {
   
 </body>
 </html>
-
