@@ -1153,7 +1153,7 @@ z.addEventListener('click', () => {
 
   const zoneNum = +z.dataset.zone;
 
-  // Повторный клик по активной зоне → снимаем всё
+  // Повторный клик по текущей активной зоне → toggle off
   if (activeZone === z) {
     activeZone.classList.remove('active');
     activeZone = null;
@@ -1162,28 +1162,33 @@ z.addEventListener('click', () => {
     return;
   }
 
-  // Снимаем выделение с предыдущей зоны
+  // Снимаем предыдущее выделение и очищаем панель
   if (activeZone) {
     activeZone.classList.remove('active');
-    clearInfo(false);
   }
+  clearInfo(false);           // ← всегда очищаем перед любым новым действием
+  hidePasswordPrompts();
 
-  // Устанавливаем новую зону активной (визуально)
+  // Теперь устанавливаем новую зону активной
   activeZone = z;
   z.classList.add('active');
 
+  // Логика в зависимости от состояния зоны
   if (openedZones.includes(zoneNum)) {
-    // Уже открыта → показываем инфо
+    // Открыта → показываем информацию
     showInfo(zoneNum, false);
   } else if (z.classList.contains('ready')) {
-    // Готова по дате → проверяем последовательность
     if (isPreviousZonesOpened(zoneNum)) {
-      // Можно активировать → показываем ввод ключа
+      // Можно активировать → поле ввода ключа
       showPasswordPrompt(zoneNum);
     } else {
-      // Заблокирована последовательностью → показываем сообщение
+      // Заблокирована последовательностью → принудительно показываем сообщение
       showSequentialLockMessage(zoneNum);
     }
+  } else {
+    // На всякий случай: если зона ни ready, ни opened, ни locked — ничего
+    activeZone = null;
+    z.classList.remove('active');
   }
 });
 
@@ -1325,6 +1330,17 @@ function isPreviousZonesOpened(zoneNum) {
 }
 
 function showSequentialLockMessage(zoneNum) {
+  // Принудительная очистка перед показом
+  document.getElementById('i-title').textContent = '';
+  document.getElementById('i-class').textContent = '';
+  document.getElementById('i-status').textContent = '';
+  document.getElementById('i-desc').textContent = '';
+  document.getElementById('info-image-fixed').innerHTML = '';
+  
+  hidePasswordPrompts();
+  document.getElementById('info-image-fixed').style.display = 'none';
+  document.getElementById('info-text-fixed').style.display = 'none';
+  document.getElementById('info-placeholder').style.display = 'none';
   // Полностью очищаем панель перед показом сообщения
   hidePasswordPrompts();
   document.getElementById('info-image-fixed').style.display = 'none';
@@ -1457,3 +1473,4 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
