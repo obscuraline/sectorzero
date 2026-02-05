@@ -1024,10 +1024,6 @@ function updateNoZonesPlaceholder() {
   }
 }
 
-if (isMobilePortrait && openedZones.length === 0 && readyStage === 0) {
-  document.getElementById('mobile-lock-overlay').style.display = 'flex';
-}
-
 // Инициализация
 updateMap();
 updateNoZonesPlaceholder();
@@ -1265,15 +1261,27 @@ function showSequentialLockMessage(zoneNum) {
   `;
 }
 
-// Мобильный
 document.addEventListener('DOMContentLoaded', () => {
   const mapImage = document.querySelector('#map-wrapper image');
-  if (window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches) {
+  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+
+  if (isMobilePortrait) {
     mapImage.setAttribute('href', 'assets/maps/open_0_6_v2.png');
+
+    // Предупреждение при 0 открытых зон и до первой даты
+    if (openedZones.length === 0 && readyStage === 0) {
+      const overlay = document.getElementById('mobile-lock-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+      }
+    }
   }
+
+  // Закрытие модального окна (твой код)
   document.querySelector('.close-btn')?.addEventListener('click', () => {
     document.getElementById('zone-modal').close();
   });
+
   document.getElementById('zone-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('zone-modal')) {
       document.getElementById('zone-modal').close();
