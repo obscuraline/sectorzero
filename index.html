@@ -762,45 +762,65 @@ h2 {
     outline: none;
     box-shadow: none;
   }
-}
 
-/* Для мобильного попапа */
-.modal-password {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 1em;
-}
+  /* Для мобильного попапа */
+  .modal-password {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1em;
+  }
 
-.modal-password input {
-  background: #200;
-  border: 1px solid #600;
-  color: #c00;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.2em;
-  text-align: center;
-  width: 80%;
-  padding: 0.5em;
-}
+  .modal-password input {
+    background: #200;
+    border: 1px solid #600;
+    color: #c00;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.2em;
+    text-align: center;
+    width: 80%;
+    padding: 0.5em;
+  }
 
-.modal-password button {
-  background: #400;
-  border: 1px solid #800;
-  color: #f00;
-  padding: 0.5em 1em;
-  margin-top: 0.5em;
-}
+  .modal-password button {
+    background: #400;
+    border: 1px solid #800;
+    color: #f00;
+    padding: 0.5em 1em;
+    margin-top: 0.5em;
+  }
 
-.modal-password .error {
-  display: block !important;  /* на всякий случай */
-  color: #f00;
-  font-size: 0.9em;
-  margin-top: 0.5em;
-}
+  .modal-password .error {
+    display: block !important;  /* на всякий случай */
+    color: #f00;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+  }
 
-/* Для мобильного — тоже по умолчанию скрыто */
-.modal-password {
-  display: none !important;
+  /* Для мобильного — тоже по умолчанию скрыто */
+  .modal-password {
+    display: none !important;
+  }
+
+  .mobile-lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    color: #c00;
+    text-align: center;
+    padding: 2em;
+  }
+  .mobile-lock-overlay h2 {
+    font-size: 1.8em;
+    margin-bottom: 1em;
+  }
+  .mobile-lock-overlay p {
+    font-size: 1.2em;
+  }
 }
   
 /* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
@@ -861,6 +881,13 @@ h2 {
             <polygon class="zone" data-zone="6" points="1355,947 1355,851 1253,930 1252,953 1182,953 1181,986 1096,986 1096,1040 983,1044 982,1083 898,1086 897,1141 954,1141 954,1187 1117,1187 1119,1147 1227,1147.5 1229,1219 1492,1220 1492,1256 1585,1254 1587,1298 1867,1305 1866,1259 1951,1257 1948,1195 1942,1194 1939,1166 1950,1164 1948,1133 1976,1126 1977,1117 1971,1112 1964,1082 1961,1002 1939,964 1933,965 1927,961 1921,966 1855,916 1760,894 1757,886 1748,883 1748,852 1716,852 1715,889 1601,889 1602,906 1475,911 1474,934 1438,933 1438,945 1355,947"></polygon>
 
         </svg>
+      </div>
+
+      <div id="mobile-lock-overlay" class="mobile-lock-overlay" style="display: none;">
+        <div class="lock-content">
+          <h2>СИСТЕМА НЕ АКТИВИРОВАНА</h2>
+          <p>Первая зона станет доступена 09.02.2026</p>
+        </div>
       </div>
     </div>
 
@@ -995,6 +1022,10 @@ function updateNoZonesPlaceholder() {
       placeholder.style.display = 'none';
     }
   }
+}
+
+if (isMobilePortrait && openedZones.length === 0 && readyStage === 0) {
+  document.getElementById('mobile-lock-overlay').style.display = 'flex';
 }
 
 // Инициализация
@@ -1315,3 +1346,4 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
