@@ -8,21 +8,30 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
 
+:root {
+  --bg:            #000000;
+  --text-light:    #fcfee6;
+  --text-muted:    #616356;
+  --accent-red:    #4f0000;
+  --border:        #4f0000;
+  --panel-bg:      rgba(0,0,0,0.88);
+  --glow:          rgba(79,0,0,0.35);
+  --scanline:      rgba(79,0,0,0.08);
+}
+
 html, body, #info-panel, h2, .description, .meta-line {
   font-family: 'IBM Plex Mono', monospace;
 }
-
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  background: #000;
-  color: #c00;
+  background: var(--bg);
+  color: var(--text-light);
   overflow: hidden;
   image-rendering: pixelated;
 }
-
 #app {
   width: 100%;
   height: 100%;
@@ -31,10 +40,9 @@ html, body {
   padding: 2.2vh 2.8vw;
   box-sizing: border-box;
   position: relative;
-  background: #000;                      /* убрали общий градиент с #app */
+  background: var(--bg);
 }
-
-/* scanlines оставляем на весь экран (или можно тоже перенести на #map-container) */
+/* scanlines */
 #app::before {
   content: "";
   position: fixed;
@@ -43,17 +51,16 @@ html, body {
   background: repeating-linear-gradient(
     to bottom,
     transparent 0 2px,
-    rgba(160,0,0,0.035) 2px,
-    rgba(160,0,0,0.035) 4px
+    var(--scanline) 2px,
+    var(--scanline) 4px
   );
   z-index: 5;
   animation: scan 80s linear infinite;
+  opacity: 0.7;
 }
-
 @keyframes scan {
   to { background-position: 0 120px; }
 }
-
 #content {
   flex: 1;
   display: flex;
@@ -62,18 +69,15 @@ html, body {
   position: relative;
   z-index: 3;
 }
-
 /* vignette ТОЛЬКО на карту */
 #map-container {
   flex: 75;
   position: relative;
-  background: rgba(6,0,0,0.78);
-  border: 1px solid #400;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
   overflow: hidden;
-  box-shadow: inset 0 0 50px rgba(100,0,0,0.35);
-  /* добавляем vignette */
+  box-shadow: inset 0 0 50px var(--glow);
 }
-
 #map-wrapper {
   position: absolute;
   inset: 0;
@@ -81,50 +85,45 @@ html, body {
   align-items: center;
   justify-content: center;
 }
-
 #map-wrapper svg {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: brightness(0.92) contrast(1.06) sepia(0.08) hue-rotate(350deg);
+  filter: brightness(0.95) contrast(1.1) sepia(0.03) hue-rotate(10deg);
 }
-
 #map-container::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, transparent 45%, #000 88%);
-  z-index: 3;                            /* выше карты, но ниже оверлея если он есть */
+  background: radial-gradient(circle at 50% 50%, transparent 45%, var(--bg) 88%);
+  z-index: 3;
 }
-
-/* лёгкий красный оверлей на карту (пункт 6) */
+/* лёгкий оверлей на карту */
 #map-container::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(180,0,0,0.07) 0%, rgba(100,0,0,0.12) 100%);
+  background: linear-gradient(to bottom, rgba(79,0,0,0.05) 0%, rgba(79,0,0,0.08) 100%);
   pointer-events: none;
   mix-blend-mode: multiply;
   z-index: 2;
-}  
-
-/* Улучшаем поведение пустой панели */
+}
+/* Инфо-панель */
 #info-panel {
   flex: 25;
-  background: rgba(4,0,0,0.94);
-  border: 2px solid #500;
-  box-shadow: 0 0 28px rgba(160,0,0,0.3);
+  background: var(--panel-bg);
+  border: 2px solid var(--border);
+  box-shadow: 0 0 28px var(--glow);
   padding: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: border-color 0.4s, box-shadow 0.6s;
-  color: #c33;
+  color: var(--text-light);
 }
-
 #info-content {
   visibility: hidden;
   height: 0;
@@ -135,24 +134,21 @@ html, body {
   flex-direction: column;
   height: 100%;
 }
-
 #info-content.visible {
   visibility: visible;
   height: auto;
   opacity: 1;
   transition: opacity 0.25s ease, visibility 0s linear 0s;
 }
-
 .info-image-fixed {
-  flex: 0 0 33.33%;               /* фиксированная доля высоты */
-  background: rgba(10,0,0,0.7);
-  border-bottom: 1px solid #500;
-  display: none;                  /* скрыт по умолчанию */
+  flex: 0 0 33.33%;
+  background: rgba(0,0,0,0.8);
+  border-bottom: 1px solid var(--border);
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 1vh 1vw;
 }
-
 .no-signal {
   width: 100%;
   height: 100%;
@@ -162,175 +158,157 @@ html, body {
   justify-content: center;
   background: repeating-linear-gradient(
     45deg,
-    rgba(200,0,0,0.12),
-    rgba(200,0,0,0.12) 10px,
+    rgba(79,0,0,0.08),
+    rgba(79,0,0,0.08) 10px,
     transparent 10px,
     transparent 20px
   );
-  border: 2px solid #600;
-  color: #800;
+  border: 2px solid var(--border);
+  color: var(--text-muted);
   font-size: 1.35em;
   text-align: center;
   line-height: 1.3;
 }
-
 .no-signal small {
   font-size: 0.68em;
-  color: #700;
+  color: var(--text-muted);
   margin-top: 0.5em;
 }
-
-/* Блок с текстом — нижняя часть */
+/* Текстовая часть */
 .info-text-fixed {
-  flex: 1;                        /* забирает всё остальное пространство */
-  display: none;                  /* скрыт по умолчанию */
+  flex: 1;
+  display: none;
   padding: 1.4vh 1.6vw;
   overflow-y: auto;
   flex-direction: column;
   gap: 0.9em;
 }
-/* когда ничего не выбрано — делаем панель "пустой" визуально */
+/* Пустая панель */
 #info-panel:not(.has-selection) {
-  border-color: #500;
-  box-shadow: 0 0 16px rgba(80,0,0,0.2);
+  border-color: var(--border);
+  box-shadow: 0 0 16px rgba(79,0,0,0.15);
 }
-
 #info-panel.has-selection {
-  border-color: #c00;
-  box-shadow: 0 0 32px rgba(220,0,0,0.5), inset 0 0 40px rgba(160,0,0,0.2);
+  border-color: var(--accent-red);
+  box-shadow: 0 0 32px rgba(79,0,0,0.4), inset 0 0 40px rgba(79,0,0,0.15);
   animation: panel-pulse 6s ease-in-out infinite alternate;
 }
-
 @keyframes panel-pulse {
-  0%   { box-shadow: 0 0 24px rgba(200,0,0,0.4), inset 0 0 30px rgba(160,0,0,0.15); }
-  100% { box-shadow: 0 0 50px rgba(255,0,0,0.7), inset 0 0 55px rgba(200,0,0,0.3); }
+  0% { box-shadow: 0 0 24px rgba(79,0,0,0.3), inset 0 0 30px rgba(79,0,0,0.1); }
+  100% { box-shadow: 0 0 50px rgba(79,0,0,0.6), inset 0 0 55px rgba(79,0,0,0.25); }
 }
-
-/* Placeholder — только когда ничего не выбрано */
+/* Placeholder */
 #info-placeholder {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #600;
+  color: var(--text-muted);
   font-size: 1.3em;
   text-align: center;
   opacity: 0.75;
 }
-
-/* Скрываем placeholder для has-selection и preview-active, но НЕ весь panel */
+/* Скрываем placeholder при выборе */
 #info-panel.has-selection #info-placeholder,
 #info-panel.preview-active #info-placeholder {
   display: none !important;
 }
-
 .zone {
   fill: transparent;
   cursor: crosshair;
   transition: fill .25s, stroke .25s;
 }
 .zone.enabled:hover {
-  fill: rgba(180,0,0,0.14);
-  stroke: rgba(220,0,0,0.8);
+  fill: rgba(79,0,0,0.10);
+  stroke: var(--accent-red);
   stroke-width: 2.4;
 }
 .zone.active {
-  fill: rgba(220,0,0,0.35);
-  stroke: rgba(255,60,60,0.95);
+  fill: rgba(79,0,0,0.30);
+  stroke: var(--accent-red);
   stroke-width: 2.8;
-  filter: drop-shadow(0 0 12px #f40) drop-shadow(0 0 20px #800);
+  filter: drop-shadow(0 0 12px var(--glow)) drop-shadow(0 0 20px var(--accent-red));
 }
-
-/* типографика */
+/* Типографика */
 h2 {
-  color: #e00;                      /* чуть более тёмный красный */
-  text-shadow: none;                /* убрать glow полностью */
-  font-weight: 500;                 /* не жирный */
-  letter-spacing: 0.5px;            /* лёгкий разряд */
+  color: var(--text-light);
+  text-shadow: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 @keyframes title-flicker {
-  0%, 92%, 94%, 96%, 100% { opacity: 1; text-shadow: 0 0 6px #f00, 0 0 12px #800; }
-  93%  { opacity: 0.92; text-shadow: 1px 0 #f00, -1px 0 #00f; }
-  95%  { opacity: 0.96; text-shadow: -1px 0 #f00, 1px 0 #0f0; }
+  0%, 92%, 94%, 96%, 100% { opacity: 1; text-shadow: 0 0 6px var(--accent-red); }
+  93% { opacity: 0.92; text-shadow: 1px 0 var(--accent-red); }
+  95% { opacity: 0.96; text-shadow: -1px 0 var(--accent-red); }
 }
-
 .meta-line strong,
 .meta-line {
-  color: #c40;                      /* приглушённый оранжево-красный */
+  color: var(--text-muted);
   text-shadow: none;
 }
-  
-/* Описание может скроллиться, если очень длинное */
 .description {
   flex: 1;
   overflow-y: auto;
   margin: 0.4em 0 0 0;
   padding-top: 0.8em;
-  border-top: 1px solid #500;
+  border-top: 1px solid var(--border);
   white-space: pre-wrap;
   font-size: 1.12em;
-  color: #b22;
+  color: var(--text-muted);
   line-height: 1.45;
 }
-
 #info-empty {
-  color: #600;
+  color: var(--text-muted);
   font-size: 1.3em;
   text-align: center;
   margin: auto 0;
   opacity: 0.75;
 }
-
-/* Прелоадер (обновлённый) */
+/* Прелоадер */
 #preloader {
   position: fixed;
   inset: 0;
-  background: #000;
+  background: var(--bg);
   z-index: 9999;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #c00;
+  color: var(--text-light);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 1.5rem;
   text-align: center;
   transition: opacity 0.7s ease-out;
   pointer-events: none;
 }
-
 #preloader.hidden {
   opacity: 0;
   pointer-events: none;
 }
-
 #preloader .status {
   margin: 1.2em 0 0.8em;
   font-size: 1.1em;
   letter-spacing: 1px;
-  text-shadow: 0 0 6px #800;
+  text-shadow: 0 0 6px var(--accent-red);
   min-height: 1.4em;
   position: relative;
   display: inline-block;
 }
-
 #preloader .progress {
   width: 380px;
   max-width: 80vw;
   height: 6px;
-  background: #200;
-  border: 1px solid #400;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid var(--border);
   overflow: hidden;
   margin-top: 1.5em;
 }
-
 #preloader .bar {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #800, #f00, #c00);
+  background: linear-gradient(90deg, var(--accent-red), #4f0000);
   transition: width 0.4s ease-out;
 }
-
 .scanline {
   position: absolute;
   inset: 0;
@@ -338,23 +316,21 @@ h2 {
   background: repeating-linear-gradient(
     to bottom,
     transparent 0 3px,
-    rgba(180,0,0,0.06) 3px,
-    rgba(180,0,0,0.06) 6px
+    var(--scanline) 3px,
+    var(--scanline) 6px
   );
   animation: scan 60s linear infinite;
   opacity: 0.7;
 }
-
-/* Глитч в прелоадере — мрачный, машинный */
+/* Глитч (перекрашен в новую палитру) */
 .glitch {
   position: relative;
   display: inline-block;
   animation: glitch-mono 1.2s infinite steps(2);
 }
-
 .glitch::before,
 .glitch::after {
-  content: attr(data-text); /* нужно добавить data-text="текст" в HTML или JS */
+  content: attr(data-text);
   position: absolute;
   top: 0;
   left: 0;
@@ -362,41 +338,34 @@ h2 {
   height: 100%;
   opacity: 0.8;
 }
-
 .glitch::before {
   left: 2px;
-  text-shadow: -2px 0 #800;
-  clip: rect(0, 900px, 0, 0); /* обрезает случайные куски */
+  text-shadow: -2px 0 var(--accent-red);
+  clip: rect(0, 900px, 0, 0);
   animation: glitch-clip 3s infinite;
 }
-
 .glitch::after {
   left: -2px;
-  text-shadow: 2px 0 #400;
+  text-shadow: 2px 0 var(--accent-red);
   clip: rect(0, 900px, 0, 0);
   animation: glitch-clip 2.5s infinite reverse;
 }
-
 @keyframes glitch-mono {
   0%, 5%, 100% { transform: translate(0); }
-  2%  { transform: translate(-1.5px, 0.5px); }
-  4%  { transform: translate(1.5px, -0.5px); }
+  2% { transform: translate(-1.5px, 0.5px); }
+  4% { transform: translate(1.5px, -0.5px); }
 }
-
 @keyframes glitch-clip {
   0%    { clip: rect(42px, 9999px, 44px, 0); }
   5%    { clip: rect(17px, 9999px, 59px, 0); }
   10%   { clip: rect(63px, 9999px, 27px, 0); }
-  /* ... можно добавить больше случайных значений, но для простоты хватит */
   100%  { clip: rect(68px, 9999px, 29px, 0); }
 }
-
-/* Глобальный glitch на #app — мрачный, как сбой системы */
+/* Глобальный glitch */
 #app.glitch-global {
   animation: system-decay 0.7s steps(1);
-  filter: brightness(0.85) contrast(1.15) sepia(0.1) hue-rotate(350deg);
+  filter: brightness(0.9) contrast(1.1) sepia(0.05);
 }
-
 @keyframes system-decay {
   0%   { transform: translate(0); }
   20%  { transform: translate(3px, 1px); }
@@ -405,49 +374,42 @@ h2 {
   80%  { transform: translate(-2px, -1px); }
   100% { transform: translate(0); }
 }
-
-/* Тёмный красный шум/помехи вместо радуги */
 .glitch-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: 
-    linear-gradient(transparent 50%, rgba(200,0,0,0.04) 50%),
-    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(80,0,0,0.15) 1px, rgba(80,0,0,0.15) 2px);
+    linear-gradient(transparent 50%, var(--scanline) 50%),
+    repeating-linear-gradient(0deg, transparent, transparent 1px, var(--scanline) 1px, var(--scanline) 2px);
   mix-blend-mode: multiply;
   opacity: 0;
   animation: noise-pulse 8s infinite;
   z-index: 10;
 }
-
 #app.glitch-global .glitch-overlay {
-  opacity: 0.6;
+  opacity: 0.5;
   animation: noise-pulse 1.2s steps(4), scanline 60s linear infinite;
 }
-
 @keyframes noise-pulse {
-  0%, 100% { opacity: 0.6; }
-  50%      { opacity: 0.9; }
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.8; }
 }
-
+/* Locked и ready зоны */
 .zone.locked {
   pointer-events: none;
-  fill: rgba(30,0,0,0.12) !important;
-  stroke: rgba(60,0,0,0.5) !important;
+  fill: rgba(79,0,0,0.08) !important;
+  stroke: rgba(79,0,0,0.3) !important;
   cursor: not-allowed;
 }
-
 .zone.ready:not(.opened) {
-  fill: rgba(80,0,0,0.18);
-  stroke: rgba(100,0,0,0.6);
+  fill: rgba(97,99,86,0.12);
+  stroke: var(--accent-red);
   animation: pulse-ready 3s infinite alternate;
 }
-
 @keyframes pulse-ready {
-  0% { stroke-opacity: 0.6; }
-  100% { stroke-opacity: 0.9; }
+  0% { stroke-opacity: 0.4; }
+  100% { stroke-opacity: 0.7; }
 }
-
 .lock-overlay {
   position: absolute;
   inset: 0;
@@ -455,99 +417,86 @@ h2 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.65);
-  color: #800;
+  background: rgba(0,0,0,0.7);
+  color: var(--text-muted);
   font-size: 2.2em;
   text-align: center;
   z-index: 4;
   pointer-events: none;
-  text-shadow: 0 0 8px #400;
+  text-shadow: 0 0 8px var(--accent-red);
 }
-
 .lock-overlay .warning {
   font-size: 1.4em;
-  color: #c00;
+  color: var(--text-light);
   animation: flicker 4s infinite alternate;
 }
-
 .lock-overlay .status {
   margin-top: 0.5em;
   font-size: 0.9em;
-  color: #600;
+  color: var(--text-muted);
 }
-
-/* Input для пароля в info-panel */
+/* Input и кнопки */
 #password-input {
   display: none;
   margin: 1em auto;
   padding: 0.5em;
-  background: #200;
-  border: 1px solid #600;
-  color: #c00;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid var(--border);
+  color: var(--text-light);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 1.2em;
   text-align: center;
   width: 80%;
 }
-
 #password-submit {
-  background: #400;
-  border: 1px solid #800;
-  color: #f00;
+  background: rgba(79,0,0,0.6);
+  border: 1px solid var(--accent-red);
+  color: var(--text-light);
   padding: 0.5em;
   margin-top: 0.5em;
   cursor: pointer;
 }
-
 #password-error {
-  display: block !important;  /* на всякий случай */
-  color: #f00;
+  display: block !important;
+  color: #a00000;
   font-size: 0.9em;
   margin-top: 0.5em;
 }
-
-#password-input,
-#password-submit {
-  display: none;
-}
-
 #info-no-zones {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #600;
+  color: var(--text-muted);
   font-size: 1.35em;
   text-align: center;
   line-height: 1.4;
   padding: 1em;
   opacity: 0.9;
 }
-
 #info-no-zones strong {
-  color: #c00;
+  color: var(--text-light);
   font-size: 1.1em;
 }
-
 #info-no-zones small {
   margin-top: 1em;
   font-size: 0.75em;
-  color: #400;
+  color: var(--accent-red);
 }
-
+/* Flicker */
 @keyframes flicker {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.4; }
 }
 
+/* Мобильные медиа-запросы (перекрашены) */
 @media (max-width: 1024px) and (orientation: portrait) {
   #app, #content, body, html {
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-
   #map-container {
     width: 100vw;
     height: 100vh;
@@ -555,9 +504,8 @@ h2 {
     padding: 0;
     overflow: hidden;
     position: relative;
-    background: #000;
+    background: var(--bg);
   }
-
   #map-wrapper {
     position: absolute;
     top: 0;
@@ -568,7 +516,6 @@ h2 {
     transform: rotate(90deg) translateY(-100%);
     z-index: 1;
   }
-
   #map-wrapper svg {
     width: 100%;
     height: 100%;
@@ -579,8 +526,6 @@ h2 {
     position: relative;
     z-index: 1;
   }
-
-  /* Скрываем всё лишнее */
   #info-panel,
   #app::before,
   #map-container::before,
@@ -588,61 +533,39 @@ h2 {
   #content > *:not(#map-container) {
     display: none !important;
   }
-
-  /* Статичная подсветка при выборе (остаётся всегда) */
   .zone.enabled:hover {
-    fill: rgba(180,0,0,0.14);
-    stroke: rgba(220,0,0,0.8);
+    fill: rgba(79,0,0,0.12);
+    stroke: var(--accent-red);
     stroke-width: 4;
   }
-
   .zone.active {
-    fill: rgba(220,0,0,0.35);
-    stroke: rgba(255,60,60,0.95);
+    fill: rgba(79,0,0,0.30);
+    stroke: var(--accent-red);
     stroke-width: 5.5;
-    filter: drop-shadow(0 0 10px #f40);
+    filter: drop-shadow(0 0 10px var(--glow));
   }
-
-  /* Пульсация для привлечения внимания в начале */
   @keyframes pulseZone {
-    0%, 100% {
-      fill: transparent;
-      stroke: rgba(255, 60, 60, 0.7);
-      stroke-width: 0;
-    }
-    50% {
-      fill: rgba(255, 60, 60, 0.18);
-      stroke: #ff4040;
-      stroke-width: 3;
-    }
+    0%, 100% { fill: transparent; stroke: rgba(79,0,0,0.6); stroke-width: 0; }
+    50%      { fill: rgba(79,0,0,0.15); stroke: var(--accent-red); stroke-width: 3; }
   }
-
   .zone.enabled {
     animation: pulseZone 4.2s infinite ease-in-out;
   }
-
-  /* Задержки поочерёдные */
   .zone.enabled[data-zone="1"] { animation-delay: 0s; }
   .zone.enabled[data-zone="2"] { animation-delay: 0.7s; }
   .zone.enabled[data-zone="3"] { animation-delay: 1.4s; }
   .zone.enabled[data-zone="4"] { animation-delay: 2.1s; }
   .zone.enabled[data-zone="5"] { animation-delay: 2.8s; }
   .zone.enabled[data-zone="6"] { animation-delay: 3.5s; }
-
-  /* После первого касания — отключаем ТОЛЬКО пульсацию */
   #map-container.touched .zone.enabled {
     animation: none !important;
   }
-
-  /* Активная зона остаётся подсвеченной даже после .touched */
   #map-container.touched .zone.active {
-    fill: rgba(220,0,0,0.35) !important;
-    stroke: rgba(255,60,60,0.95) !important;
+    fill: rgba(79,0,0,0.30) !important;
+    stroke: var(--accent-red) !important;
     stroke-width: 5.5 !important;
-    filter: drop-shadow(0 0 10px #f40) !important;
+    filter: drop-shadow(0 0 10px var(--glow)) !important;
   }
-
-  /* Модальное окно */
   .zone-modal {
     margin: 0;
     padding: 0;
@@ -652,34 +575,33 @@ h2 {
     max-height: 100%;
     border: none;
     background: transparent;
-    color: #c00;
+    color: var(--text-light);
     font-family: 'IBM Plex Mono', monospace;
   }
-
   .zone-modal::backdrop {
-    background: rgba(0,0,0,0.85);           /* сильное затемнение фона */
-    backdrop-filter: blur(4px);             /* размытие карты под попапом */
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(6px);
   }
-
   .modal-content {
     position: relative;
     width: 100%;
     height: 100%;
-    background: rgba(10,0,0,0.92);
-    border: 2px solid #500;
+    background: var(--panel-bg);
+    border: 2px solid var(--border);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    justify-content: center;
+    align-items: center;
   }
-
   .close-btn {
     position: absolute;
     top: 12px;
     right: 16px;
     background: transparent;
     border: none;
-    color: #c00;
+    color: var(--accent-red);
     font-size: 2.8rem;
     font-weight: bold;
     cursor: pointer;
@@ -687,153 +609,97 @@ h2 {
     line-height: 1;
     z-index: 10;
   }
-
   .close-btn:hover,
   .close-btn:focus {
-    color: #ff4040;
-    text-shadow: 0 0 8px #f40;
+    color: var(--text-light);
+    text-shadow: 0 0 8px var(--accent-red);
   }
-
   .modal-image {
-    flex: 0 0 40%;                        /* или 35-45% под твои картинки */
-    background: rgba(0,0,0,0.6);
+    flex: 0 0 40%;
+    background: rgba(0,0,0,0.7);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
   }
-
   .modal-image img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border: 1px solid #600;
-    box-shadow: 0 0 16px rgba(200,0,0,0.3);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 16px var(--glow);
   }
-
   .modal-text {
     flex: 1;
     padding: 20px 24px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    text-align: center;
   }
-
   .modal-text h2 {
     margin: 0 0 12px;
     font-size: 1.8rem;
-    color: #e00;
+    color: var(--text-light);
   }
-
   .meta {
     margin: 8px 0;
     font-size: 1.1rem;
-    color: #c40;
+    color: var(--text-muted);
   }
-
   .modal-text p {
     margin: 16px 0 0;
     line-height: 1.5;
     font-size: 1.05rem;
-    color: #b22;
+    color: var(--text-muted);
     white-space: pre-wrap;
   }
-
   .zone-modal[open] .modal-content {
     animation: fadeIn 0.4s ease;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.92); }
-    to   { opacity: 1; transform: scale(1); }
+    to { opacity: 1; transform: scale(1); }
   }
-
-  .close-btn {
-    outline: none;                    /* убираем стандартный outline */
-    box-shadow: none;                 /* на случай, если браузер использует shadow вместо outline */
-  }
-
-  /* Для клавиатурной навигации оставляем видимый фокус (accessibility) */
-  .close-btn:focus-visible {
-    outline: 2px solid #ff4040;       /* красный контур только при tab/стрелках */
-    outline-offset: 2px;
-  }
-
-  /* Если хочешь полностью убрать фокус даже для клавиатуры (не рекомендуется, но если настаиваешь) */
-  .close-btn:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  /* Для мобильного попапа */
   .modal-password {
     display: none;
     flex-direction: column;
     align-items: center;
     margin-top: 1em;
+    width: 80%;
   }
-
   .modal-password input {
-    background: #200;
-    border: 1px solid #600;
-    color: #c00;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid var(--border);
+    color: var(--text-light);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 1.2em;
     text-align: center;
-    width: 80%;
+    width: 100%;
     padding: 0.5em;
   }
-
   .modal-password button {
-    background: #400;
-    border: 1px solid #800;
-    color: #f00;
+    background: rgba(79,0,0,0.6);
+    border: 1px solid var(--accent-red);
+    color: var(--text-light);
     padding: 0.5em 1em;
     margin-top: 0.5em;
   }
-
   .modal-password .error {
-    display: block !important;  /* на всякий случай */
-    color: #f00;
+    color: #a00000;
     font-size: 0.9em;
     margin-top: 0.5em;
   }
-
-  /* Для мобильного — тоже по умолчанию скрыто */
-  .modal-password {
-    display: none !important;
-  }
-
-  .mobile-lock-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    color: #c00;
-    text-align: center;
-    padding: 2em;
-  }
-  .mobile-lock-overlay h2 {
-    font-size: 1.8em;
-    margin-bottom: 1em;
-  }
-  .mobile-lock-overlay p {
-    font-size: 1.2em;
-  }
 }
-  
-/* Опционально: ландшафт на мобильных — без поворота, карта на весь экран */
+ 
+/* Ландшафт на мобильных */
 @media (max-width: 1024px) and (orientation: landscape) {
   #map-container {
     width: 100%;
     height: 100%;
   }
-
   #map-wrapper {
     transform: none;
   }
-
   #map-wrapper svg {
     width: 100%;
     height: 100%;
@@ -841,13 +707,10 @@ h2 {
     max-height: 100%;
     object-fit: contain;
   }
-
-  /* Пока тоже скрываем инфо-панель, если нужно */
   #info-panel {
     display: none;
   }
 }
-  
 </style>
 </head>
 <body>
