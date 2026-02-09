@@ -1164,55 +1164,54 @@ document.querySelectorAll('.zone').forEach(z => {
   }
 
   z.addEventListener('click', () => {
-    if (z.classList.contains('locked')) return;
+  if (z.classList.contains('locked')) return;
 
-    const zoneNum = +z.dataset.zone;
-    const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+  const zoneNum = +z.dataset.zone;
 
-    // Повторный клик → снимаем выделение
-    if (activeZone === z) {
-      z.classList.remove('active');
-      activeZone = null;
-      clearInfo(false);
-      return;
+  // Повторный клик → снимаем выделение
+  if (activeZone === z) {
+    activeZone.classList.remove('active');
+    activeZone = null;
+    clearInfo(false);
+    return;
+  }
+
+  // Снимаем старую активную
+  if (activeZone) {
+    activeZone.classList.remove('active');
+    clearInfo(false);
+  }
+
+  // Делаем текущую активной
+  activeZone = z;
+  z.classList.add('active');
+
+  // Для ВСЕХ режимов (ПК + мобильный landscape) используем showInfo
+  // Только для портрета используем модалку
+  const isMobilePortrait = window.matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+
+  if (openedZones.includes(zoneNum)) {
+    if (isMobilePortrait) {
+      openZoneModal(zoneNum);  // модалка для портрета
+    } else {
+      showInfo(zoneNum, false);  // ПК + landscape = обычная панель
     }
-
-    // Снимаем старую активную зону
-    if (activeZone) {
-      activeZone.classList.remove('active');
-      clearInfo(false);
-    }
-
-    // Делаем текущую активной
-    activeZone = z;
-    z.classList.add('active');
-
-    if (openedZones.includes(zoneNum)) {
-      // Открытая зона → показываем информацию
+  } else if (z.classList.contains('ready')) {
+    if (isPreviousZonesOpened(zoneNum)) {
       if (isMobilePortrait) {
-        openZoneModal(zoneNum);          // ← используем новую функцию
+        showMobilePasswordModal(zoneNum);
       } else {
-        showInfo(zoneNum, false);
+        showPasswordPrompt(zoneNum);
       }
-    } else if (z.classList.contains('ready')) {
-      // Готова по дате
-      if (isPreviousZonesOpened(zoneNum)) {
-        // Можно активировать
-        if (isMobilePortrait) {
-          showMobilePasswordModal(zoneNum);  // ← из предыдущего сообщения
-        } else {
-          showPasswordPrompt(zoneNum);
-        }
+    } else {
+      if (isMobilePortrait) {
+        showMobileSequentialWarning(zoneNum);
       } else {
-        // Заблокирована последовательностью
-        if (isMobilePortrait) {
-          showMobileSequentialWarning(zoneNum);  // ← из предыдущего сообщения
-        } else {
-          showSequentialLockMessage(zoneNum);
-        }
+        showSequentialLockMessage(zoneNum);
       }
     }
-  });
+  }
+});
 
   // Hover (только открытые зоны)
   z.addEventListener('mouseenter', () => {
@@ -1446,6 +1445,7 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
 
