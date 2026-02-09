@@ -1062,13 +1062,26 @@ function typeText(el, text) {
 // showInfo
 function showInfo(zoneId, isHover = false) {
   hidePasswordPrompts();
+
+  const descEl = document.getElementById('i-desc');
+  
+  // Принудительно делаем элемент видимым перед печатью
+  descEl.style.display = 'block';
+  descEl.style.visibility = 'visible';
+  descEl.style.height = 'auto';
+  descEl.style.opacity = '1';
+
   const d = data[zoneId];
   if (!d) return;
+
   document.getElementById('i-title').textContent = d.title;
   document.getElementById('i-class').textContent = d.class;
   document.getElementById('i-status').textContent = d.status;
-  document.getElementById('i-desc').textContent = '';
-  typeText(document.getElementById('i-desc'), d.desc);
+  descEl.textContent = ''; // очищаем перед печатью
+
+  // Запускаем печать
+  typeText(descEl, d.desc);
+
   const imageBlock = document.getElementById('info-image-fixed');
   imageBlock.innerHTML = '';
   const img = document.createElement('img');
@@ -1079,9 +1092,11 @@ function showInfo(zoneId, isHover = false) {
   img.style.objectFit = 'cover';
   img.style.border = '2px solid #600';
   imageBlock.appendChild(img);
+
   document.getElementById('info-placeholder').style.display = 'none';
   document.getElementById('info-image-fixed').style.display = 'flex';
   document.getElementById('info-text-fixed').style.display = 'flex';
+
   if (isHover) {
     document.getElementById('info-panel').classList.add('preview-active');
   } else {
@@ -1446,5 +1461,6 @@ function startGlobalGlitches() {
   
 </body>
 </html>
+
 
 
